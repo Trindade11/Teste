@@ -22,7 +22,34 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 The text the user typed after `/speckit.specify` in the triggering message **is** the feature description. Assume you always have it available in this conversation even if `$ARGUMENTS` appears literally below. Do not ask the user to repeat it unless they provided an empty command.
 
-Given that feature description, do this:
+### Step 0: Check Triage Backlog (ALWAYS DO THIS FIRST)
+
+1. Read `.specify/triage/triage_specification.md`
+2. Find all entries with `Status: pending`
+3. If pending entries exist AND user input is empty:
+   - Present the pending entries to the user
+   - Ask which entry to process (or process all in sequence)
+4. If user input is provided:
+   - Process the user input as usual
+   - Check if it matches any pending entry (by similarity)
+   - If match found, mark that entry as being processed
+5. After successfully creating a specification, update the backlog entry:
+   ```markdown
+   - **Status**: absorbed
+   - **Absorbed by**: speckit.specify
+   - **Absorbed at**: [YYYY-MM-DD HH:MM]
+   - **Output ref**: specs/[###-feature-name]/spec.md
+   ```
+6. Update `.specify/triage/triage_log.json`:
+   - Find the entry by ID
+   - Set `"status": "absorbed"`
+   - Set `"absorbed_by": "speckit.specify"`
+   - Set `"absorbed_at": "[ISO timestamp]"`
+   - Set `"output_ref": "specs/[###-feature-name]/spec.md"`
+
+---
+
+Given that feature description (from user input or backlog), do this:
 
 1. **Generate a concise short name** (2-4 words) for the branch:
    - Analyze the feature description and extract the most meaningful keywords

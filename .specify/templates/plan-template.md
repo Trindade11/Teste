@@ -12,27 +12,27 @@
 ## System Interaction Diagram (Technical View) *(mandatory)*
 
 <!--
-  IMPORTANTE: Este diagrama mostra a arquitetura técnica e interações entre componentes.
-  Inclua: serviços, bancos de dados, APIs, agentes, filas, etc.
-  Use sequenceDiagram para mostrar o fluxo de chamadas.
+  IMPORTANT: This diagram shows technical architecture and component interactions.
+  Include: services, databases, APIs, agents, queues, etc.
+  Use sequenceDiagram to show call flows.
 -->
 
 ```mermaid
 sequenceDiagram
-  participant User as Usuário/Cliente
+  participant User as User/Client
   participant Frontend as Frontend/UI
   participant Backend as Backend/API
   participant DB as Database
-  participant External as Serviços Externos
+  participant External as External Services
   
-  %% Preencha com as interações reais do sistema
-  %% Exemplo:
-  %% User->>Frontend: Ação do usuário
+  %% Fill with actual system interactions
+  %% Example:
+  %% User->>Frontend: User action
   %% Frontend->>Backend: POST /api/resource
   %% Backend->>DB: Query/Insert
   %% DB-->>Backend: Result
   %% Backend-->>Frontend: Response JSON
-  %% Frontend-->>User: Feedback visual
+  %% Frontend-->>User: Visual feedback
 ```
 
 ### Component Architecture
@@ -60,7 +60,7 @@ flowchart TB
     Ext2[External Service 2]
   end
   
-  %% Preencha com as conexões reais
+  %% Fill with actual connections
   %% UI --> API
   %% API --> Services
   %% Services --> Data
@@ -69,9 +69,9 @@ flowchart TB
 
 ### Message Contracts (if multi-component)
 
-| De | Para | Método/Evento | Payload | Resposta |
-|----|------|---------------|---------|----------|
-| [Componente A] | [Componente B] | [POST /endpoint ou Event] | `{ campo1, campo2 }` | `{ resultado }` |
+| From | To | Method/Event | Payload | Response |
+|------|-----|--------------|---------|----------|
+| [Component A] | [Component B] | [POST /endpoint or Event] | `{ field1, field2 }` | `{ result }` |
 
 ---
 
@@ -172,18 +172,18 @@ directories captured above]
 ## Agent/Component Interaction (Technical) *(include if multi-agent)*
 
 <!--
-  Se o sistema usa múltiplos agentes ou componentes que interagem,
-  documente os contratos técnicos aqui.
+  If the system uses multiple agents or components that interact,
+  document technical contracts here.
 -->
 
 ```mermaid
 sequenceDiagram
   participant Orchestrator
-  participant Agent1 as Agente Especialista 1
-  participant Agent2 as Agente Especialista 2
+  participant Agent1 as Specialist Agent 1
+  participant Agent2 as Specialist Agent 2
   participant Store as Data Store
   
-  %% Exemplo de interação técnica entre agentes:
+  %% Example of technical interaction between agents:
   %% Orchestrator->>Agent1: JSON { query, context }
   %% Agent1->>Store: POST /data
   %% Store-->>Agent1: { result }
@@ -192,6 +192,6 @@ sequenceDiagram
 
 ### Agent Contracts
 
-| Agente | Input Schema | Output Schema | Side Effects |
-|--------|--------------|---------------|--------------|
-| [Nome do Agente] | `{ campo1: tipo, campo2: tipo }` | `{ resultado: tipo }` | [Logs, DB writes, etc.] |
+| Agent | Input Schema | Output Schema | Side Effects |
+|-------|--------------|---------------|--------------|
+| [Agent Name] | `{ field1: type, field2: type }` | `{ result: type }` | [Logs, DB writes, etc.] |

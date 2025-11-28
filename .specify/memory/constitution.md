@@ -6,89 +6,106 @@
 
 ### I. Visual Modeling First
 
-Toda especificação e plano deve incluir diagramas visuais (Mermaid) para:
-- Facilitar o entendimento por todos os stakeholders
-- Identificar gaps, riscos e oportunidades antes da implementação
-- Servir como documentação viva do sistema
+All specifications and plans must include visual diagrams (Mermaid) to:
+- Facilitate understanding by all stakeholders
+- Identify gaps, risks, and opportunities before implementation
+- Serve as living documentation of the system
 
-**Regras**:
-- Specification: deve incluir fluxo de processo/jornada do usuário
-- Plan: deve incluir diagrama de arquitetura técnica e interações
-- Fluxos entre agentes/componentes devem ser explicitamente mapeados
+**Rules**:
+- Specification: must include process flow/user journey diagram
+- Plan: must include technical architecture diagram and interactions
+- Flows between agents/components must be explicitly mapped
 
 ### II. User-Centric Communication
 
-O usuário principal pode não ser desenvolvedor. Toda comunicação deve:
-- Usar linguagem clara e acessível
-- Explicar o propósito de cada ação/comando
-- Evitar jargão técnico desnecessário sem explicação
-- Fornecer passos completos e comandos prontos para executar
+The primary user may not be a developer. All communication must:
+- Use clear and accessible language
+- Explain the purpose of each action/command
+- Avoid unnecessary technical jargon without explanation
+- Provide complete steps and ready-to-execute commands
 
 ### III. Established Components Only
 
-Preferir componentes, bibliotecas e padrões amplamente adotados:
-- Usar drivers/SDKs oficiais sempre que disponíveis
-- Evitar bibliotecas experimentais ou pouco mantidas
-- Justificar explicitamente qualquer escolha fora do mainstream
-- Priorizar soluções com documentação abundante e comunidade ativa
+Prefer widely adopted components, libraries, and patterns:
+- Use official drivers/SDKs whenever available
+- Avoid experimental or poorly maintained libraries
+- Explicitly justify any choice outside the mainstream
+- Prioritize solutions with abundant documentation and active community
 
 ### IV. Stack Consistency
 
-A stack tecnológica definida no Plan deve ser respeitada em toda implementação:
-- Não sugerir tecnologias alternativas sem solicitação explícita
-- Manter consistência com dependências já configuradas no projeto
-- Respeitar configurações de ambiente (.env, MCP, etc.) já existentes
+The technology stack defined in the Plan must be respected throughout implementation:
+- Do not suggest alternative technologies without explicit request
+- Maintain consistency with dependencies already configured in the project
+- Respect existing environment configurations (.env, MCP, etc.)
 
 ### V. Test-First Development
 
-Testes são parte integral do desenvolvimento:
-- Testes devem ser escritos/planejados antes da implementação
-- Cada requisito funcional deve ter critério de aceitação testável
-- Cobertura de testes deve ser considerada desde a especificação
+Tests are an integral part of development:
+- Tests must be written/planned before implementation
+- Each functional requirement must have testable acceptance criteria
+- Test coverage must be considered from the specification phase
 
 ### VI. Simplicity & YAGNI
 
-Começar simples e adicionar complexidade apenas quando necessário:
-- Evitar over-engineering e abstrações prematuras
-- Implementar apenas o que foi especificado
-- Refatorar quando a complexidade se justificar, não antes
+Start simple and add complexity only when necessary:
+- Avoid over-engineering and premature abstractions
+- Implement only what was specified
+- Refactor when complexity is justified, not before
 
 ### VII. Traceability & Auditability
 
-Todo artefato deve ser rastreável:
-- Especificações vinculadas a features
-- Planos vinculados a especificações
-- Tarefas vinculadas a planos
-- Mudanças documentadas com motivo e data
+All artifacts must be traceable:
+- Specifications linked to features
+- Plans linked to specifications
+- Tasks linked to plans
+- Changes documented with reason and date
+
+### VIII. Iterative Completeness ("Need Another Round?")
+
+At the end of EVERY phase, deliverable, or significant output, always ask:
+
+```
+🔄 Need another round?
+- What's missing?
+- What needs clarification?
+- What should be added?
+```
+
+**Rules**:
+- This question is MANDATORY before closing any phase
+- User must explicitly confirm completion or request additions
+- Never assume the output is complete without validation
+- Iterate until user confirms satisfaction
 
 ## Quality Gates
 
 ### Gate 1: Specification Ready
 
-- [ ] Fluxo de processo visualizado em Mermaid
-- [ ] User stories priorizadas e independentemente testáveis
-- [ ] Requisitos funcionais claros e sem ambiguidade
-- [ ] Critérios de sucesso mensuráveis e technology-agnostic
-- [ ] Máximo 3 itens marcados como [NEEDS CLARIFICATION]
+- [ ] Process flow visualized in Mermaid
+- [ ] User stories prioritized and independently testable
+- [ ] Functional requirements clear and unambiguous
+- [ ] Success criteria measurable and technology-agnostic
+- [ ] Maximum 3 items marked as [NEEDS CLARIFICATION]
 
 ### Gate 2: Plan Ready
 
-- [ ] Diagrama de arquitetura técnica em Mermaid
-- [ ] Stack tecnológica explicitamente definida
-- [ ] Contratos/interfaces entre componentes documentados
-- [ ] Estrutura de diretórios definida
-- [ ] Constitution Check passou
+- [ ] Technical architecture diagram in Mermaid
+- [ ] Technology stack explicitly defined
+- [ ] Contracts/interfaces between components documented
+- [ ] Directory structure defined
+- [ ] Constitution Check passed
 
 ### Gate 3: Implementation Ready
 
-- [ ] Tarefas quebradas e priorizadas
-- [ ] Cada tarefa vinculada a um requisito
-- [ ] Critérios de aceitação definidos por tarefa
-- [ ] Dependências entre tarefas mapeadas
+- [ ] Tasks broken down and prioritized
+- [ ] Each task linked to a requirement
+- [ ] Acceptance criteria defined per task
+- [ ] Dependencies between tasks mapped
 
 ## Governance
 
-- Esta Constituição tem precedência sobre práticas ad-hoc
-- Alterações requerem documentação, justificativa e atualização de versão
-- Violações devem ser justificadas explicitamente no artefato relevante
-- Revisões periódicas da Constituição são encorajadas conforme o projeto evolui
+- This Constitution takes precedence over ad-hoc practices
+- Changes require documentation, justification, and version update
+- Violations must be explicitly justified in the relevant artifact
+- Periodic reviews of the Constitution are encouraged as the project evolves

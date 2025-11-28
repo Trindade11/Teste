@@ -1,12 +1,12 @@
 ---
-description: Triage user input to separate Constitution principles from Specification features. Use when user provides broad/mixed content.
+description: Triage user input to separate Constitution principles from Specification features. Writes to persistent backlog files for downstream agents.
 handoffs: 
-  - label: Create Constitution
+  - label: Process Constitution Backlog
     agent: speckit.constitution
-    prompt: Use the Constitution content extracted below
-  - label: Create Specification
+    prompt: Process pending entries from the constitution backlog
+  - label: Process Specification Backlog
     agent: speckit.specify
-    prompt: Use the Specification content extracted below
+    prompt: Process pending entries from the specification backlog
 ---
 
 ## User Input
@@ -21,10 +21,16 @@ You **MUST** analyze the user input and separate it into appropriate categories.
 
 This command helps users who provide broad, mixed content (combining principles and features) by automatically separating what belongs to Constitution vs. Specification.
 
-**Use this when**:
-- User describes a project mixing general rules with specific features
-- User provides voice transcription or unstructured thoughts
-- User is unsure what goes where
+**Key Feature**: Results are persisted to backlog files that downstream agents can consume.
+
+## File Structure
+
+```
+.specify/triage/
+├── triage_constitution.md   # Backlog for constitution entries
+├── triage_specification.md  # Backlog for specification entries
+└── triage_log.json          # Metadata and history
+```
 
 ## Triage Process
 
@@ -63,104 +69,167 @@ Read the entire input and identify:
    - Statements that could be either principle or feature
    - Incomplete thoughts that need more context
 
-### Step 2: Present the Triage
+### Step 2: Write to Backlog Files
 
-Output the separation in this format:
+After analysis, persist the results:
+
+#### For Constitution entries:
+
+Append to `.specify/triage/triage_constitution.md`:
 
 ```markdown
-# Triage Result
+### Entry [ENTRY_ID]
 
-## 📜 Constitution (Principles & Rules)
+- **Created**: [YYYY-MM-DD HH:MM]
+- **Source**: speckit.triage
+- **Status**: pending
 
-> These will be added to your project's Constitution using `/speckit.constitution`
+#### Content
 
-### Extracted Principles:
+[Extracted principle/rule text]
 
-1. **[Principle Name]**: [Description]
-2. **[Principle Name]**: [Description]
-...
+#### Context
 
-### Raw Text for Constitution:
+[Why this was classified as Constitution]
 
-```text
-[Cleaned up text ready to paste into /speckit.constitution]
+---
 ```
 
+#### For Specification entries:
+
+Append to `.specify/triage/triage_specification.md`:
+
+```markdown
+### Entry [ENTRY_ID]
+
+- **Created**: [YYYY-MM-DD HH:MM]
+- **Source**: speckit.triage
+- **Status**: pending
+
+#### Content
+
+[Extracted feature/behavior text]
+
+#### Suggested Feature Name
+
+[Short name for the feature, 2-4 words]
+
+#### Context
+
+[Why this was classified as Specification]
+
 ---
-
-## 📋 Specification (Features & Behaviors)
-
-> These will create feature specifications using `/speckit.specify`
-
-### Extracted Features:
-
-1. **[Feature Name]**: [Brief description]
-2. **[Feature Name]**: [Brief description]
-...
-
-### Raw Text for Specification:
-
-```text
-[Cleaned up text ready to paste into /speckit.specify]
 ```
 
----
+#### Update triage_log.json:
 
-## ❓ Needs Clarification
+Add entry to the `entries` array:
 
-> These items are ambiguous. Please clarify:
+```json
+{
+  "id": "[ENTRY_ID]",
+  "timestamp": "[ISO 8601 timestamp]",
+  "type": "constitution|specification",
+  "status": "pending",
+  "summary": "[Brief summary]",
+  "absorbed_by": null,
+  "absorbed_at": null,
+  "output_ref": null
+}
+```
 
-1. **"[Quote from input]"**
-   - If this is a PRINCIPLE (applies to all features): → Constitution
-   - If this is a FEATURE (specific functionality): → Specification
-   - **Your choice**: _[Wait for user]_
+### Step 3: Check for Scope Changes
 
----
+Before finalizing, compare new entries with existing absorbed entries:
+
+1. Read `.specify/triage/triage_log.json`
+2. For each new entry, check if it contradicts any absorbed entry
+3. If contradiction found:
+   - Mark new entry as `status: pending-review`
+   - Add `conflicts_with: [ENTRY_ID]` to the entry
+   - Warn the user about the potential scope change
+
+### Step 4: Present Summary to User
+
+```markdown
+# Triage Complete
+
+## Summary
+
+| Type | Entries Added | Pending Total |
+|------|---------------|---------------|
+| Constitution | [N] | [Total pending] |
+| Specification | [N] | [Total pending] |
+
+## Constitution Entries Added
+
+| ID | Summary | Status |
+|----|---------|--------|
+| [ID] | [Brief] | pending |
+
+## Specification Entries Added
+
+| ID | Summary | Status |
+|----|---------|--------|
+| [ID] | [Brief] | pending |
+
+## Scope Alerts
+
+[List any conflicts or scope changes detected]
 
 ## Next Steps
 
-1. Review the separation above
-2. Clarify any ambiguous items
-3. Choose how to proceed:
-   - **Option A**: I'll execute both `/speckit.constitution` and `/speckit.specify` with the separated content
-   - **Option B**: You want to review/edit the content first
-   - **Option C**: Only execute one of them (specify which)
+Choose how to proceed:
 
-**Your choice**: _[A/B/C]_
+- **Option A**: Process constitution backlog now (`/speckit.constitution`)
+- **Option B**: Process specification backlog now (`/speckit.specify`)
+- **Option C**: Review entries in backlog files first
+- **Option D**: Process both in sequence (constitution first, then specification)
+
+**Your choice**: _[A/B/C/D]_
 ```
 
-### Step 3: Execute Based on User Choice
+### Step 5: Execute Based on User Choice
 
-**If user chooses A (execute both)**:
-1. First, run `/speckit.constitution` with the Constitution content
+**If user chooses A**:
+- Trigger `/speckit.constitution` to process pending entries
+
+**If user chooses B**:
+- Trigger `/speckit.specify` to process pending entries
+
+**If user chooses C**:
+- End command, user will review files manually
+
+**If user chooses D**:
+1. First, run `/speckit.constitution`
 2. Wait for completion
-3. Then run `/speckit.specify` with the Specification content
+3. Then run `/speckit.specify`
 
-**If user chooses B (review first)**:
-1. Wait for user edits
-2. Re-present the edited content for confirmation
-3. Execute as directed
+## Entry ID Format
 
-**If user chooses C (only one)**:
-1. Execute only the specified command
+Use format: `TRG-[TYPE]-[YYYYMMDD]-[SEQ]`
+
+Examples:
+- `TRG-CON-20250228-001` (Constitution entry)
+- `TRG-SPC-20250228-001` (Specification entry)
 
 ## Guidelines
 
 ### What Goes to Constitution:
 
 - User profile: "I'm not a developer", "I prefer visual explanations"
-- Stack preferences: "We use MongoDB", "Prefer official drivers"
+- Stack preferences: "We use [specific database]", "Prefer official drivers"
 - Quality standards: "Always include tests", "Use established libraries"
 - Communication style: "Explain commands before running", "Use simple language"
 - Architectural principles: "Event-driven", "Microservices", "Multi-tenant"
-- Compliance: "LGPD compliance required", "Audit trail mandatory"
+- Compliance: "Compliance X required", "Audit trail mandatory"
 
 ### What Goes to Specification:
 
 - Specific features: "Build a dashboard", "Create login screen"
 - User stories: "User can upload files", "Admin can manage users"
 - Workflows: "When user submits form, system validates and saves"
-- Integrations: "Connect to payment gateway X"
+- Integrations: "Connect to external service X"
 - Specific screens/pages: "Home page shows...", "Settings screen has..."
 
 ### Handling Voice Transcriptions:
@@ -174,17 +243,16 @@ Voice input often mixes topics. When processing voice transcriptions:
 ## Example
 
 **User Input**:
-> "Quero criar um sistema de gestão de conhecimento. Sempre usar MongoDB Atlas, nunca outro banco. O usuário pode criar pastas e arquivos. Eu não sou desenvolvedor então preciso de explicações claras. O sistema deve ter um dashboard com métricas. Usar sempre componentes consolidados."
+> "I want to create a task management system. Always use the database we already have configured. Users can create projects and tasks. I'm not a developer so I need clear explanations. The system should have a dashboard with metrics. Always use established components."
 
 **Triage Output**:
 
-### Constitution:
-- Stack: "Sempre usar MongoDB Atlas, nunca outro banco"
-- User Profile: "Não sou desenvolvedor, preciso de explicações claras"
-- Components: "Usar sempre componentes consolidados"
+### Constitution Entries (3):
+1. `TRG-CON-20250228-001`: "Always use the database already configured"
+2. `TRG-CON-20250228-002`: "I'm not a developer, need clear explanations"
+3. `TRG-CON-20250228-003`: "Always use established components"
 
-### Specification:
-- Feature 1: "Sistema de gestão de conhecimento"
-- Feature 2: "Usuário pode criar pastas e arquivos"
-- Feature 3: "Dashboard com métricas"
-
+### Specification Entries (3):
+1. `TRG-SPC-20250228-001`: "Task management system" (feature: task-system)
+2. `TRG-SPC-20250228-002`: "Users can create projects and tasks" (feature: project-task-management)
+3. `TRG-SPC-20250228-003`: "Dashboard with metrics" (feature: metrics-dashboard)

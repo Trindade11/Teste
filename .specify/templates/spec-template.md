@@ -8,42 +8,42 @@
 ## Process Flow (Business View) *(mandatory)*
 
 <!--
-  IMPORTANTE: Antes de detalhar user stories, visualize o fluxo principal.
-  Este diagrama deve mostrar a jornada do usuário/processo em linguagem de negócio.
-  NÃO inclua detalhes técnicos (APIs, bancos, serviços).
+  IMPORTANT: Before detailing user stories, visualize the main flow.
+  This diagram should show the user journey/process in business language.
+  DO NOT include technical details (APIs, databases, services).
 -->
 
 ```mermaid
 flowchart TD
-  %% Preencha com o fluxo principal desta feature
-  %% Exemplo:
-  %% User[Usuário] --> Action1[Ação Principal]
-  %% Action1 --> Decision{Decisão?}
-  %% Decision -->|Sim| Result1[Resultado A]
-  %% Decision -->|Não| Result2[Resultado B]
+  %% Fill with the main flow for this feature
+  %% Example:
+  %% User[User] --> Action1[Main Action]
+  %% Action1 --> Decision{Decision?}
+  %% Decision -->|Yes| Result1[Result A]
+  %% Decision -->|No| Result2[Result B]
 ```
 
-### Insights do Fluxo
+### Flow Insights
 
-- **Gaps identificados**: [Liste lacunas ou pontos fracos observados no fluxo]
-- **Oportunidades identificadas**: [Liste melhorias ou otimizações possíveis]
-- **Riscos identificados**: [Liste riscos ou pontos de atenção]
+- **Gaps identified**: [List gaps or weaknesses observed in the flow]
+- **Opportunities identified**: [List improvements or optimizations possible]
+- **Risks identified**: [List risks or points of attention]
 
 ---
 
 ## Agent Collaboration (if multi-agent) *(include if applicable)*
 
 <!--
-  Se esta feature envolve múltiplos agentes ou componentes que colaboram,
-  mapeie a interação entre eles aqui. Vista de NEGÓCIO, não técnica.
+  If this feature involves multiple agents or components that collaborate,
+  map the interaction between them here. BUSINESS view, not technical.
 -->
 
 ```mermaid
 flowchart TD
-  %% Exemplo de colaboração entre agentes:
-  %% User[Usuário] --> Orchestrator[Agente Orquestrador]
-  %% Orchestrator --> Agent1[Agente Especialista 1]
-  %% Orchestrator --> Agent2[Agente Especialista 2]
+  %% Example of agent collaboration:
+  %% User[User] --> Orchestrator[Orchestrator Agent]
+  %% Orchestrator --> Agent1[Specialist Agent 1]
+  %% Orchestrator --> Agent2[Specialist Agent 2]
   %% Agent1 --> Orchestrator
   %% Agent2 --> Orchestrator
   %% Orchestrator --> User
@@ -51,9 +51,9 @@ flowchart TD
 
 ### Data Flow Between Agents (Conceptual)
 
-| De | Para | O que é passado | Propósito |
-|----|------|-----------------|-----------|
-| [Origem] | [Destino] | [Dados/Contexto] | [Por que essa informação é necessária] |
+| From | To | What is passed | Purpose |
+|------|-----|----------------|---------|
+| [Source] | [Destination] | [Data/Context] | [Why this information is needed] |
 
 ---
 

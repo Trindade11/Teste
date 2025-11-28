@@ -20,6 +20,29 @@ You are updating the project constitution at `.specify/memory/constitution.md`. 
 
 Follow this execution flow:
 
+### Step 0: Check Triage Backlog (ALWAYS DO THIS FIRST)
+
+1. Read `.specify/triage/triage_constitution.md`
+2. Find all entries with `Status: pending`
+3. If pending entries exist:
+   - Extract the content from each pending entry
+   - Include these in your processing along with any user input
+   - After successfully incorporating an entry, update its status:
+     ```markdown
+     - **Status**: absorbed
+     - **Absorbed by**: speckit.constitution
+     - **Absorbed at**: [YYYY-MM-DD HH:MM]
+     - **Output ref**: .specify/memory/constitution.md
+     ```
+4. Update `.specify/triage/triage_log.json`:
+   - Find the entry by ID
+   - Set `"status": "absorbed"`
+   - Set `"absorbed_by": "speckit.constitution"`
+   - Set `"absorbed_at": "[ISO timestamp]"`
+   - Set `"output_ref": ".specify/memory/constitution.md"`
+
+### Step 1: Load Existing Constitution
+
 1. Load the existing constitution template at `.specify/memory/constitution.md`.
    - Identify every placeholder token of the form `[ALL_CAPS_IDENTIFIER]`.
    **IMPORTANT**: The user might require less or more principles than the ones used in the template. If a number is specified, respect that - follow the general template. You will update the doc accordingly.
@@ -67,6 +90,8 @@ Follow this execution flow:
    - New version and bump rationale.
    - Any files flagged for manual follow-up.
    - Suggested commit message (e.g., `docs: amend constitution to vX.Y.Z (principle additions + governance update)`).
+   - **Backlog Status**: List entries absorbed from triage backlog (if any).
+   - **Remaining Pending**: Count of entries still pending in backlog.
 
 Formatting & Style Requirements:
 
