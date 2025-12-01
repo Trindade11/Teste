@@ -75,12 +75,16 @@ flowchart TD
     
     Triage -->|Principles, Rules| ConstBacklog[(Constitution Backlog)]
     Triage -->|Features, Behaviors| SpecBacklog[(Specification Backlog)]
+    Triage -->|Technical Context| ContextCmd[/speckit.context]
+    
+    ContextCmd --> ContextFolder[project-context/]
     
     ConstBacklog --> Constitution[/speckit.constitution]
     SpecBacklog --> Specify[/speckit.specify]
     
     Constitution --> ConstitutionFile[constitution.md]
     ConstitutionFile -->|Constrains| Specify
+    ContextFolder -->|Informs| Plan
     
     Specify --> SpecFile[spec.md]
     SpecFile --> Plan[/speckit.plan]
@@ -99,6 +103,7 @@ flowchart TD
     style Start fill:#c8e6c9,stroke:#388e3c,color:#000
     style ConstBacklog fill:#e3f2fd,stroke:#1976d2,color:#000
     style SpecBacklog fill:#f3e5f5,stroke:#7b1fa2,color:#000
+    style ContextCmd fill:#d1c4e9,stroke:#512da8,color:#000
     style Code fill:#fff9c4,stroke:#fbc02d,color:#000
 ```
 
@@ -114,6 +119,7 @@ flowchart LR
     subgraph Processing["⚙️ PROCESSING"]
         direction TB
         Triage["🔀 /speckit.triage<br/>Separates concerns"]
+        Context["🗂️ /speckit.context<br/>Documents tech context"]
         Const["🏛️ /speckit.constitution<br/>Defines rules"]
         Spec["📋 /speckit.specify<br/>Defines WHAT and WHY"]
         Plan["🔧 /speckit.plan<br/>Defines HOW"]
@@ -127,6 +133,8 @@ flowchart LR
     Raw --> Triage
     Triage --> Const
     Triage --> Spec
+    Triage --> Context
+    Context --> Plan
     Const --> Spec
     Spec --> Plan
     Plan --> Task
@@ -145,6 +153,7 @@ flowchart TD
     Q1{What do you have?}
     
     Q1 -->|Mixed/unclear input| T[Use /speckit.triage]
+    Q1 -->|Technical context<br/>(env, db, tools)| CTX[Use /speckit.context]
     Q1 -->|Project rules/principles| C[Use /speckit.constitution]
     Q1 -->|Feature idea| S[Use /speckit.specify]
     Q1 -->|Existing spec| P[Use /speckit.plan]
@@ -154,6 +163,7 @@ flowchart TD
     T -->|Sorted content| Q1
     
     style T fill:#ffecb3,stroke:#ff8f00,color:#000
+    style CTX fill:#d1c4e9,stroke:#512da8,color:#000
     style C fill:#e3f2fd,stroke:#1976d2,color:#000
     style S fill:#f3e5f5,stroke:#7b1fa2,color:#000
     style P fill:#fff8e1,stroke:#f57f17,color:#000

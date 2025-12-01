@@ -8,6 +8,7 @@
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryTextColor': '#000', 'secondaryTextColor': '#000', 'tertiaryTextColor': '#000', 'lineColor': '#333'}}}%%
 flowchart TB
     subgraph Rules["🏆 Golden Rules of Spec Kit"]
+        R0["0️⃣ Document project context first<br/>/speckit.context for technical setup"]
         R1["1️⃣ Always start with /speckit.triage<br/>when input is mixed or unclear"]
         R2["2️⃣ Constitution before Specification<br/>Rules constrain features"]
         R3["3️⃣ Specify before Plan<br/>WHAT before HOW"]
@@ -16,7 +17,7 @@ flowchart TB
         R6["6️⃣ Always ask 'Need another round?'<br/>at the end of each phase"]
     end
     
-    R1 --> R2 --> R3 --> R4 --> R5 --> R6
+    R0 --> R1 --> R2 --> R3 --> R4 --> R5 --> R6
     
     style Rules fill:#e8f5e9,stroke:#4caf50,color:#000
 ```
@@ -83,7 +84,8 @@ flowchart TB
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryTextColor': '#000', 'secondaryTextColor': '#000', 'tertiaryTextColor': '#000', 'lineColor': '#333'}}}%%
 flowchart LR
     subgraph Correct["✅ Correct Flow"]
-        C1[Triage] --> C2[Constitution]
+        C0[Context] --> C1[Triage]
+        C1 --> C2[Constitution]
         C2 --> C3[Specify]
         C3 --> C4[Plan]
         C4 --> C5[Tasks]

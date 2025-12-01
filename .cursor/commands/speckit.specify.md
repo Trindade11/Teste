@@ -22,8 +22,16 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 The text the user typed after `/speckit.specify` in the triggering message **is** the feature description. Assume you always have it available in this conversation even if `$ARGUMENTS` appears literally below. Do not ask the user to repeat it unless they provided an empty command.
 
-### Step 0: Check Triage Backlog (ALWAYS DO THIS FIRST)
+### Step 0: Check Project Context and Triage Backlog (ALWAYS DO THIS FIRST)
 
+**0a. Check Project Context**:
+1. Check if `project-context/` folder exists
+2. If exists, read relevant context files for domain understanding:
+   - `project-context/database-schema.md` - Understand data entities
+   - `project-context/tools-registry.md` - Know available integrations
+3. If `project-context/` doesn't exist, note this but continue (it's optional for specs)
+
+**0b. Check Triage Backlog**:
 1. Read `.specify/triage/triage_specification.md`
 2. Find all entries with `Status: pending`
 3. If pending entries exist AND user input is empty:

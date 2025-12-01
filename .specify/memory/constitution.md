@@ -78,6 +78,53 @@ At the end of EVERY phase, deliverable, or significant output, always ask:
 - Never assume the output is complete without validation
 - Iterate until user confirms satisfaction
 
+### IX. Project Context Documentation
+
+All project-specific technical context must be documented in `project-context/`:
+
+**Required Documentation**:
+- Environment variables with descriptions and examples
+- Database schema with semantic meanings (what each field represents)
+- Tools and MCPs available with their capabilities
+- Agent framework architecture (if using agents)
+
+**Rules**:
+- Context documentation lives OUTSIDE `.specify/` (project-specific, not toolkit)
+- Run `/speckit.context` to initialize context documentation
+- Update context documentation when adding new env vars, schemas, or tools
+- AI agents MUST read context before generating plans or implementations
+
+### X. Folder Organization
+
+Maintain consistent project structure:
+
+**Standard Folders**:
+- `/tests` - All test files (unit, integration, e2e)
+- `/agents` - Agent definitions and configurations (if agentic system)
+- `/tools` - Custom tools, MCPs, and integrations documentation
+
+**Rules**:
+- Tests MUST NOT be scattered across the project
+- Each folder should have a README explaining its structure
+- Agent-related code stays in `/agents`, not mixed with business logic
+- Document folder structure in `project-context/folder-structure.md`
+
+### XI. Gap Visualization
+
+Diagrams must explicitly show knowledge gaps and incomplete areas:
+
+**Visual Markers**:
+- `[?]` suffix on node labels for unclear steps
+- Red/orange styling (`:::gap` class) for incomplete areas
+- Dashed lines for uncertain connections
+- Comments explaining what needs clarification
+
+**Rules**:
+- Never hide uncertainty - make it visible in diagrams
+- Gaps identified in diagrams should become clarification questions
+- Review and resolve gaps before moving to implementation
+- See `.specify/docs/flows/gap-notation.md` for examples
+
 ## Quality Gates
 
 ### Gate 1: Specification Ready

@@ -6,7 +6,29 @@ This example walks through creating a **User Authentication** feature using all 
 
 ---
 
-## Phase 0: Triage
+## Phase 0: Setup Project Context (Optional but Recommended)
+
+### Command: /speckit.context
+
+Before starting features, document your project's technical context:
+
+```
+Let's document the project context first.
+
+We're using:
+- Node.js with TypeScript
+- PostgreSQL database  
+- Nodemailer for emails
+- JWT for authentication
+```
+
+**Output**: Creates `project-context/` with templates for env vars, database schema, tools, etc.
+
+This step is optional but helps AI agents understand your project better when generating plans and code.
+
+---
+
+## Phase 1: Triage
 
 ### User Input
 
@@ -85,7 +107,7 @@ The AI analyzes and separates:
 
 ---
 
-## Phase 1: Constitution
+## Phase 2: Constitution
 
 ### Command: /speckit.constitution
 
@@ -121,7 +143,7 @@ Backlog entries marked as `absorbed`.
 
 ---
 
-## Phase 2: Specification
+## Phase 3: Specification
 
 ### Command: /speckit.specify
 
@@ -241,7 +263,7 @@ As a user who forgot my password, I want to reset it securely.
 
 ---
 
-## Phase 3: Plan
+## Phase 4: Plan
 
 ### Command: /speckit.plan
 
@@ -369,7 +391,7 @@ backend/
 
 ---
 
-## Phase 4: Tasks
+## Phase 5: Tasks
 
 ### Command: /speckit.tasks
 
@@ -475,7 +497,7 @@ Breaks plan into actionable tasks:
 
 ---
 
-## Phase 5: Implementation
+## Phase 6: Implementation
 
 ### Command: /speckit.implement
 
@@ -530,12 +552,13 @@ export class AuthService {
 
 | Phase | Command | Input | Output |
 |-------|---------|-------|--------|
-| 0 | /speckit.triage | Mixed user input | Sorted backlogs |
-| 1 | /speckit.constitution | Constitution backlog | constitution.md |
-| 2 | /speckit.specify | Spec backlog | spec.md with diagrams |
-| 3 | /speckit.plan | spec.md | plan.md with architecture |
-| 4 | /speckit.tasks | plan.md | tasks.md with breakdown |
-| 5 | /speckit.implement | tasks.md | Source code |
+| 0 | /speckit.context | Tech stack info | project-context/ folder |
+| 1 | /speckit.triage | Mixed user input | Sorted backlogs |
+| 2 | /speckit.constitution | Constitution backlog | constitution.md |
+| 3 | /speckit.specify | Spec backlog | spec.md with diagrams |
+| 4 | /speckit.plan | spec.md + context | plan.md with architecture |
+| 5 | /speckit.tasks | plan.md | tasks.md with breakdown |
+| 6 | /speckit.implement | tasks.md + context | Source code |
 
 ---
 

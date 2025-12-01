@@ -18,6 +18,7 @@ flowchart TD
     Sorted --> Q2
     
     Q2 -->|"Project rule/principle"| Constitution[Use /speckit.constitution]
+    Q2 -->|"Technical Context<br/>(DB, Env, Tools)"| Context[Use /speckit.context]
     Q2 -->|"Feature/behavior"| Q3{Do you have a spec?}
     
     Q3 -->|"No"| Specify[Use /speckit.specify]
@@ -30,6 +31,7 @@ flowchart TD
     Q5 -->|"Yes"| Implement[Use /speckit.implement]
     
     Constitution --> AskRound["🔄 Need another round?"]
+    Context --> AskRound
     Specify --> AskRound
     Plan --> AskRound
     Tasks --> AskRound
@@ -40,6 +42,7 @@ flowchart TD
     style AskRound fill:#fff3e0,stroke:#ff9800,color:#000
     style Triage fill:#fff9c4,stroke:#fbc02d,color:#000
     style Constitution fill:#e3f2fd,stroke:#1976d2,color:#000
+    style Context fill:#d1c4e9,stroke:#512da8,color:#000
     style Specify fill:#f3e5f5,stroke:#7b1fa2,color:#000
     style Plan fill:#fff8e1,stroke:#f57f17,color:#000
     style Tasks fill:#c8e6c9,stroke:#388e3c,color:#000
@@ -56,12 +59,15 @@ flowchart TD
     
     Analyze -->|"Contains 'must', 'always', 'never',<br/>'all X should'"| ProjectRule[PROJECT RULE]
     Analyze -->|"Contains 'prefer', 'use X for Y',<br/>'stack: X'"| TechPref[TECH PREFERENCE]
+    Analyze -->|"Contains 'DB schema', 'env vars',<br/>'tool registry'"| ProjContext[PROJECT CONTEXT]
     Analyze -->|"Contains 'users can', 'system shows',<br/>'when X then Y'"| Feature[FEATURE]
     Analyze -->|"Contains 'create endpoint', 'add component',<br/>'implement X'"| Technical[TECHNICAL TASK]
     Analyze -->|"Mix of above"| Mixed[MIXED CONTENT]
     
     ProjectRule --> Constitution[→ /speckit.constitution]
     TechPref --> Constitution
+    
+    ProjContext --> ContextCmd[→ /speckit.context]
     
     Feature --> Specify[→ /speckit.specify]
     
@@ -74,6 +80,7 @@ flowchart TD
     Mixed --> Triage[→ /speckit.triage]
     
     style Constitution fill:#e3f2fd,stroke:#1976d2,color:#000
+    style ContextCmd fill:#d1c4e9,stroke:#512da8,color:#000
     style Specify fill:#f3e5f5,stroke:#7b1fa2,color:#000
     style Plan fill:#fff8e1,stroke:#f57f17,color:#000
     style Tasks fill:#e8f5e9,stroke:#4caf50,color:#000
@@ -113,6 +120,7 @@ flowchart TD
 flowchart TD
     Problem{What problem are you solving?}
     
+    Problem -->|"Need to document<br/>technical context"| P1_5
     Problem -->|"Need to establish<br/>project standards"| P1
     Problem -->|"New feature request<br/>from stakeholder"| P2
     Problem -->|"Spec exists but<br/>no architecture"| P3
@@ -121,6 +129,7 @@ flowchart TD
     Problem -->|"Don't know where<br/>to start"| P6
     Problem -->|"Spec unclear,<br/>need questions"| P7
     
+    P1_5["Document Context"] --> Sol1_5[/speckit.context]
     P1["Standards & Rules"] --> Sol1[/speckit.constitution]
     P2["New Feature"] --> Sol2[/speckit.triage or /speckit.specify]
     P3["Need Architecture"] --> Sol3[/speckit.plan]
@@ -129,6 +138,7 @@ flowchart TD
     P6["Confused/Mixed Input"] --> Sol6[/speckit.triage]
     P7["Ambiguity"] --> Sol7[/speckit.clarify]
     
+    style Sol1_5 fill:#d1c4e9,stroke:#512da8,color:#000
     style Sol1 fill:#e3f2fd,stroke:#1976d2,color:#000
     style Sol2 fill:#f3e5f5,stroke:#7b1fa2,color:#000
     style Sol3 fill:#fff8e1,stroke:#f57f17,color:#000
@@ -143,6 +153,7 @@ flowchart TD
 | If you have... | And you want... | Use this command |
 |----------------|-----------------|------------------|
 | Mixed input | Sorted backlogs | `/speckit.triage` |
+| Technical context | Documented context | `/speckit.context` |
 | Project rules | Documented constitution | `/speckit.constitution` |
 | Feature idea | Formal specification | `/speckit.specify` |
 | Specification | Technical plan | `/speckit.plan` |
@@ -162,8 +173,10 @@ flowchart LR
     Input["User describes<br/>payment feature"]
     
     Input --> T[/speckit.triage]
+    T --> CTX[/speckit.context<br/>if context exists]
     T --> C[/speckit.constitution<br/>if rules exist]
     T --> S[/speckit.specify]
+    CTX --> S
     C --> S
     S --> P[/speckit.plan]
     P --> K[/speckit.tasks]
@@ -197,7 +210,8 @@ flowchart LR
 flowchart LR
     Input["Have spec.md,<br/>need code"]
     
-    Input --> P[/speckit.plan]
+    Input --> CTX[/speckit.context<br/>(first time)]
+    CTX --> P[/speckit.plan]
     P --> K[/speckit.tasks]
     K --> I[/speckit.implement]
     I --> Done["✅ Code generated"]
@@ -216,6 +230,7 @@ flowchart TD
         W2["Mix rules and features in same spec"]
         W3["Create tasks without plan"]
         W4["Implement without tasks"]
+        W5["Plan without context"]
     end
     
     subgraph Right["✅ DO THIS INSTEAD"]
@@ -223,12 +238,14 @@ flowchart TD
         R2["Triage first to separate concerns"]
         R3["Plan defines architecture, then tasks"]
         R4["Tasks define acceptance criteria, then implement"]
+        R5["Context first to inform planning"]
     end
     
     W1 -.->|"Fix"| R1
     W2 -.->|"Fix"| R2
     W3 -.->|"Fix"| R3
     W4 -.->|"Fix"| R4
+    W5 -.->|"Fix"| R5
     
     style Wrong fill:#ffcdd2,stroke:#c62828,color:#000
     style Right fill:#c8e6c9,stroke:#388e3c,color:#000

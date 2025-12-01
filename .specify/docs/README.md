@@ -17,6 +17,7 @@ This folder contains documentation for the Spec Kit methodology.
     ├── overview.md        ← SDD methodology overview
     ├── command-flow.md    ← Each command detailed
     ├── triage-system.md   ← Backlog system
+    ├── gap-notation.md    ← Gap visualization standards
     ├── artifact-relationships.md
     ├── entry-lifecycle.md
     └── decision-tree.md
@@ -27,6 +28,7 @@ This folder contains documentation for the Spec Kit methodology.
 | Topic | File |
 |-------|------|
 | **Visual Flows** | [flows/FLOWS.md](./flows/FLOWS.md) |
+| **Gap Notation** | [flows/gap-notation.md](./flows/gap-notation.md) |
 | **Complete Example** | [examples.md](./examples.md) |
 | **Glossary** | [glossary.md](./glossary.md) |
 | **Best Practices** | [best-practices.md](./best-practices.md) |

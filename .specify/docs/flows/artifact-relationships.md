@@ -59,6 +59,14 @@ erDiagram
         string status
         string timestamps
     }
+    
+    PROJECT_CONTEXT ||--o{ PLAN : informs
+    PROJECT_CONTEXT {
+        string env_vars
+        string database_schema
+        string tools_registry
+        string agent_framework
+    }
 ```
 
 ## Dependency Chain
@@ -68,6 +76,7 @@ erDiagram
 flowchart TD
     subgraph Foundation["🏛️ Foundation Layer"]
         Constitution["constitution.md<br/>━━━━━━━━━━━━━━<br/>Project-wide rules"]
+        Context["project-context/<br/>━━━━━━━━━━━━━━<br/>Technical ground truth"]
     end
     
     subgraph Feature["📋 Feature Layer"]
@@ -82,6 +91,7 @@ flowchart TD
     end
     
     Constitution ==>|constrains| Spec
+    Context ==>|informs| Plan
     Spec ==>|informs| Plan
     Plan ==>|decomposes into| Tasks
     Tasks ==>|implements| Code
@@ -105,7 +115,13 @@ flowchart TB
             Memory["📁 memory/<br/>└── constitution.md"]
             Templates["📁 templates/<br/>├── spec-template.md<br/>└── plan-template.md"]
             Triage["📁 triage/<br/>├── triage_constitution.md<br/>├── triage_specification.md<br/>└── triage_log.json"]
-            Docs["📁 docs/<br/>└── *.md (this documentation)"]
+            Docs["📁 docs/<br/>└── *.md (methodology docs)"]
+        end
+        
+        subgraph ProjContext["📁 project-context"]
+            Env["env-vars.md"]
+            Schema["database-schema.md"]
+            Tools["tools-registry.md"]
         end
         
         subgraph Specs["📁 specs"]
@@ -119,6 +135,7 @@ flowchart TB
     end
     
     style Specify fill:#e3f2fd,stroke:#1976d2,color:#000
+    style ProjContext fill:#d1c4e9,stroke:#512da8,color:#000
     style Specs fill:#f3e5f5,stroke:#7b1fa2,color:#000
     style Source fill:#e8f5e9,stroke:#4caf50,color:#000
 ```
@@ -132,6 +149,7 @@ flowchart LR
         direction TB
         
         Principle["🏛️ Principle<br/>(constitution.md)"]
+        Context["🔧 Context<br/>(project-context/)"]
         Requirement["📋 Requirement<br/>(spec.md FR-001)"]
         Component["🔧 Component<br/>(plan.md API)"]
         Task["📝 Task<br/>(tasks.md #1)"]
@@ -140,6 +158,7 @@ flowchart LR
     end
     
     Principle -->|"constrains"| Requirement
+    Context -->|"informs"| Component
     Requirement -->|"implemented by"| Component
     Component -->|"broken into"| Task
     Task -->|"produces"| Code
@@ -154,6 +173,10 @@ flowchart LR
 flowchart TB
     subgraph Constitution
         C1["Principle: Test-First Development"]
+    end
+    
+    subgraph ProjContext["Context"]
+        PC1["DB Schema: users"]
     end
     
     subgraph Specification
@@ -180,6 +203,7 @@ flowchart TB
     end
     
     C1 -.->|enforces| Test1
+    PC1 -.->|defines data for| P1
     S1 --> P1
     S1 --> P2
     S2 -.->|measured by| Test1
@@ -193,6 +217,7 @@ flowchart TB
     T3 --> F3
     
     style Constitution fill:#e3f2fd,stroke:#1976d2,color:#000
+    style ProjContext fill:#d1c4e9,stroke:#512da8,color:#000
     style Specification fill:#f3e5f5,stroke:#7b1fa2,color:#000
     style Plan fill:#fff8e1,stroke:#f57f17,color:#000
     style Tasks fill:#e8f5e9,stroke:#4caf50,color:#000
@@ -244,6 +269,7 @@ flowchart TD
     Change{What changed?}
     
     Change -->|Constitution| ImpactConst
+    Change -->|Project Context| ImpactContext
     Change -->|Specification| ImpactSpec
     Change -->|Plan| ImpactPlan
     Change -->|Code| ImpactCode
@@ -252,6 +278,12 @@ flowchart TD
         IC1[Review all specs for compliance]
         IC2[Update affected plans]
         IC3[Adjust implementation if needed]
+    end
+    
+    subgraph ImpactContext["Project Context Change Impact"]
+        direction LR
+        IX1[Review affected plans]
+        IX2[Update implementation]
     end
     
     subgraph ImpactSpec["Specification Change Impact"]
@@ -274,6 +306,7 @@ flowchart TD
     end
     
     style ImpactConst fill:#ffcdd2,stroke:#c62828,color:#000
+    style ImpactContext fill:#d1c4e9,stroke:#512da8,color:#000
     style ImpactSpec fill:#fff9c4,stroke:#fbc02d,color:#000
     style ImpactPlan fill:#c8e6c9,stroke:#388e3c,color:#000
     style ImpactCode fill:#e1f5fe,stroke:#0288d1,color:#000

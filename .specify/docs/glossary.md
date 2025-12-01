@@ -74,6 +74,10 @@ Analyzes mixed input and routes content to appropriate backlogs.
 
 Creates or updates the constitution from backlog or direct input.
 
+### /speckit.context
+
+Initializes and manages project-specific technical context documentation (env vars, database schema, tools/MCPs, agent framework).
+
 ### /speckit.specify
 
 Creates feature specifications with diagrams, user stories, and requirements.
@@ -110,6 +114,20 @@ Generates quality gate checklist for current phase.
 
 Any document produced by Spec Kit commands (constitution, spec, plan, tasks).
 
+### Project Context
+
+Project-specific technical documentation living in `project-context/` folder. Includes environment variables, database schemas, tools registry, agent framework, folder structure, and learnings.
+
+**Location**: `project-context/` (outside `.specify/`)
+
+**Files**:
+- `env-vars.md` - Environment variables
+- `database-schema.md` - Semantic database schema
+- `tools-registry.md` - MCPs and tools inventory
+- `agent-framework.md` - Agent architecture
+- `folder-structure.md` - Project organization
+- `learnings.md` - Project learnings log
+
 ### Living Documentation
 
 Documentation that evolves with the codebase, staying current through continuous updates.
@@ -141,6 +159,16 @@ A diagram showing states and transitions. Used for lifecycles.
 ### ER Diagram
 
 Entity Relationship diagram showing data models and relationships.
+
+### Gap Notation
+
+Visual markers in diagrams to show unclear steps or incomplete areas:
+- `[?]` suffix on labels
+- Red/orange styling for incomplete nodes
+- `:::gap` class for unresolved items
+- Dashed lines for uncertain connections
+
+**Reference**: `.specify/docs/flows/gap-notation.md`
 
 ---
 

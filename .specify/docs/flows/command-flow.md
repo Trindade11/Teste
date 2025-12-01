@@ -44,6 +44,52 @@ flowchart TD
 
 ---
 
+## /speckit.context
+
+Initializes and updates project-specific technical context documentation.
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryTextColor': '#000', 'secondaryTextColor': '#000', 'tertiaryTextColor': '#000', 'lineColor': '#333'}}}%%
+flowchart TD
+    Start([User invokes /speckit.context]) --> Check{project-context/ exists?}
+    
+    Check -->|No| Create[Create folder & copy templates]
+    Check -->|Yes| Scan[Scan project for changes]
+    
+    Create --> ReportNew[Report new files created]
+    Scan --> ReportChanges[Report detected changes]
+    
+    ReportNew --> Validate
+    ReportChanges --> Interactive{Interactive update?}
+    
+    Interactive -->|Yes| Ask[Ask user to confirm updates]
+    Interactive -->|No| AutoUpdate[Auto-update context files]
+    
+    Ask --> Validate
+    AutoUpdate --> Validate
+    
+    Validate[Validate context completeness]
+    
+    Validate --> AskFolders{Create standard folders?}
+    
+    AskFolders -->|Yes| CreateFolders[Create /tests, /agents, etc.]
+    AskFolders -->|No| SkipFolders
+    
+    CreateFolders --> Summary
+    SkipFolders --> Summary
+    
+    Summary[Present summary report]
+    
+    Summary --> AskRound["🔄 Ask: Need another round?"]
+    AskRound --> Done([Context updated])
+
+    style Start fill:#d1c4e9,stroke:#512da8,color:#000
+    style Done fill:#c8e6c9,stroke:#388e3c,color:#000
+    style AskRound fill:#fff3e0,stroke:#ff9800,color:#000
+```
+
+---
+
 ## /speckit.constitution
 
 Defines and maintains project-wide principles, rules, and quality gates.
@@ -59,7 +105,8 @@ flowchart TD
     ReadBacklog --> Pending[Get pending entries]
     ReadArgs --> Pending
     
-    Pending --> Exists{constitution.md exists?}
+    Pending --> LoadContext[Load project-context/ (if exists)]
+    LoadContext --> Exists{constitution.md exists?}
     
     Exists -->|Yes| Load[Load existing constitution]
     Exists -->|No| Template[Create from template]
@@ -178,7 +225,9 @@ flowchart TD
     
     LoadSpec --> LoadConst[Load constitution.md]
     
-    LoadConst --> Research[Phase 0: Research]
+    LoadConst --> LoadContext[Load project-context/]
+    
+    LoadContext --> Research[Phase 0: Research]
     
     Research --> TechContext[Define Technical Context]
     TechContext --> Stack[Choose Tech Stack]
@@ -262,7 +311,9 @@ flowchart TD
     
     LoadPlan --> LoadSpec[Load spec.md for priorities]
     
-    LoadSpec --> Parse[Parse technical components]
+    LoadSpec --> LoadContext[Load folder-structure.md]
+    
+    LoadContext --> Parse[Parse technical components]
     
     Parse --> Breakdown[Break into atomic tasks]
     
@@ -319,7 +370,9 @@ flowchart TD
     
     LoadPlan --> LoadConst[Load constitution.md for rules]
     
-    LoadConst --> Select[Select next pending task]
+    LoadConst --> LoadContext[Load project-context/]
+    
+    LoadContext --> Select[Select next pending task]
     
     Select --> Context[Build implementation context]
     

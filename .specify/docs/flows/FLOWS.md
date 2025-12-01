@@ -19,8 +19,9 @@
 | [artifact-relationships.md](./artifact-relationships.md) | Relationships between all artifacts | 8 |
 | [entry-lifecycle.md](./entry-lifecycle.md) | Lifecycle of entries in the triage system | 9 |
 | [decision-tree.md](./decision-tree.md) | When to use which command | 6 |
+| [gap-notation.md](./gap-notation.md) | How to visualize gaps and uncertainties in diagrams | 8 |
 
-**Total: ~47 diagrams**
+**Total: ~55 diagrams**
 
 ---
 

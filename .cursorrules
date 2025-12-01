@@ -13,6 +13,7 @@ This project uses Spec Kit for Spec-Driven Development. The methodology separate
 |---------|---------|
 | `/speckit.triage` | Analyzes mixed/broad user input and separates Constitution content from Specification content |
 | `/speckit.constitution` | Creates/updates project principles and rules |
+| `/speckit.context` | Documents project context (env vars, database schema, tools, agents) |
 | `/speckit.specify` | Creates feature specifications (WHAT and WHY, no technical details) |
 | `/speckit.plan` | Creates technical implementation plans (HOW) |
 | `/speckit.tasks` | Breaks plans into actionable tasks |
@@ -34,6 +35,23 @@ This project requires Mermaid diagrams in all artifacts:
 - System Interaction Diagram (sequenceDiagram) - technical component interactions
 - Component Architecture (flowchart TB) - system structure
 - Agent Contracts table (if multi-agent)
+
+### Gap Visualization
+- Use `[?]` suffix for unclear steps
+- Apply red/orange styling for incomplete areas
+- Include gap summary box in complex diagrams
+- See `.specify/docs/flows/gap-notation.md` for standards
+
+## Project Context
+
+Before generating plans or implementations, read project context from `project-context/`:
+- `env-vars.md` - Available environment variables
+- `database-schema.md` - Database structure and field meanings
+- `tools-registry.md` - Available MCPs and integrations
+- `agent-framework.md` - Agent architecture (if applicable)
+- `folder-structure.md` - Project organization
+
+If `project-context/` doesn't exist, suggest running `/speckit.context` first.
 
 ## Communication Style
 
@@ -67,5 +85,6 @@ At the end of EVERY phase, deliverable, or significant output, always ask:
 ## Source of Truth
 
 - **Constitution**: `.specify/memory/constitution.md` - read FIRST for project rules
+- **Project Context**: `project-context/` - project-specific technical documentation
 - **Documentation**: `.specify/docs/` - visual flows and methodology guides
 - **Templates**: `.specify/templates/` - artifact templates

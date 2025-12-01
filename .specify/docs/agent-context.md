@@ -25,9 +25,18 @@ When processing a request, read artifacts in this order:
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryTextColor': '#000', 'secondaryTextColor': '#000', 'tertiaryTextColor': '#000', 'lineColor': '#333'}}}%%
 flowchart TD
-    Request[User Request] --> Read1
+    Request[User Request] --> Check{project-context/ exists?}
     
-    subgraph ReadOrder["Reading Order"]
+    Check -->|Yes| Read0
+    Check -->|No| Read1
+    
+    subgraph ProjectContext["0️⃣ Project Context (if exists)"]
+        Read0["Read project-context/<br/>- env-vars.md<br/>- database-schema.md<br/>- tools-registry.md<br/>- agent-framework.md"]
+    end
+    
+    Read0 --> Read1
+    
+    subgraph SpecKitArtifacts["Spec Kit Artifacts"]
         Read1["1️⃣ constitution.md<br/>Project-wide constraints"]
         Read2["2️⃣ spec.md<br/>Feature requirements"]
         Read3["3️⃣ plan.md<br/>Technical architecture"]
@@ -38,8 +47,11 @@ flowchart TD
     
     Read4 --> Process[Process with full context]
     
-    style ReadOrder fill:#fff3e0,stroke:#ff9800,color:#000
+    style ProjectContext fill:#e8f5e9,stroke:#4caf50,color:#000
+    style SpecKitArtifacts fill:#fff3e0,stroke:#ff9800,color:#000
 ```
+
+**IMPORTANT**: Always check for `project-context/` folder first. It contains critical project-specific information that should inform all downstream artifacts.
 
 ## Artifact Interpretation Guide
 
