@@ -157,6 +157,15 @@ When you choose the triage-based flow, `/speckit-triage` is designed for **N int
 - Use simple, clear language
 - Prefer established, well-documented libraries and patterns
 
+### New Chat / Session Ritual
+
+- On every new chat in this workspace, first clarify the main subject or feature for the session (for example: context, constitution, specify, plan, implement, debug, or mixed/triage).
+- Before proposing actions, read `Project Rules` (this file) and, when available, `project-context/project-workplan.md` and `project-context/project-overview.md` to recover the current project state.
+- If the chat is about an existing feature, also read the relevant `spec.md` and `plan.md` files before deep technical work.
+- Start the conversation with a short recap (3–5 bullets) of the current state for that subject and a recommended next step.
+- Explicitly ask the user to confirm or adjust the objective of the current session (for example: clarify, specify, plan, implement, review).
+- Treat chat history as transient; persist important decisions and state changes in the appropriate artifacts (`project-context/`, specs, plans, and constitution), not only in conversation.
+
 ## Stack Consistency
 
 - Respect technology choices defined in plan.md
@@ -198,7 +207,11 @@ For deep understanding of the process:
   - ACT: Categorized refinement + knowledge capture in artifact versions
   
 - **Memory System**: How project state is maintained
-  - 4 memory types: Persistent, Versioned, Transient, Contextual
-  - Update protocol: Every command updates workplan + overview
-  - Query patterns: Read workplan first to know what to do next
-  - Knowledge capture: In `project-overview.md` version history and `constitution.md` evolution
+
+### Specification Techniques
+
+- **Concept Model Simulation**: `.specify/docs/concept-model-simulation.md`
+  - Technique for validating concept models (entities, relations, properties) via practical simulation in a sandbox database
+  - Use during `/speckit-specify` when the feature requires complex data structure modeling (graphs, ontologies, dense relational schemas)
+  - Competency questions drive the structure; each approved validation becomes project context/spec
+  - Outputs: schema-spec, ingestion-spec, query-spec, test-spec
