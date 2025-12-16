@@ -1,0 +1,85 @@
+[
+  {
+    "id": "conv-001",
+    "user_id": "user-joao-001",
+    "type": "corporate",
+    "title": "Análise TechCorp Q4 2024",
+    "summary": "Discussão sobre métricas financeiras e próximos passos para TechCorp AI",
+    "context": {
+      "company_id": "company-cocreate-001",
+      "startup_id": "startup-techcorp-001",
+      "project_id": null,
+      "tags": ["investimento", "análise", "Q4"]
+    },
+    "message_count": 15,
+    "last_message_at": "2024-12-13T14:45:00Z",
+    "created_at": "2024-12-13T14:00:00Z",
+    "archived": false,
+    "messages": [
+      {
+        "id": "msg-001",
+        "role": "user",
+        "content": "Como está a Startup TechCorp AI?",
+        "metadata": {
+          "corporate_mode": true,
+          "power_level": 2,
+          "timestamp": "2024-12-13T14:00:00Z"
+        }
+      },
+      {
+        "id": "msg-002",
+        "role": "assistant",
+        "content": "TechCorp AI apresenta métricas saudáveis:\n\n• Receita: R$ 120k/mês (↑35% MoM)\n• Burn rate: R$ 80k/mês\n• Runway: 18 meses\n• CAC/LTV: 1:4 (excelente)\n\nPontos de atenção:\n- Burn rate elevado requer monitoramento\n- Crescimento acelerado demanda contratações\n\nRecomendo reunião de follow-up para Q1 2025.",
+        "metadata": {
+          "model_used": "gpt-4o",
+          "latency_ms": 2800,
+          "cost_usd": 0.02,
+          "depth_used": 2,
+          "chunks_retrieved": 8,
+          "timestamp": "2024-12-13T14:00:05Z"
+        }
+      },
+      {
+        "id": "msg-003",
+        "role": "user",
+        "content": "Crie uma tarefa para agendar essa reunião",
+        "metadata": {
+          "corporate_mode": true,
+          "power_level": 1,
+          "timestamp": "2024-12-13T14:01:00Z"
+        }
+      },
+      {
+        "id": "msg-004",
+        "role": "assistant",
+        "content": "✅ Tarefa criada:\n\n**Título**: Agendar reunião follow-up TechCorp Q1 2025\n**Responsável**: Maria Santos\n**Prioridade**: Alta\n**Prazo**: 20/12/2024\n\nA tarefa foi adicionada ao plano e Maria recebeu notificação.",
+        "metadata": {
+          "model_used": "gpt-4o-mini",
+          "latency_ms": 800,
+          "cost_usd": 0.001,
+          "depth_used": 1,
+          "task_created_id": "task-001",
+          "timestamp": "2024-12-13T14:01:03Z"
+        }
+      }
+    ]
+  },
+  {
+    "id": "conv-002",
+    "user_id": "user-joao-001",
+    "type": "personal",
+    "title": "Ideias para Apresentação Board",
+    "summary": "Brainstorm pessoal sobre apresentação para o board",
+    "context": {
+      "company_id": null,
+      "startup_id": null,
+      "project_id": null,
+      "tags": ["pessoal", "apresentação"]
+    },
+    "message_count": 8,
+    "last_message_at": "2024-12-12T20:30:00Z",
+    "created_at": "2024-12-12T19:45:00Z",
+    "archived": false,
+    "messages": []
+  }
+]

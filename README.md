@@ -1,4 +1,4 @@
-# Spec Orchestrator
+# Spec Orchestrator ( thanks19275 )
 
 > An AI-native Spec-Driven Development toolkit that keeps your specs, code, and agents in sync
 

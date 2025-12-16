@@ -1,0 +1,1021 @@
+Pular para o conteúdo
+Histórico de chats
+
+
+
+
+Convidar membros da equipe
+Você disse:
+Vamos lá. A ideia é a seguinte. Baseado nas informações que vem das transcrições das reuniões, mais os e-mails de cada colaborador. Então eu tenho conhecimento abrangente da empresa como um todo, do que estava acontecendo dinamicamente na empresa. Todo esse compêndio de informação deve ser analisado por um grupo de agentes, que iriam analisar a empresa como um todo. Detalhe, esses agentes, eles são customizados, óbvio, de acordo com o negócio. Existe uma base. Eu quero descobrir que base é essa. E existe os específicos. E aí que está o detalhe. Nem sei se precisa os específicos. Já são específicos todos eles. Por quê? Os específicos mesmo são para rodar rotinas, que é outra situação. Estou falando aqui de Knowledge Base, Enterprise Knowledge Base. O que tem que ser analisado diariamente ou via alerta até e ser fornecido para o borde das empresas, que vai agregar valor aos processos. Uma visão robusta desse conteúdo que está dinâmico, está vivo dentro da empresa, em relação à gestão. Como prover gestão. Como potencializar resultado na realidade. Potencializar resultado. Um agente que atua naquela linha de buscar melhorias de processo, de identificar oportunidade, gerenciar o negócio, gerenciar estratégica, estar alinhado com a estratégia, refinar a estratégia, olhar para fora do mercado e fazer análise de mercado. Tudo isso. Isso tem que ser um grupo de agentes, cada um entregando um pacote que vai ser entregue ao longo do mês. Por exemplo, ciclicamente, ao longo da semana. Isso é uma rotina. Acho que você pode definir que rotina seria essa também. Mas, principalmente, quais são os agentes que vão fazer esse trabalho? O que vai ser entregue melhor ainda? O que é entregue?
+O ChatGPT disse:
+
+Pensou por 1m 8s
+Arquitetura de “Enterprise Knowledge Base” + Suite de Agentes
+(foco: transcrições de reuniões + e-mails internos; entregáveis executivos e rotinas cíclicas)
+
+1) Visão geral (camadas)
+Ingestão: e-mails e transcrições → parsing → desduplicação → detecção de idioma → PII scrub (mascaramento).
+
+Normalização: classificação (tema, área, cliente, projeto), extração de entidades/relacionamentos, detecção de ações/decisões.
+
+Base de Conhecimento (EKG): Enterprise Knowledge Graph + índice vetorial híbrido (documentos, trechos, eventos).
+
+Métricas & Regras: cálculo de KPIs, metas/thresholds, score de risco e priorização.
+
+Agentes: fundacionais (infra de análise) + de negócio (pacotes por área).
+
+Entrega: briefings diários/semanais/mensais, alertas em tempo real, dossiês temáticos, trilhas de auditoria (tudo com fonte citada).
+
+2) Ontologia base (núcleo mínimo do EKG)
+Entidades: Pessoa, Equipe/Área, Conta/Cliente, Projeto/Programa, Oportunidade/Deal, Fornecedor, Produto, Documento, Reunião, E-mail, KPI, Objetivo/OKR, Risco, Decisão, Ação, Incidente.
+Relações: reporta_a, pertence_a, trabalha_em, responsável_por, discute, decide, depende_de, impacta, alinha_a(OKR), risco_de, menciona, conflito_com.
+Eventos: email_enviado, reunião_realizada, decisão_tomada, ação_criada/concluída, risco_registrado, kpi_atualizado.
+Atributos críticos: confidencialidade, impacto (R/A/G), urgência (P1–P3), confiança (0–1), fonte (link/trecho).
+
+Isso é a “base”: taxonomia/ontologia + políticas (PII/compliance) + EKG + RAG híbrido. Os “específicos” viram perfis/skills acoplados aos agentes (sem precisar criar um agente novo por área, salvo quando houver lógica ou dados próprios).
+
+3) Agentes fundacionais (genéricos, sempre ativos)
+Orquestrador & Planner
+Planeja a execução dos demais agentes (cadência, dependências), resolve conflitos e consolida saídas.
+
+Curador de Contexto (KG/RAG)
+Enriquecimento semântico, “threading” de e-mails/reuniões, dedupe, linking de entidades. Garante que cada agente receba somente o contexto relevante.
+
+Guardião de Governança & PII
+Classificação de sensibilidade, mascaramento, RBAC, trilha de auditoria, retenção.
+
+Minerador de Ações & Decisões
+Extrai Ações/Owners/Due dates de transcrições/e-mails; abre lacunas quando faltam dono ou prazo.
+
+Motor de KPIs & Regras
+Calcula/atualiza KPIs, verifica metas/SLAs, aplica rules/thresholds e produz signals normalizados.
+
+Verificador de Fatos & Consistência
+Checagem de alegações contra fontes internas; detecta contradições (ex.: números diferentes em threads distintas).
+
+Narrative Synthesizer
+Gera briefings executivos com traces (links para parágrafos/trechos originais) e confidence score.
+
+Router de Alertas & Priorização
+Classifica severidade (P1–P3), contexto de impacto (receita, risco, compliance, pessoas), e direciona.
+
+4) Agentes de negócio (pacotes funcionais)
+Todos herdam a base (KG/RAG, governança, verificação). São “específicos” por perfil de instrução + regras + KPIs, não necessariamente por código novo.
+
+Estratégia & Mercado
+
+Entrada: menções a concorrentes, preços, parcerias, tendências, “perdeu/ganhou”, hipóteses estratégicas em reuniões.
+
+Tarefas: clusterização de temas, “weak signals”, análise de coerência com OKRs, impactos.
+
+Saídas: Strategy Brief (1 pág.), mapa de oportunidades/ameaças, backlog de apostas estratégicas.
+
+Operações & Eficiência/Process Mining
+
+Entrada: ações recorrentes, gargalos relatados, handoffs, incidentes.
+
+Tarefas: mineração de processo (a partir de eventos), detecção de retrabalho, SLAs quebrados, recomendações de throughput.
+
+Saídas: Ops Weekly, diagrama “AS-IS vs TO-BE”, top 5 ganhos (tempo/custo).
+
+Receita (Sales/CS)
+
+Entrada: e-mails de clientes, follow-ups, notas de reuniões comerciais.
+
+Tarefas: saúde de pipeline, riscos de churn/atraso, objeções padrão, próximos passos por conta.
+
+Saídas: Deal Health Heatmap, Churn Early Warning, lista de next best actions com donos.
+
+Produto & Entrega
+
+Entrada: feedbacks em calls, bugs/incidentes, pedidos de feature (mesmo vindos por e-mail).
+
+Tarefas: triagem por impacto, duplicatas, priorização RICE/WSJF, vínculos com objetivos.
+
+Saídas: Product Digest, backlog priorizado, Impact Notes por feature.
+
+Risco & Compliance (inclui ESG)
+
+Entrada: cláusulas críticas em e-mails/atas, compromissos regulatórios, políticas internas.
+
+Tarefas: identificação e scoring de riscos, compliance drift, pendências de auditoria.
+
+Saídas: Risk Register Update, alertas P1 (prazos regulatórios), plano de mitigação por owner.
+
+Pessoas & Organização (agregado/anônimo)
+
+Entrada: sinais de carga, conflitos de prioridade, temas de clima (sem PII explícita).
+
+Tarefas: detecção de overload, ações sem dono, alinhamento a OKRs.
+
+Saídas: Org Health Pulse (agregado), riscos de capacidade, recomendações de rebalanço.
+
+Financeiro & Unit Economics (a partir do que aparece em e-mails/atas)
+
+Tarefas: reconciliação de números citados, variações vs metas, cost-to-serve inferido.
+
+Saídas: Financial Signals (variações >±5%), lista de divergências a reconciliar.
+
+Voz do Cliente (VoC)
+
+Tarefas: NER de pain points, sentimento, temas por vertical/conta.
+
+Saídas: Customer Themes Radar, Top 10 blockers, exemplos com citação de fonte.
+
+5) Entregáveis (o que é entregue)
+A) Daily Exec Brief (1 página, seg–sex, 07:30)
+Top-5 sinais (receita, risco, ops, produto, mercado).
+
+KPIs vs metas (variações significativas, ↑/↓).
+
+Decisões pendentes + ações bloqueadas (com dono e prazo).
+
+Riscos P1 emergentes (por quê, impacto, fonte).
+
+Confiança e links de evidência (trechos de e-mails/reuniões).
+
+B) Weekly Management Pack (sextas, 14:00, 10–15 págs.)
+Sumário por área (Sales/CS, Produto, Ops, Pessoas, Financeiro).
+
+Heatmaps: saúde de deals, gargalos de processo, riscos & compliance.
+
+Backlog de ações priorizadas (RICE/impacto).
+
+Tabela de variações “fora da banda” e causas prováveis.
+
+Apêndice com traces (trechos citados, IDs de mensagens/reuniões).
+
+C) Monthly Board Intelligence Pack (D-2 da reunião, 30–40 págs.)
+Narrativa unificada: performance, riscos materiais, cenários.
+
+Oportunidades estratégicas (com T-shirt sizing de valor).
+
+Roadmap proposto (derivado dos sinais do mês).
+
+Dossiês: concorrência, pricing, parcerias, compliance/ESG.
+
+Statement de confiabilidade: cobertura, lacunas, supostos.
+
+D) Alertas em tempo quase real (P1–P3)
+P1: risco regulatório/contratual iminente; deal-chave em risco; incidente crítico; desvio de KPI essencial.
+
+P2: atraso relevante, SLA quebrado, conflito material de prioridades.
+
+P3: oportunidade tática (follow-up quente, sinergia entre áreas).
+
+E) Dossiês Temáticos / Ad hoc
+Ex.: “Concorrente X — mudanças de posicionamento citadas em 12 threads e 3 atas”.
+
+6) Rotina operacional (cadência)
+Ingestão/Atualização contínua dos eventos (e-mails/reuniões).
+
+Execução diária: Curador → KPIs/Regras → Verificador → Narrative Synthesizer (gera Daily Exec Brief).
+
+Semanal (quintas): Agentes de negócio consolidam análises; sexta: Weekly Pack.
+
+Mensal: consolidação + cenários; Board Pack D-2.
+
+Alertas: disparo imediato pelo Router assim que Motor de KPIs/Regras ou Risco & Compliance sinalizam P1/P2.
+
+7) Exemplos de “o que é entregue” por agente
+Estratégia & Mercado: 1-pager com 3 apostas (valor estimado, risco, dependências), watchlist de sinais fracos.
+
+Operações: mapa AS-IS→TO-BE, top 5 gargalos (estimativa de lead-time ganho, owner, próxima ação).
+
+Receita: lista de deals vermelhos (motivo, mudança sugerida, e-mails fonte), next best actions.
+
+Produto: backlog priorizado por impacto com trechos de VoC que justificam.
+
+Risco & Compliance: matriz risco×probabilidade×impacto, prazos e responsáveis.
+
+Pessoas (agregado): hotspots de sobrecarga e handoff debt entre áreas.
+
+Financeiro: variações >±5% citadas em comunicações, pendências de reconciliação.
+
+VoC: ranking de temas por conta/vertical com exemplo de citação.
+
+8) Classes de alertas (gatilhos típicos)
+Receita: no-reply >48h em oportunidade crítica; concorrente citado + preço; “perdemos por X”.
+
+Operações: ação crítica sem dono/prazo; cycle time >p95 do histórico.
+
+Produto: bug recorrente citado em ≥3 contas; pedido de feature estratégico.
+
+Risco/Compliance: prazo regulatório mencionado; cláusula sensível em troca de e-mails.
+
+Pessoas/Org: conflito explícito de prioridades entre líderes sobre o mesmo objetivo.
+
+9) Qualidade, segurança e governança
+PII/Segurança: mascaramento, RBAC por destinatário; trilha de evidências em todos os briefings.
+
+Confiabilidade: cada insight com link de origem + score de confiança; consenso entre agentes antes de P1.
+
+Avaliação contínua: precisão da extração de ações/decisões, tempo de reação a P1, uplift em KPIs operacionais.
+
+10) “Específicos” — quando realmente criar
+Quando há dados/lógica exclusivos (ex.: regras de compliance ESG setoriais, pricing avançado).
+
+Quando a cadência precisa rotinas intensivas (ex.: process mining com janela semanal).
+
+Caso contrário, parametrização (prompt + regras + KPIs + ontologia) costuma bastar.
+
+Resumo objetivo
+A base é: ontologia + EKG/RAG + governança/PII + verificações + motor de KPIs/regras.
+
+Os agentes se dividem em fundacionais (infra analítica) e de negócio (estratégia, ops, receita, produto, risco, pessoas, financeiro, VoC).
+
+Entregáveis: Daily Exec Brief, Weekly Management Pack, Monthly Board Pack, alertas P1–P3 e dossiês.
+
+“Específicos” só quando houver lógica/dados exclusivos; do contrário, perfis/skills configuráveis já tornam os agentes “específicos o suficiente”.
+
+Você disse:
+E agora vem uma grande pergunta. Monte um plano de assessment. O que tem que ser extraído desde o board da empresa? Por exemplo, eu já vejo Missão, Visão e Valores como base. Mas o que tem que ser extraído da empresa para montar o gatilho inicial, o marco zero de conhecimento? Eu nem sei, é uma palavra até legal. É um conhecimento que vai ser mapeado. Então é um processo de assessment que está acessando essa informação e modelando, por exemplo, as entidades, mapeamento de entidades, de processos. Isso é fundamental, por exemplo. E aí que eu vejo um processo de mapeamento, gamificação. O mapeamento da empresa deve ser feito pelo próprio colaborador. Isso mantém vivo o knowledge base, como funciona a sua empresa. Esse já é o principal recurso que tem que ser buscado. O conhecimento é tudo e vem daí. Então ter esse processo bem estruturado, com essas duas coisas, você tem um excelente ecossistema de agentes corporativos, com certeza.
+O ChatGPT disse:
+
+Pensou por 28s
+Plano de Assessment para “Marco Zero” do Enterprise Knowledge Base (EKB)
+Objetivo
+Estabelecer o Marco Zero de Conhecimento da empresa — um snapshot organizacional estruturado (ontologia, entidades, processos, KPIs, políticas, riscos e cadências decisórias) — para alimentar a suíte de agentes corporativos que consome transcrições de reuniões e e-mails.
+
+Escopo do Assessment
+Governança & Diretrizes: políticas de privacidade/PII, níveis de sigilo, RBAC, retenção e auditoria.
+
+Estratégia & Intencionalidade: missão, visão, valores, tese de posicionamento, ambições (3–5 anos), trade-offs e apetite a risco.
+
+Modelo Operacional: organograma, responsabilidades (RACI), processos críticos, cadências de decisão.
+
+Entidades & Ontologia de Negócio: pessoas, equipes, clientes/contas, produtos, projetos, contratos, riscos, decisões, ações, KPIs, OKRs.
+
+Sistemas & Dados: inventário de fontes (e-mail, calendário, CRM, ERP, PM, tickets), dicionário de dados, qualidade e acessos.
+
+KPIs & Regras: métricas-chave, metas, thresholds de alerta, janelas de observação, fórmulas e fontes.
+
+Riscos & Compliance: obrigações regulatórias, cláusulas sensíveis, prazos, controles existentes.
+
+Voc do Cliente & Mercado: temas recorrentes, concorrentes, hipóteses de preço/valor, evidências externas.
+
+Cadências & Artefatos de Entrega: brief diário/weekly pack/board pack, SLAs de atualização, formato e trilhas de evidência.
+
+Gamificação do Mapeamento: mecanismo para o colaborador manter vivo o EKB (rotinas, incentivos e validação).
+
+O que extrair do Board (entrada executiva mínima)
+Checklist orientado a “gatilhos iniciais” (sem floreio, só insumos operacionais):
+
+Missão, Visão, Valores (versões atuais e termos proibidos/obrigatórios).
+
+Ambições 3–5 anos (crescimento, margens, portfólio, geos).
+
+Top 5 Prioridades Estratégicas com porquês, riscos aceitos e os que não serão aceitos.
+
+Mapa de OKRs corporativos do ano (KRs mensuráveis + owners).
+
+Apetite a Risco (qualitativo → matriz probabilidade×impacto; limites “não ultrapassar”).
+
+Tese de Mercado & Concorrência (quem são, onde incomodam, como reagimos).
+
+Unidades de Valor (ex.: MRR, NRR, GMV, CAC, LTV, SLA-X, OTIF, NPS, CSAT).
+
+Calendário de Decisão (reuniões fixas de steerco/board, deadlines de budget, janelas de pricing).
+
+Políticas-Âncora: compliance, LGPD/PII, segurança, retenção de e-mails e transcrições.
+
+Critérios de Alerta P1 definidos pelo board (o que “acorda o executivo”).
+
+Restrições/Tabus (linhas de negócio intocáveis, parceiros mandatórios, limites éticos).
+
+Narrativa Oficial (mensagem-guia que o Narrative Synthesizer deve preservar).
+
+Esses insumos viram regras e thresholds iniciais para os agentes e o roteador de alertas.
+
+Artefatos a coletar da empresa (além do board)
+Organograma (com e sem dotted lines), lista de times, distribution lists de e-mail.
+
+Catálogo de Processos (nível 2/3): SIPOC ou BPMN-lite de cada macroprocesso.
+
+Catálogo de Entidades (ver modelo abaixo) e Glossário (termos e sinônimos).
+
+Inventário de Sistemas (fonte de verdade por tema, donos, escopo de dados, APIs).
+
+Dicionário de KPIs (definição, fórmula, periodicidade, fonte, dono, meta).
+
+Registro de Riscos (atuais, mitigadores, prazos) e Obrigações Regulatórias.
+
+Templates de Reunião/E-mail (padrões de pauta, MoM/notes, etiquetas/tags se houver).
+
+Playbooks (vendas, suporte, incidentes, mudanças) e SOPs.
+
+Modelo de Ontologia (“base” do EKB)
+Entidades nucleares
+
+Pessoa(id, nome, e-mail, função, time, RBAC).
+
+Equipe/Unidade(id, líder, missão).
+
+Cliente/Conta(id, segmento, MRR/GMV, estágio).
+
+Produto/Oferta(id, plano, preço, versões).
+
+Projeto/Programa(id, sponsor, objetivo, status).
+
+Contrato/Proposta(id, valor, data, cláusulas sensíveis).
+
+Reunião(id, data, pauta, participantes, transcript_id).
+
+E-mail/Thread(id, remetente, destinatários, assunto, labels).
+
+Ação(id, descrição, owner, devido_em, status, origem[timestamp+trecho]).
+
+Decisão(id, tema, quem decidiu, quando, racional, fontes).
+
+KPI/OKR(id, fórmula, meta, atual, variação, dono).
+
+Risco(id, tipo, probabilidade, impacto, prazo, responsável).
+
+Relações (exemplos): reporta_a, pertence_a, refere_se_a, decide_sobre, gera, bloqueia, alinha_a(OKR), risco_de, evidencia_por (trecho).
+Eventos: email_enviado, reunião_realizada, decisão_tomada, ação_criada/concluída, kpi_atualizado, risco_registrado.
+
+“Marco Zero” — Definição do Snapshot Inicial
+Entregável técnico que viabiliza os agentes já no dia 1:
+
+Ontologia v1 (JSON/YAML) com entidades, relações, eventos e RBAC labels.
+
+Catálogo de Processos v1 com 10–20 macroprocessos priorizados (BPMN-lite ou SIPOC).
+
+Dicionário de KPIs v1 com metas e thresholds (inclui mapeamento para alerts P1/P2/P3).
+
+Inventário de Sistemas v1 com conectores e fields mínimos (e-mail, calendário, CRM, PM, tickets).
+
+Políticas de Governança v1 (PII, retenção, auditoria, tracing de evidências).
+
+Lista de Gatilhos Iniciais (ver abaixo).
+
+Conjunto de Seed Prompts dos Agentes (fundacionais + negócio) parametrizados no contexto da empresa.
+
+Gatilhos Iniciais (para alertas e análises)
+Receita: citação de concorrente + preço em e-mails; “adiado/cancelado”; ausência de resposta >48h em deal crítico.
+
+Operações: ação crítica sem dono/prazo; lead-time >p95 histórico; handoff reaberto.
+
+Produto: bug citado por ≥3 contas; feature estratégica repetida ≥5 vezes em 30 dias.
+
+Risco/Compliance: menção a prazo regulatório <14 dias; palavra-chave de cláusula sensível.
+
+Pessoas: sobrecarga explícita (≥3 ações P1 no mesmo owner); conflito de prioridades entre líderes.
+
+Financeiro: divergência >±5% entre números citados em fontes distintas no mesmo período.
+
+Processo de Assessment (4 sprints; 10–15 dias úteis)
+Sprint 0 — Preparação & Acesso (D-2 a D0)
+Acordo de escopo de dados (e-mail/transcrições), PII e RBAC.
+
+Coleta dos artefatos do board (checklist acima).
+
+Lista de stakeholders por área e “Champions” de conhecimento.
+
+Saídas: Plano de coleta, matriz de acesso, cronograma de cadências.
+
+Sprint 1 — Estratégia, Ontologia e Gatilhos (D1–D3)
+Entrevista executiva (90 min) → preencher Matriz Estratégica (prioridades, riscos, KPIs).
+
+Rascunho da Ontologia v1 + dicionário de termos/sinônimos.
+
+Definição dos Gatilhos Iniciais (P1/P2/P3) alinhados ao board.
+
+Saídas: Ontologia v1, Gatilhos v1, Glossário v1.
+
+Sprint 2 — Processos & Entidades (D4–D7)
+Oficina de Macroprocessos (2h): priorizar top 10–20.
+
+Cartões de Processo (BPMN-lite) por time (guia abaixo).
+
+Registro de Entidades e relacionamentos críticos (cliente-produto-projeto-contrato).
+
+Saídas: Catálogo de Processos v1, Registro de Entidades v1, RACI macro.
+
+Sprint 3 — KPIs, Regras e Conectores (D8–D11)
+Validação do Dicionário de KPIs (fórmula, meta, fonte, dono).
+
+Thresholds de variação e janelas de alerta (ex.: rolling 7/30).
+
+Inventário de Sistemas e fields mínimos; whitelists de caixas de e-mail e labels.
+
+Saídas: KPIs v1, Regras v1, Inventário de Sistemas v1.
+
+Sprint 4 — Consolidação & Marco Zero (D12–D15)
+Teste de ingestão controlada (amostra de e-mails/transcrições).
+
+Dry run dos agentes fundacionais com traces e confidence scores.
+
+Ajustes finais de ontologia/gatilhos.
+
+Saídas: Pasta Marco Zero (todos os artefatos versionados) + Relatório de Cobertura.
+
+Gamificação do Mapeamento (colaborador como “sensor” do EKB)
+Objetivo: manter o EKB vivo sem burocracia.
+
+Micro-tarefas (2–5 min) integradas ao fluxo:
+
+“Este e-mail contém uma Decisão? [sim/não] → marcar owner/prazo.”
+
+“Qual processo esta reunião afetou? [dropdown] → adicionar etapa.”
+
+“Houve risco/bloqueio? → classificar (baixo/médio/alto).”
+
+Cartões de Processo (template curto):
+
+Nome, Propósito, Entradas, Saídas, Etapas (3–7), Handoffs, Métricas, Riscos, Sistemas, Dono.
+
+Pontuação & Badges: pontos por contribuição validada; leaderboard por time; “Badge Guardião do Processo”.
+
+Qualidade: amostragem 10–20% por Champion + auditoria cruzada entre times.
+
+Recompensa Funcional: acesso prioritário a dashboards/time-to-insight; menção em weekly.
+
+Proteção: anonimização quando sensível; rate limits e RBAC por papel.
+
+Templates práticos (resumidos)
+1) Matriz Estratégica (preenchida com o board)
+
+Prioridade | Resultado alvo | KR (métrica/meta) | Riscos aceitos | Não-negociáveis | Dono
+
+2) Registro de Entidades (CSV/Sheet)
+
+Tipo | ID | Nome | Atributos-chave | Relaciona-se com | Dono | Fonte primaria | Sigilo
+
+3) Cartão de Processo (BPMN-lite)
+
+Processo | Propósito | Entradas | Saídas | Etapas (1→N) | Handoffs | Métricas | Riscos | Dono | Sistemas
+
+4) Dicionário de KPIs
+
+KPI | Fórmula | Meta | Periodicidade | Fonte | Dono | Alert P1/P2/P3 | Janela (7/30)
+
+5) Regras de Alerta
+
+Regra | Condição | Severidade | Destinatário | Evidência exigida | Cooldown | SLA de resposta
+
+6) Inventário de Sistemas
+
+Sistema | Área | Dados (campos) | SOR? | Conector | Dono | Acesso | Retenção | Observações
+
+Critérios de Aceite do Assessment (Go/No-Go para operação dos agentes)
+Cobertura de Processos Críticos ≥ 80% (100% para os must-run).
+
+KPIs Críticos definidos com fórmula, meta e dono (≥ 90% dos listados pelo board).
+
+Gatilhos P1/P2/P3 definidos e testados com exemplos.
+
+Inventário de Sistemas com conectividade validada para fontes mínimas (e-mail, reuniões, CRM/PM).
+
+Governança & RBAC aprovados (PII, retenção, tracing).
+
+Dry Run dos agentes com amostra real + traceability.
+
+Métricas de Sucesso pós-Marco Zero
+Tempo-para-insight (TtI) do Daily Exec Brief < 8h do dia útil anterior.
+
+Precisão de Extração (Ação/Decisão) > 85% em auditoria amostral.
+
+Recall de Gatilhos Críticos > 90% (sem noise > 15%).
+
+Adoção de Micro-tarefas > 60% dos colaboradores-alvo na semana 4.
+
+Freshness: mediana de atualização de processos < 30 dias.
+
+Agentes que entram em operação imediata após o Assessment
+Curador de Contexto (KG/RAG) → roteia trechos relevantes por agente.
+
+Minerador de Ações & Decisões → cria/atualiza Ações e Decisões com owners/due.
+
+Motor de KPIs & Regras → calcula, compara com thresholds e emite sinais.
+
+Roteador de Alertas → aplica severidade e entrega aos destinatários corretos.
+
+Narrative Synthesizer → compila Daily/Weekly/Board Packs com trilhas de evidência.
+
+Observações finais
+“Específicos” (agentes por área) só exigem perfis e regras customizados; novo código apenas quando houver lógica setorial não coberta pela base.
+
+O Marco Zero não é estático: a gamificação garante atualização contínua com curadoria leve de Champions.
+
+Você disse:
+Colocar uma camada de governança aí, né? Olha que prato cheio, que bom! De todo esse conhecimento que está sendo transacionado, com certeza é possível extrair um mapeamento e uma... Na verdade, é um mapeamento e um olhar de governança, extraindo muita informação daí. Tem um painel só para isso, específico para isso, para o compliance e para isso, com certeza. Claro, isso pode ser aplicado a qualquer área, mas eu estou falando assim já... Quick wins, na verdade, são como prover, como atuar, como vender melhor esse produto, como tirar as barreiras, né? Que produtos, quais entregas seriam efetivamente quebradoras de resistência, né? Tem até um nome para isso. Essa é uma delas. Ainda existem outras, com certeza. Monta aí para a gente cinco gatilhos vencedores.
+O ChatGPT disse:
+
+Pensou por 29s
+Aqui vão 5 gatilhos vencedores (governança/compliance) desenhados para gerar quick wins — isto é, reduzir objeções na venda, mostrar valor imediato ao board e remover barreiras internas. Cada um inclui: o problema que resolve, como detectar, saída/entrega e efeito de valor. Sintaxe de regra em YAML (exemplo) para deixar claro como operacionalizar.
+
+1) Prazo regulatório/contratual iminente (D-14/D-7/D-1)
+Problema: multas, perdas de receita ou descumprimento de obrigações por falta de visibilidade.
+Detecção: varredura em e-mails/transcrições por menções a prazos, resoluções/órgãos (ex.: “ANP/ANEEL/ANVISA”, “auditoria”, “cláusula 9.3”), datas e termos como “penalty”, “multa”, “SLA”, “renovação”. Cruzar com o registro de obrigações do EKB.
+Saída: alerta P1/P2 com owner, deadline, risco estimado e link para os trechos de origem; widget no Painel de Governança com cronograma (D-14→D-1).
+Valor: evita surpresa regulatória; mostra governança ativa (argumento de venda).
+
+regra: prazo_regulatorio_iminente
+se:
+  - origem in [email, transcript]
+  - texto contém_any ["resolução", "auditoria", "SLA", "renovação", "multa", "penalty"]
+  - extrair_data(texto) - hoje <= 14 dias
+  - obrigação_correlata in EKB.obrigacoes
+entao:
+  severidade: P1 if <=7d else P2
+  destinatarios: [owner_obrigacao, juridico, executivo_responsavel]
+  sla_resposta: "24h (P1) / 48h (P2)"
+2) Decisão sem dono/prazo (accountability gap)
+Problema: decisões “sumidas” geram retrabalho e desgaste entre áreas.
+Detecção: captura de frases do tipo “decidido”, “aprovado”, “vamos fazer X” em atas/transcrições; se owner ou due date não forem extraídos → lacuna. Após 24h sem complemento via e-mail follow-up, sinalizar.
+Saída: alerta P2 com botão de atribuir dono/prazo; cartão “Decisões órfãs” no painel.
+Valor: disciplina de execução visível ao board; queda de objeção “isso não muda operação”.
+
+regra: decisao_sem_owner_due
+se:
+  - evento == "decisao_tomada"
+  - (owner is null) or (due_date is null)
+  - idade_evento >= 24h
+entao:
+  severidade: P2
+  destinatarios: [chair_da_reuniao, PMO, donos_de_area]
+  acao_sugerida: "atribuir_owner_e_prazo"
+3) Indicador inconsistente (número divergente vs SOR)
+Problema: números conflitantes em threads distintas minam confiança e atrasam decisões.
+Detecção: NER de KPIs citados (ex.: “NRR 102%”, “OTIF 95,2%”), comparação com Source of Record (CRM/ERP/BI) e com citações recentes (janela 30 dias). Divergência >±5% ou referência a período diferente sem contexto → flag.
+Saída: alerta P2 “Conflito de Métrica” com os dois trechos lado a lado e link ao SOR; seção “Conciliação pendente” no painel.
+Valor: credibilidade dos reports; argumento “nossa plataforma reduz ruído na gestão”.
+
+regra: kpi_inconsistente
+se:
+  - entidade == "KPI"
+  - abs(valor_citado - SOR.valor_atual(periodo)) >= 5%
+ou:
+  - existe_duas_citacoes(kpi, 30d) com valores divergentes
+entao:
+  severidade: P2
+  destinatarios: [dono_kpi, BI, financeiro]
+  tarefa: "consolidar_fonte_e_contexto"
+4) Cláusula sensível sem revisão jurídica (deal & compliance)
+Problema: riscos contratuais assumidos por e-mail ou minuta não revisada.
+Detecção: padrões de linguagem contratual (“indenização”, “limitação de responsabilidade”, “SLA financeiro”, “exclusividade”, “auditoria in loco”); se Jurídico não estiver em cópia/participação → risco.
+Saída: alerta P1 para Jurídico/Comercial com os parágrafos destacados; “semáforo” por deal no painel.
+Valor: remove barreira do medo jurídico; posiciona o produto como co-piloto de risco.
+
+regra: clausula_sensivel_sem_juridico
+se:
+  - texto contém_any ["indenização", "limitação de responsabilidade", "exclusividade", "auditoria", "penalidade", "jurisdição"]
+  - participantes.nao_contem("juridico@empresa.com")
+entao:
+  severidade: P1
+  destinatarios: [juridico, head_comercial]
+  sla_resposta: "24h"
+5) Compromisso ao cliente não registrado (shadow commit)
+Problema: promessas de prazo/escopo/preço feitas em calls/e-mails e não refletidas no CRM/PM → retrabalho e churn.
+Detecção: extrair compromissos (“entregamos até DD/MM”, “incluir módulo X sem custo”) e verificar se existem em CRM (oportunidade/contrato) ou PM (backlog/sprint). Ausente após 24–48h → sinalizar.
+Saída: alerta P2 para Sales/CS/Entrega com ação “criar registro” (CRM/PM) e texto-fonte; relatório semanal de shadow commitments.
+Valor: reduz fricção Sales↔Produto/Entrega; argumento forte de governança de receita.
+
+regra: compromisso_nao_registrado
+se:
+  - evento in ["email", "transcricao"]
+  - extrair_compromisso(texto) == true
+  - !existe_registro(compromisso, [CRM, PM], janela=48h)
+entao:
+  severidade: P2
+  destinatarios: [account_exec, CS, delivery_manager]
+  acao_sugerida: "criar_registro_oficial"
+Como isso “quebra resistência” na venda
+Valor tangível rápido: cada gatilho se traduz em alertas acionáveis e um Painel de Governança com trilhas de evidência (cita exatamente de onde veio o insight).
+
+Risco reduzido: mostra controle sobre prazo regulatório, exposição contratual e consistência de KPIs — pontos sensíveis para CFO/GC/COO.
+
+Disciplina operacional: fecha lacunas de accountability e de registro (decisões e commits), sem mudar ferramentas do time (o sistema lê e-mails/reuniões e cobra o mínimo necessário).
+
+Se quiser, transformo estes cinco gatilhos em cards de produto (nome, demo script, métrica de impacto, e telas do painel) prontos para pitch com board/C-suite.
+
+Você disse:
+Busca proativa de fatos. Para cada uma das pessoas é analisada a necessidade da busca de informações na internet, ciclicamente, que impactem ao negócio. Por exemplo, a lei nova pode impactar o negócio, o detectado que impacta o negócio já comunica as áreas e os perfis que seriam responsáveis por aquele impacto. Este é só um exemplo. A proatividade é tudo. A busca proativa de informação. Tanto a leitura interna, mas também a leitura externa.
+O ChatGPT disse:
+
+Pensou por 42s
+Perfeito. Vamos desenhar a Camada de Inteligência Externa Proativa (IEP) acoplada ao EKB para varrer web/reguladores/mercado por pessoa/perfil, correlacionar com o contexto interno e emitir sinais acionáveis.
+
+1) Objetivo da IEP
+Detectar cedo mudanças externas (lei, concorrente, cliente, fornecedor, tecnologia, risco) com impacto mensurável nos processos/KPIs/OKRs.
+
+Personalizar por persona (CFO, Jurídico, COO, CSO/ESG, Sales/CS, Produto, TI/Sec) usando o que o EKB conhece sobre responsabilidades, KPIs e deals.
+
+Gerar alertas e dossiês com evidências (trechos/snapshots + fonte + timestamp), já roteados para quem decide/executa.
+
+2) Arquitetura (pipeline)
+Profiles de Observação (per-persona)
+Curva de interesse = {KPIs que a pessoa “dona” + processos sob sua RACI + entidades ligadas (clientes/deals/produtos)}.
+
+Watchlists & Queries (auto-geradas do EKB + curadoria)
+Tópicos: regulatório, concorrência, clientes/fornecedores, tecnologia/CVE, status cloud, macro de custo (câmbio/energia), compras públicas/RFP.
+
+Coletores
+
+RSS/APIs oficiais; monitores de mudança de página; consultas booleanas; diffs de docs; feeds de versões (GitHub/NVD); status pages; portais de compras.
+
+Política de fontes: T1 (diários oficiais/reguladores) > T2 (jornais/portais setoriais) > T3 (blogs/analistas). Pontuação por confiabilidade.
+
+Normalização & Linking
+NER + dedupe + entity linking → (Lei X) impacta (Processo Y/Produto Z/Cliente W).
+
+Verificação & Corroboração
+Regra: 1×T1 ou 2×T2 para promover a P2; P1 só com T1 ou efeito comprovado. Guarda snapshot da fonte (hash+URL+data).
+
+Scoring de Impacto
+impacto = relevância_para_KPI * proximidade_temporal * amplitude * confiança_da_fonte. Limiares definem P1/P2/P3.
+
+Roteamento & UX
+Alerta (Slack/Email) + tarefa (PM/CRM) + painel “Inteligência & Governança” com trilhas. Cooldown e suprimir duplicatas por janela.
+
+3) Cadência por classe de sinal
+Contínuo (near-real-time): regulatório oficial, incidentes de segurança, status cloud/infra.
+
+Horário: concorrência, clientes estratégicos, fornecedores críticos.
+
+Diário: CVEs dependências, variações macro sensíveis (p.ex., energia).
+
+Semanal: pesquisas/whitepapers, movimentos de pricing.
+
+Mensal: revisões de normas/standards e síntese executiva.
+
+4) Perfis por persona (o que observar e como acionar)
+CFO: impostos/incentivos, preços de insumo/energia, riscos contratuais com efeito financeiro. → Ação: “atualizar cenário/ROI”, “revisar provisões”.
+
+Jurídico/Compliance: leis/regulamentos, cláusulas padrão setoriais, decisões relevantes. → Ação: “análise de aderência”, “ajustar modelos”.
+
+COO/Operações: supply chain, greves, mudanças de SLA de fornecedores, requisitos técnicos novos. → Ação: “mitigar capacidade”, “ajustar SOP”.
+
+CSO/ESG: normas ESG (CSRD/ESRS/CBAM etc.), prazos de reporte, taxonomias. → Ação: “roadmap de conformidade”.
+
+Sales/CS: RFPs/licit., anúncios de cliente, movimentos de preço/posicionamento de concorrente. → Ação: “play ofensivo/defensivo”.
+
+Produto/Engenharia: CVEs de libs/SDKs, breaking changes de plataformas, padrões técnicos. → Ação: “hotfix/feature flag”.
+
+Segurança/TI: incidentes de provedores, políticas de dados, depreciações de APIs. → Ação: “runbook de contingência”.
+
+5) Cinco “gatilhos proativos” vencedores (externo ↔ interno)
+Cada um vem com condição, evidência, roteamento e ação sugerida.
+
+(1) Regulatório com data de vigência no horizonte (H≤90d) que toca processos/OKRs
+Se fonte T1 cita obrigação nova/alterada e entidades_afetadas≥1 (produto/processo/cliente)
+
+Então P1 (≤30d) / P2 (≤90d), destino: Jurídico+COO+CSO+CFO, evidência com trecho + checklist de aderência gerado dos processos afetos.
+
+(2) RFP/Compra pública/Anúncio de cliente que bate no ICP
+Se edital/anúncio contém termos de problema/tecnologia que casam com nossa oferta
+
+Então P2 para Sales/CS/Produto, com mapa de requisitos vs. features e boilerplate de resposta.
+
+(3) Movimento relevante de concorrente (preço/contrato/posicionamento)
+Se preço/tier/termo novo detectado e há oportunidades ativas com concorrência mapeada
+
+Então P2 para Sales/RevOps: “ajuste de proposta/play”, casos similares e impacto estimado no win-rate.
+
+(4) Incidente/Vulnerabilidade crítica em dependência usada
+Se CVE severidade alto/exploit e nosso SBOM indica uso
+
+Então P1 para Eng/Sec/Produto: pacote afetado, versões, PoC, clientes expostos e runbook (patch/rollback/mitigação).
+
+(5) Mudança de SLA/Status de fornecedor-chave (cloud/IDP/pagamentos)
+Se alteração de SLA ou degradação prolongada
+
+Então P1/P2 para TI/COO/CS: top contas impactadas, “manter cliente informado” e plano de contingência.
+
+6) Como a IEP decide “o que buscar para cada pessoa”
+Função de necessidade: para cada pessoa p, derive (KPIs_p, Processos_p, Entidades_p) do EKB → gere topics e queries; ajuste pesos por KR atual e janelas críticas (ex.: QBR, board).
+
+Aprendizado: feedback (mute/ack) recalibra pesos e cadências.
+
+Privacidade: roteia mínimo necessário; tudo com RBAC + logs + snapshots de evidência.
+
+7) Exemplos de configuração (YAML)
+personas:
+  cfo:
+    kpis: [NRR, margem, OTIF, OPEX_TI]
+    interesses: [incentivos_fiscais, custo_energia, risco_contratual]
+  juridico:
+    interesses: [lei_setorial, prazos_regulatorios, clausulas_padrao, privacidade_dados]
+  produto:
+    interesses: [cve_dependencias, breaking_changes, padroes_tecnicos]
+
+watchers:
+  regulatorio_br:
+    fontes: [Diarios_Oficiais, Reguladores]
+    query_seed: ["obrigação", "vigência", "resolução", "norma"]
+    promote_if: { fonte_tier: "T1", horizonte_dias: "<=90" }
+    link_to: [processos, produtos, clientes]
+  rfp_publicas:
+    fontes: [Portais_Compras, Clientes_estrategicos_news]
+    query_seed: ["RFP", "termo de referência", "licitação", "proposta"]
+    promote_if: { match_icp: true }
+  concorrencia:
+    fontes: [sites_precos, changelogs, comunicados]
+    query_seed: ["preço", "SLA", "exclusividade", "parceria"]
+  cve_sbom:
+    fontes: [NVD, vendors]
+    promote_if: { severidade: "alta", em_sbom: true }
+  fornecedores_status:
+    fontes: [status_cloud, comunicados_SLA]
+    promote_if: { degradacao_minutos: ">=30" }
+
+routing:
+  P1: {dest: ["juridico","coo","cso","cfo"], sla_horas: 24}
+  P2: {dest: ["sales","revops","produto"], sla_horas: 48}
+
+painel:
+  secoes: [Regulatório, RFPs/Clientes, Concorrência, Segurança/Tech, Fornecedores]
+  mostrar: [severidade, impacto_previsto, entidades_afetadas, evidencias, tarefas_vinculadas]
+8) Entregáveis da IEP
+Alerta acionável (P1/P2/P3) com evidências e next action já criado no sistema da área.
+
+Digest diário por persona (máx. 5 itens).
+
+Radar semanal (mapa de impacto cruzando externo×interno).
+
+Dossiês temáticos sob demanda (ex.: “rastro de todas as menções a CBAM que tocam o Produto A e clientes europeus”).
+
+9) Governança & Compliance da IEP
+Fonte e prova: toda afirmação vem com snapshot e classificação T1/T2/T3.
+
+Reprodutibilidade: guardar consulta/versão da página.
+
+Minimização: só o trecho relevante vai ao alerta; sem coletar PII externa desnecessária.
+
+Auditoria: log de quem recebeu, quem agiu e quando; métricas de precision/recall de alertas.
+
+Isso coloca a busca proativa como serviço contínuo, personalizado por pessoa e ancorado no impacto (processos/KPIs), com governança forte e entregáveis “prontos para agir”.
+
+Você disse:
+Agora vem o principal ponto e você tem que incorporar o papel do CEO de uma empresa, de uma empresa grande, do board de uma empresa grande, que vai ler esse documento e responder se você compraria isso ou não, e por quanto. Claro que isso depende do tamanho da empresa, mas isso realmente tem valor? Se a gente está entregando isso aí pra ele, isso realmente tem valor? E qual é o valor? Pode ser por usuário, por exemplo, ter uma faixa por usuário. Eu nem sei qual é a métrica ideal. Depende do tamanho da empresa, depende do número de pessoas que vai usar, acho o conhecimento estratégico. Esse é um pacote. Conversar com a informação já é outro pacote, mas isso é uma outra análise. Eu quero que você se haja como um board de uma empresa e argumente com esse produto que está sendo oferecido.
+O ChatGPT disse:
+
+Pensou por 1m 19s
+Vou responder “como board/CEO” avaliando o produto — objetivamente: compro ou não, por quanto, sob quais condições, e qual métrica de precificação faz sentido.
+
+Parecer do Board
+1) Compraria?
+Sim, com piloto obrigatório e cláusula de desempenho.
+A proposta endereça três dores executivas de alto valor: (i) governança/risco regulatório em comunicações, (ii) disciplina de execução (decisão→owner→prazo), (iii) inteligência externa proativa vinculada a processos/KPIs. A diferenciação está na rastreabilidade por evidência (trechos de e-mail/reunião) e no roteamento contextual. Se isso for demonstrado com precisão, compro.
+
+Condicionantes para compra (mínimos):
+
+Segurança & Compliance: RBAC, mascaramento PII, criptografia em trânsito/repouso, opção de data residency e logs de auditoria. SOC2/ISO 27001 (ou equivalente) exigidos.
+
+Explainability: cada alerta/insight com trecho-fonte e score de confiança.
+
+Integrações: e-mail, calendário, CRM e PM/tickets “no-click” (SSO/SCIM).
+
+Sinal/ruído: precisão/recall auditáveis; cooldown anti-spam.
+
+2) Quanto eu estaria disposto a pagar (âncora de valor)
+Ancoragem em valor econômico comprovável (não per-seat puro). Exemplo conservador para uma empresa de ~5.000 pessoas:
+
+Tempo executivo poupado: 200 gestores recebendo daily/weekly poupam 15 min/dia.
+Cálculo: 15 min = 0,25 h; 200 × 0,25 × 220 dias = 11.000 h/ano.
+A R$ 250/h ⇒ R$ 2.750.000/ano.
+
+Risco regulatório evitado (EV): um evento/ano com valor esperado de R$ 1.000.000 (conservador) ⇒ R$ 1.000.000/ano.
+
+Uplift comercial por shadow commitments e concorrência: +0,5 p.p. em pipeline de R$ 200 mi a 30% margem.
+Cálculo: 0,5% × 200.000.000 = R$ 1.000.000 receita × 30% = R$ 300.000 margem.
+
+Retenção: –0,2 p.p. de churn em R$ 120 mi de base, margem 80%.
+Cálculo: 0,2% × 120.000.000 = R$ 240.000 × 80% = R$ 192.000.
+
+Valor anual conservador = 2.750.000 + 1.000.000 + 300.000 + 192.000 = R$ 4.242.000.
+Como board, aceito pagar 10–25% do valor entregue. Faixa WTP (willingness-to-pay) para esse porte: R$ 420k–R$ 1,06 mi/ano. Mediana (15%): R$ 636k/ano.
+
+Em empresas de 20k+ colaboradores, com risco regulatório elevado e footprint global, o valor escala; faixa esperada: R$ 3,0–6,0 mi/ano.
+
+3) Métrica de precificação (o que faz sentido para o comprador)
+Per-seat puro não reflete valor. Preferimos modelo híbrido ancorado em uso e risco:
+
+Licença de Plataforma (fixa, anual): EKB + agentes fundacionais + governança.
+Faixa típica por porte: R$ 300k–R$ 900k/ano.
+
+Uso por “caixa monitorada” (e-mail/reuniões) — monitored mailbox — porque é onde nasce o valor:
+R$ 10–35/mês/caixa (descontos por volume; teto para evitar explosão de custo).
+
+Módulos de valor (add-ons):
+
+Governança & Compliance Pack (gatilhos regulatórios/contratuais): R$ 180k–R$ 360k/ano.
+
+Receita & Produto Pack (deals, VoC, backlog/WSJF): R$ 180k–R$ 360k/ano.
+
+Inteligência Externa Proativa (IEP): BR-only R$ 240k–R$ 480k/ano; Global R$ 600k–R$ 1,2 mi/ano (depende do número de domínios/reguladores monitorados).
+
+Licenças “Author/Analyst” (opcional) para quem cria dossiês/regras: R$ 100–R$ 200/mês (50–150 usuários).
+
+Resultado: o custo acompanha o nível de observabilidade (caixas monitoradas) e os riscos/endpoints que escolhemos cobrir — o que é aceitável em procurement.
+
+4) Estrutura comercial que aprovo
+Contrato 12 meses, com piloto de 90 dias pago e abatível.
+
+Cláusula de performance: se não bater as metas do piloto, downgrade automático ou cancelamento sem multa.
+
+Degraus de preço por faixas de “caixas monitoradas” (ex.: até 1.000; 1.001–2.500; 2.501–5.000).
+
+Plafond de alertas por severidade para proteger contra ruído (ex.: P1 ilimitado, P2/P3 com fair use).
+
+5) Critérios de aceite (piloto → go-live)
+Precisão (Decisão/Ação) ≥ 85% amostral; Recall de P1 regulatório ≥ 90%.
+
+Queda de “decisão sem dono/prazo” ≥ 50% em 60 dias.
+
+Conciliação de KPIs: reduzir divergências citadas em e-mails ≥ 60%.
+
+Adoção: ≥ 70% dos destinatários abrem Daily/Weekly; tempo médio de ack P1 ≤ 24h.
+
+6) Onde o board vê risco (e como mitigar)
+Privacidade/LGPD: leitura de e-mail é sensível. Mitigar com on-tenant processing, minimização de dados, redaction por papel e DLP.
+
+Sinal/ruído: falso positivo destrói confiança. Mitigar com thresholds, cooldown, e promoção de alerta só com fonte T1 ou dupla T2.
+
+Dependência de integração: se não “cola” no CRM/PM, o valor evapora. Exijo conectores prontos e SLAs de manutenção.
+
+Mudança cultural: não quero que a empresa “mude processo para caber no produto”. O produto deve ler o que já existe e sugerir ação, não impor workflow.
+
+7) O que me faz assinar rápido (quebra de resistência)
+Painel de Governança com: prazos regulatórios D-90→D-1, decisões sem owner, KPI conflitante, cláusula sensível, shadow commit, e links de evidência.
+
+IEP operando: um caso real de lei/regra nova (T1) linkada a processos/OKRs com checklist de aderência.
+
+ROI tracking em tempo real no contrato: horas poupadas, P1 capturados, divergências resolvidas, deals salvos.
+
+Conclusão (do ponto de vista do comprador)
+Valor? Sim, material — em risco, eficiência executiva e receita.
+
+Modelo de preço? Plataforma + “caixas monitoradas” + módulos por domínio (compliance, receita/produto, IEP).
+
+Faixa de investimento? Para 5k pessoas, ~R$ 0,6–0,9 mi/ano é justificável sob metas de performance; para 20k+, R$ 3–6 mi/ano.
+
+Decisão? Aprovar piloto de 90 dias com métricas acima e kill switch contratual se não entregar.
+
+Você disse:
+Sabe uma coisa que mostra a questão da proatividade que a gente já falou? Que é quando algum assunto não está claro para a gente, ele deve notificar a pessoa que pode responder aquela pergunta para tirar a dúvida, para enriquecer o conhecimento. Isso faz muito sentido. Mostrar um alerta proativo em cima de uma dúvida. Isso pode ser muito útil.
+O ChatGPT disse:
+
+Pensou por 40s
+Perfeito — isso é um recurso central. Segue o desenho técnico do Agente Clarificador Proativo (ACP): quando detectar dúvida qualificada, ele gera a pergunta certa, roteia para a pessoa certa e fecha o loop atualizando o EKB.
+
+1) Definição operativa: “dúvida qualificada”
+Dúvida que, se não resolvida, bloqueia (ou degrada) um KPI, decisão, contrato, prazo regulatório ou entregável executivo.
+
+Classes (detectadas em e-mails/transcrições):
+
+KPI incompleto: número sem período/unidade (“NRR 102%” sem yoy/qoq/ano), meta ausente.
+
+Decisão/Ação ambígua: falta owner/due date; “vamos fazer”, “aprovado” sem atribuição.
+
+Referência opaca: “o contrato do Cliente X” sem ID/link, “ver documento acima” sem ponteiro.
+
+Regulatório vago: “tem lei nova” sem base legal (nº, órgão, vigência).
+
+Escopo/Preço/Prazo nebulosos: “módulo X incluso” sem condições; “entregamos semana que vem” sem data.
+
+Quem decide?: conflito ou vazio de decision-maker.
+
+2) Detecção (modelo + regras)
+Classificador de incerteza (LLM) + features linguísticas: “acho”, “confirmar”, “TBD”, “?”, “a combinar”, “estimado”.
+
+Confiança baixa na extração de campos (owner/due/período/unidade) ou campo obrigatório nulo.
+
+Contradição entre citações recentes (30 dias) do mesmo KPI/contrato.
+
+Validador de esquema do EKB: entidade criada com lacunas críticas → “dúvida qualificada”.
+
+Prioridade: P1 (se atrelado a P1 regulatório/board pack ≤7d), P2 (processo crítico/cliente estratégico), P3 (demais).
+
+3) Roteamento (quem deve responder)
+Regra 1 (Owner direto): se a dúvida toca uma entidade com dono (KPI, contrato, processo), roteia ao dono.
+
+Regra 2 (Expertise): se não houver dono claro, usa grafo de expertise (quem mais interagiu com a entidade/tema nos últimos 90 dias) ponderado por responsividade histórica.
+
+Fallback: grupo (“BI”, “Jurídico”, “RevOps”) com um responsável de plantão (rotativo) para evitar spam.
+
+4) Forma do alerta (mensagem minimamente invasiva)
+Conteúdo padrão (Slack/Email)
+
+Título: DÚVIDA P2 • KPI “NRR” sem período
+
+Contexto: 2–3 trechos ancorados (links para e-mail/ata).
+
+Pergunta gerada (precisa):
+
+“Quando é ‘NRR 102%’? ☐ Mês atual ☐ Últimos 3 meses ☐ Anual (YTD) ☐ Ano fechado 2024 ☐ Outro: ____”
+
+Campos críticos: período (obrigatório).
+
+Ações 1-clique: Responder | Não sou a pessoa certa (sugerir outro @) | Adiar 24h.
+
+SLA: 24h (P1) / 48h (P2).
+
+Privacidade: mostra apenas o trecho necessário, com redaction se preciso.
+
+5) Fechamento do loop (persistência + reprocesso)
+Resposta estrutura o dado (ex.: kpi.periodo = 2025-Q2).
+
+O nó/aresta do EKB é atualizado; tarefas/relatórios dependentes regeram (Daily/Weekly/Board).
+
+Fica um log de rastreabilidade: quem respondeu, quando, qual evidência.
+
+6) Gatilhos vencedores de “dúvida” (prontos para operar)
+# 1) KPI sem período/unidade
+regra: kpi_incompleto
+se:
+  - entidade == "KPI_citado"
+  - (periodo is null) or (unidade is null)
+entao:
+  prioridade: P2
+  pergunta: "Qual o período/unidade corretos para {{KPI}}?"
+  rota: dono_kpi || BI
+
+# 2) Decisão sem dono/prazo
+regra: decisao_ambigua
+se:
+  - evento == "decisao_tomada"
+  - (owner is null) or (due is null)
+entao:
+  prioridade: P2
+  pergunta: "Quem é o dono e qual o prazo da decisão {{id}}?"
+  rota: chair_reuniao || PMO
+
+# 3) Contrato/Documento sem referência concreta
+regra: referencia_opaca
+se:
+  - match("contrato|minuta|aditivo|doc") and (doc_id/link is null)
+entao:
+  prioridade: P2
+  pergunta: "Confirme o ID/link do documento citado:"
+  rota: account_owner || juridico
+
+# 4) Regulatório sem base legal
+regra: regulatorio_vago
+se:
+  - match("lei|resolução|norma|portaria") and (numero_norma is null or orgao is null or vigencia is null)
+entao:
+  prioridade: P1 if horizonte<=30d else P2
+  pergunta: "Qual norma é essa? Nº, órgão e vigência:"
+  rota: compliance_owner || juridico
+
+# 5) Compromisso ao cliente sem condições
+regra: compromisso_nebuloso
+se:
+  - match("incluso|sem custo|entregamos") and (escopo/due/preco is null)
+entao:
+  prioridade: P2
+  pergunta: "Qual escopo exato, prazo e condição comercial do compromisso?"
+  rota: account_exec || CS || delivery_manager
+7) UX de resposta (fricção mínima)
+Botão + dropdowns (valores sugeridos do contexto) para 80% dos casos.
+
+Campo livre só quando necessário (com limites e sugestões).
+
+“Não sou eu” reencaminha com justificativa e aprende no grafo de expertise.
+
+8) Governança (pontos sensíveis)
+RBAC: dúvida só vai para quem pode ver o conteúdo-fonte.
+
+Minimização: compartilha trecho mínimo (não o e-mail inteiro).
+
+Auditoria: ID da dúvida, tempo até resolver (TTC), quem respondeu, versões.
+
+Quotas/limites: no máximo N dúvidas/dia por pessoa; bundle de perguntas similares em uma só.
+
+9) Métricas de eficácia
+TTC (Time to Clarify) mediana por prioridade (meta: P1≤12h; P2≤36h).
+
+% de dúvidas resolvidas antes do Weekly Pack (meta ≥90%).
+
+Redução de ruído nos alertas derivados (ex.: queda de P2 reclassificados por falta de contexto).
+
+Cobertura de campos críticos (owner/due/período/unidade) no EKB (meta ≥95%).
+
+Precisão do roteamento (primeiro destino certo) ≥85%.
+
+10) Exemplos práticos (resumo)
+Ex. KPI
+
+“NRR foi 102%.”
+ACP → Pergunta ao dono do KPI com opções de período; resposta: “YTD 2025”. EKB atualiza; Weekly corrige painel.
+
+Ex. Regulatório
+
+“Nova portaria impacta inspeções.”
+ACP → pergunta a Jurídico: “Nº/órgão/vigência?”. Recebe “Portaria 123/2025 – ANEEL – vigência 01/10/2025”. Roteia checklist ao COO.
+
+Ex. Contrato
+
+“Assinar contrato da Conta A.”
+ACP → pede ID/link; resposta inclui “Contrato #C-87412 (DocuSign link)”; shadow commit fecha, CRM é atualizado.
+
+Essência: o ACP transforma “não sei / não está claro” em perguntas precisas, dirigidas e com SLA, convertendo ambiguidade em dados estruturados — e isso mantém a base viva, reduz risco e acelera decisão sem sobrecarregar ninguém.
+
+
+
+
+
+Nenhum arquivo escolhidoNenhum arquivo escolhido
+O ChatGPT pode cometer erros. A OpenAI não usa dados do espaço de trabalho CoCreateAI Team para treinar os modelos.

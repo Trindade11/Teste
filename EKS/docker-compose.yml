@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Neo4j (optional for local dev, use Neo4j Aura in prod)
+  neo4j:
+    image: neo4j:5.15
+    container_name: eks-neo4j
+    ports:
+      - "7474:7474"  # HTTP
+      - "7687:7687"  # Bolt
+    environment:
+      - NEO4J_AUTH=neo4j/localpassword
+      - NEO4J_PLUGINS=["apoc", "graph-data-science"]
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    networks:
+      - eks-network
+
+  # MongoDB (optional for local dev, use MongoDB Atlas in prod)
+  mongodb:
+    image: mongo:7
+    container_name: eks-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=localpassword
+      - MONGO_INITDB_DATABASE=eks
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - eks-network
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: eks-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - eks-network
+
+volumes:
+  neo4j_data:
+  neo4j_logs:
+  mongodb_data:
+  redis_data:
+
+networks:
+  eks-network:
+    driver: bridge

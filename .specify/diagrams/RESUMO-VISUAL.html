@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EKS Framework - Resumo Visual Executivo</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                fontSize: '16px'
+            }
+        });
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+        .hero {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            margin-bottom: 40px;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            border: none;
+            padding: 0;
+        }
+        .hero p {
+            font-size: 1.3rem;
+            color: #e0e7ff;
+            font-weight: 300;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .container {
+            padding: 0 40px 60px;
+        }
+        h2 {
+            color: #60a5fa;
+            border-left: 6px solid #1e3a8a;
+            padding-left: 20px;
+            padding-bottom: 10px;
+            margin: 60px 0 30px;
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+        h3 {
+            color: #93c5fd;
+            margin: 30px 0 15px;
+            font-size: 1.5rem;
+        }
+        .mermaid {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid rgba(96,165,250,0.1);
+        }
+        hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #1e3a8a, transparent);
+            margin: 60px 0;
+        }
+        .section {
+            margin-bottom: 80px;
+            background: rgba(30,41,59,0.5);
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid rgba(96,165,250,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #1e293b;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+        th {
+            background: #1e40af;
+            color: white;
+            font-weight: 600;
+        }
+        tr:hover {
+            background: #334155;
+        }
+        .nav-links {
+            background: rgba(30,58,138,0.3);
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(96,165,250,0.2);
+        }
+        .nav-links a {
+            color: #60a5fa;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+        .nav-links a:hover {
+            color: #93c5fd;
+            text-decoration: underline;
+        }
+        .deliverables {
+            background: rgba(30,41,59,0.6);
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 1px solid rgba(96,165,250,0.2);
+        }
+        .deliverables li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>🎯 EKS Framework - Resumo Visual Executivo</h1>
+        <p>Construa seu diferencial: estruturamos o conhecimento do seu negócio para que a IA trabalhe para você</p>
+    </div>
+    <div class="container">
+    <div class="nav-links">
+        <strong>Quick Navigation:</strong>
+        <a href="./eks-framework-complete.html">Framework Completo</a>
+        <a href="./eks-sprint1-mvp.html">Sprint 1 MVP</a>
+    </div>
+
+    <hr>
+
+    <div class="section">
+        <h2>🌍 Visão Geral: O que é o EKS?</h2>
+        <pre class="mermaid">
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1e3a8a'}}}%%
+mindmap
+  root((EKS<br/>Enterprise<br/>Knowledge<br/>System))
+    O QUE É
+      Framework multi-agente
+      Grafo de conhecimento semântico
+      Chat + Canvas + History
+      Temporal + Proveniência
+    PROBLEMA QUE RESOLVE
+      Conhecimento disperso
+      Decisões sem rastreio
+      Falta de continuidade
+      IA sem contexto real
+    DIFERENCIAL
+      Grafo ANTES do RAG
+      Semântica auto-explicativa
+      Memória cross-thread
+      Agentes especializados
+    VALOR
+      Melhoria contínua
+      Governança automática
+      Intel proativa
+      Briefings executivos
+        </pre>
+    </div>
+
+    <hr>
+
+    <div class="section">
+        <h2>🏗️ Arquitetura em 30 Segundos</h2>
+        <pre class="mermaid">
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '16px'}}}%%
+graph TB
+    User["👤 USUÁRIO"]
+    
+    subgraph Interface["INTERFACE"]
+        Chat["💬 Chat"]
+        Canvas["🖼️ Canvas"]
+    end
+    
+    subgraph Brain["ORQUESTRAÇÃO"]
+        LG["🔄 LangGraph<br/>(State Machine)"]
+    end
+    
+    subgraph Memory["MEMÓRIA"]
+        STM["⚡ Curto Prazo<br/>(Session)"]
+        LTM["🗄️ Longo Prazo<br/>(MongoDB)"]
+        SG["🕸️ Semântico<br/>(Neo4j)"]
+    end
+    
+    subgraph Intelligence["INTELIGÊNCIA"]
+        Agents["🤖 Agentes<br/>PIA + EKB + ACP + IEP"]
+    end
+    
+    User --> Interface
+    Interface --> Brain
+    Brain --> Memory
+    Memory --> Intelligence
+    Intelligence --> Brain
+    Brain --> Interface
+    Interface --> User
+    
+    style User fill:#1e3a8a,color:#fff
+    style Interface fill:#047857,color:#fff
+    style Brain fill:#b45309,color:#fff
+    style Memory fill:#7c2d12,color:#fff
+    style Intelligence fill:#7c3aed,color:#fff
+        </pre>
+    </div>
+
+    <hr>
+
+    <div class="section">
+        <h2>📊 Comparação: Antes vs Depois</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Aspecto</th>
+                    <th>❌ Sem EKS</th>
+                    <th>✅ Com EKS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Conhecimento</strong></td>
+                    <td>Espalhado (PPTs, emails, cabeça das pessoas)</td>
+                    <td>Estruturado em grafo semântico</td>
+                </tr>
+                <tr>
+                    <td><strong>Decisões</strong></td>
+                    <td>Sem dono/prazo, perdidas no chat</td>
+                    <td>Rastreadas com owner, deadline, evidência</td>
+                </tr>
+                <tr>
+                    <td><strong>Memória IA</strong></td>
+                    <td>Esquece tudo entre conversas</td>
+                    <td>Cross-thread, aprende continuamente</td>
+                </tr>
+                <tr>
+                    <td><strong>Contexto</strong></td>
+                    <td>Prompt gigante ou incompleto</td>
+                    <td>Context Engineering (select + compress)</td>
+                </tr>
+                <tr>
+                    <td><strong>RAG</strong></td>
+                    <td>Vector search black-box</td>
+                    <td>Grafo semântico + vector + relational</td>
+                </tr>
+                <tr>
+                    <td><strong>Governança</strong></td>
+                    <td>Manual, reativa</td>
+                    <td>Automática, proativa (5 gatilhos)</td>
+                </tr>
+                <tr>
+                    <td><strong>Briefings</strong></td>
+                    <td>Feitos à mão, incompletos</td>
+                    <td>Gerados automaticamente (daily/weekly/monthly)</td>
+                </tr>
+                <tr>
+                    <td><strong>Análise</strong></td>
+                    <td>Difícil rastrear "por quê"</td>
+                    <td>Explicável (prova → decisão → impacto)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <hr>
+
+    <div class="section">
+        <h2>🎯 Sprint 1: O Que Fazer AGORA (2 semanas)</h2>
+        <pre class="mermaid">
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '14px'}}}%%
+graph LR
+    subgraph Week1["SEMANA 1"]
+        W1D1["Setup<br/>Next.js + FastAPI<br/>Neo4j + Redis"]
+        W1D2["WebSocket<br/>Chat básico"]
+        W1D3["LangGraph<br/>Simple chain"]
+        W1D4["Neo4j<br/>Thread persistence"]
+    end
+    
+    subgraph Week2["SEMANA 2"]
+        W2D1["Canvas<br/>Code editor"]
+        W2D2["Canvas<br/>Markdown editor"]
+        W2D3["Tests<br/>E2E + Integration"]
+        W2D4["Deploy<br/>Staging"]
+    end
+    
+    W1D1 --> W1D2
+    W1D2 --> W1D3
+    W1D3 --> W1D4
+    W1D4 --> W2D1
+    W2D1 --> W2D2
+    W2D2 --> W2D3
+    W2D3 --> W2D4
+    
+    style Week1 fill:#059669,color:#fff
+    style Week2 fill:#7c3aed,color:#fff
+        </pre>
+
+        <div class="deliverables">
+            <h3>Entregáveis Sprint 1:</h3>
+            <ul>
+                <li>✅ Chat funcional (send/receive messages)</li>
+                <li>✅ Canvas interativo (code + markdown)</li>
+                <li>✅ Thread history persistido em Neo4j</li>
+                <li>✅ WebSocket real-time</li>
+                <li>✅ Auth básico (email/senha)</li>
+            </ul>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="section">
+        <h2>🗺️ Roadmap Completo (4 Sprints)</h2>
+        <pre class="mermaid">
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '12px'}}}%%
+gantt
+    title EKS Roadmap - 8 Semanas
+    dateFormat YYYY-MM-DD
+    
+    section Sprint 1
+    Chat + Canvas + Graph         :s1, 2025-01-01, 14d
+    
+    section Sprint 2
+    Semantic Layer + Perspectives :s2, 2025-01-15, 14d
+    
+    section Sprint 3
+    Agentes PIA + Extração        :s3, 2025-01-29, 14d
+    
+    section Sprint 4
+    Multi-Agent + Briefings       :s4, 2025-02-12, 14d
+        </pre>
+    </div>
+
+    <hr>
+
+    <div class="section">
+        <h2>🤖 Ecossistema de Agentes (Futuro)</h2>
+        <pre class="mermaid">
+%%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '12px'}}}%%
+graph TB
+    subgraph F["🏗️ FOUNDATIONAL"]
+        O["Orchestrator"]
+        C["Curator"]
+        G["Guardian"]
+    end
+    
+    subgraph B["💼 BUSINESS"]
+        S["Strategy"]
+        R["Revenue"]
+        V["VoC"]
+    end
+    
+    subgraph E["🎓 SPECIALIZED"]
+        PIA["PIA<br/>(5 sub-agents)"]
+        ACP["Clarificador"]
+        IEP["Intel Externa"]
+    end
+    
+    O --> S
+    O --> R
+    C --> PIA
+    G --> ACP
+    
+    S --> SG[("Neo4j")]
+    R --> SG
+    PIA --> SG
+    ACP --> SG
+    IEP --> SG
+    
+    style F fill:#7c3aed,color:#fff
+    style B fill:#ec4899,color:#fff
+    style E fill:#f59e0b,color:#fff
+        </pre>
+    </div>
+
+    <hr>
+
+    <div class="section">
+        <h2>✅ Checklist Antes de Começar Sprint 1</h2>
+        <pre class="mermaid">
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#10b981'}}}%%
+graph LR
+    C1["✓ Docker instalado"]
+    C2["✓ Node.js 20+"]
+    C3["✓ Python 3.11+"]
+    C4["✓ Neo4j Desktop/Docker"]
+    C5["✓ Redis Docker"]
+    C6["✓ OpenAI API Key"]
+    C7["✓ GitHub repo criado"]
+    C8["✓ .env configurado"]
+    
+    C1 --> C2
+    C2 --> C3
+    C3 --> C4
+    C4 --> C5
+    C5 --> C6
+    C6 --> C7
+    C7 --> C8
+    
+    style C1 fill:#10b981,color:#fff
+    style C2 fill:#10b981,color:#fff
+    style C3 fill:#10b981,color:#fff
+    style C4 fill:#10b981,color:#fff
+    style C5 fill:#10b981,color:#fff
+    style C6 fill:#10b981,color:#fff
+    style C7 fill:#10b981,color:#fff
+    style C8 fill:#10b981,color:#fff
+        </pre>
+    </div>
+
+    <hr>
+
+    <div class="section">
+        <h2>📞 Próximo Passo</h2>
+        <div class="deliverables">
+            <p><strong>Aguardando:</strong> Link do projeto para pesquisar</p>
+            <p><strong>Depois:</strong> Executar <code>/speckit-specify</code> para criar especificação detalhada do Sprint 1</p>
+        </div>
+    </div>
+
+    <hr>
+
+    <p><strong>Última atualização:</strong> 13/12/2024</p>
+    <p><strong>Status:</strong> ✅ Pesquisas completas | 🔜 Aguardando projeto do usuário</p>
+    </div>
+
+    <div class="footer" style="text-align: center; padding: 40px; margin-top: 60px; border-top: 2px solid #1e3a8a; color: #94a3b8;">
+        <p>Enterprise Knowledge System | <a href="https://www.cocreateai.com.br/" target="_blank" style="color: #60a5fa; text-decoration: none; font-weight: 600;">CoCreateAI</a></p>
+        <p style="margin-top: 10px; font-size: 0.9rem;">A verdadeira vantagem competitiva na era da IA não é o modelo que você usa, mas o contexto que o alimenta.</p>
+    </div>
+</body>
+</html>

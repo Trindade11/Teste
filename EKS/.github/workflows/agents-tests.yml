@@ -1,0 +1,55 @@
+name: Agents Tests
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'agents/**'
+      - '.github/workflows/agents-tests.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'agents/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ['3.11']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        working-directory: ./agents
+        run: |
+          poetry install
+
+      - name: Run linter
+        working-directory: ./agents
+        run: |
+          poetry run ruff check src/
+          poetry run mypy src/
+
+      - name: Run tests
+        working-directory: ./agents
+        run: |
+          poetry run pytest --cov=src --cov-report=xml
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./agents/coverage.xml
+          flags: agents

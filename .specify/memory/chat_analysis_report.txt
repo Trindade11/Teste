@@ -1,0 +1,82 @@
+================================================================================
+📊 ANÁLISE DE COBERTURA DOS CHATS - EKS Project
+================================================================================
+
+📈 TOTAIS GERAIS:
+  • Arquivos encontrados: 8
+  • Total de caracteres:  121,055
+  • Total de linhas:      3,546
+  • Total de palavras:    18,637
+  • Tamanho total:        126.58 KB
+
+📄 DETALHES POR ARQUIVO:
+--------------------------------------------------------------------------------
+
+  chat001.txt
+    Caracteres: 4,611
+    Linhas:     8
+    Palavras:   826
+    Tamanho:    4.65 KB
+    Modificado: 2025-12-13T15:43:58.709121
+
+  chat003.txt
+    Caracteres: 18,559
+    Linhas:     591
+    Palavras:   2,802
+    Tamanho:    19.53 KB
+    Modificado: 2025-12-13T15:05:13.733447
+
+  chat004.txt
+    Caracteres: 10,864
+    Linhas:     328
+    Palavras:   1,722
+    Tamanho:    11.48 KB
+    Modificado: 2025-12-13T15:08:20.454873
+
+  chat005.txt
+    Caracteres: 43,682
+    Linhas:     1,257
+    Palavras:   7,031
+    Tamanho:    45.60 KB
+    Modificado: 2025-12-13T15:09:44.556116
+
+  chat006.txt
+    Caracteres: 19,024
+    Linhas:     637
+    Palavras:   2,857
+    Tamanho:    19.95 KB
+    Modificado: 2025-12-13T15:10:58.346859
+
+  chat007.txt
+    Caracteres: 10,179
+    Linhas:     330
+    Palavras:   1,355
+    Tamanho:    10.64 KB
+    Modificado: 2025-12-13T15:12:12.506089
+
+  chat009.txt
+    Caracteres: 6,746
+    Linhas:     130
+    Palavras:   916
+    Tamanho:    6.96 KB
+    Modificado: 2025-12-13T15:14:22.286576
+
+  chat010.txt
+    Caracteres: 7,390
+    Linhas:     265
+    Palavras:   1,128
+    Tamanho:    7.77 KB
+    Modificado: 2025-12-13T15:16:23.160769
+
+--------------------------------------------------------------------------------
+
+📚 HISTÓRICO DE LEITURAS:
+  • Nenhuma sessão de leitura registrada ainda
+
+================================================================================
+🔢 ESTIMATIVA DE TOKENS: ~30,264 tokens
+   (Janela de contexto necessária: ~30,264 tokens)
+
+✅ RECOMENDAÇÃO:
+   Conteúdo pode ser processado em uma única sessão.
+================================================================================

@@ -1,0 +1,80 @@
+[
+  {
+    "id": "task-001",
+    "title": "Agendar reunião follow-up TechCorp Q1 2025",
+    "description": "Agendar reunião com time TechCorp para revisar projeções Q1 2025 e discutir estratégia de crescimento.",
+    "status": "pending",
+    "priority": "high",
+    "type": "meeting",
+    "context": {
+      "startup_id": "startup-techcorp-001",
+      "project_id": null,
+      "originated_from": {
+        "type": "conversation",
+        "conversation_id": "conv-001",
+        "message_id": "msg-003"
+      }
+    },
+    "assigned_to": "user-maria-002",
+    "created_by": "user-joao-001",
+    "due_date": "2024-12-20T00:00:00Z",
+    "completed_at": null,
+    "metadata": {
+      "participants": ["user-joao-001", "user-maria-002", "user-ana-004"],
+      "duration_minutes": 60,
+      "agenda": [
+        "Revisar métricas Q4",
+        "Discutir projeções Q1 2025",
+        "Definir próximos milestones"
+      ]
+    },
+    "created_at": "2024-12-13T14:01:03Z",
+    "updated_at": "2024-12-13T14:01:03Z"
+  },
+  {
+    "id": "task-002",
+    "title": "Revisar estratégia de aquisição TechCorp",
+    "description": "Analisar aumento de 15% no CAC e propor ajustes na estratégia de marketing.",
+    "status": "in_progress",
+    "priority": "medium",
+    "type": "analysis",
+    "context": {
+      "startup_id": "startup-techcorp-001",
+      "knowledge_id": "knowledge-003"
+    },
+    "assigned_to": "user-maria-002",
+    "created_by": "user-joao-001",
+    "due_date": "2024-12-18T00:00:00Z",
+    "completed_at": null,
+    "metadata": {
+      "deliverables": [
+        "Análise detalhada do CAC",
+        "Benchmark com concorrentes",
+        "Recomendações de ajuste"
+      ]
+    },
+    "created_at": "2024-12-05T11:00:00Z",
+    "updated_at": "2024-12-12T09:30:00Z"
+  },
+  {
+    "id": "task-003",
+    "title": "Preparar relatório Q4 para board",
+    "description": "Consolidar métricas de todas startups do portfólio para apresentação ao board.",
+    "status": "completed",
+    "priority": "high",
+    "type": "report",
+    "context": {
+      "company_id": "company-cocreate-001"
+    },
+    "assigned_to": "user-joao-001",
+    "created_by": "user-joao-001",
+    "due_date": "2024-12-10T00:00:00Z",
+    "completed_at": "2024-12-09T16:30:00Z",
+    "metadata": {
+      "report_url": "/reports/q4-2024-board.pdf",
+      "reviewed_by": ["user-maria-002"]
+    },
+    "created_at": "2024-12-01T10:00:00Z",
+    "updated_at": "2024-12-09T16:30:00Z"
+  }
+]

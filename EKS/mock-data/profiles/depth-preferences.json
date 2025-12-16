@@ -1,0 +1,64 @@
+[
+  {
+    "user_id": "user-joao-001",
+    "depth_preferences": [
+      {
+        "query_type": "factual",
+        "preferred_depth": 1,
+        "confidence": 0.95,
+        "learned_from_interactions": 20,
+        "examples": [
+          "Qual o status da Startup X?",
+          "Quem é o CEO da TechCorp?"
+        ]
+      },
+      {
+        "query_type": "decision",
+        "preferred_depth": 3,
+        "confidence": 0.90,
+        "learned_from_interactions": 15,
+        "examples": [
+          "Devo investir na Startup Y?",
+          "Qual melhor estratégia para Q1?"
+        ]
+      },
+      {
+        "query_type": "strategic",
+        "preferred_depth": 3,
+        "confidence": 0.88,
+        "learned_from_interactions": 15,
+        "examples": [
+          "Análise completa do portfólio",
+          "Projeções para próximo ano"
+        ]
+      }
+    ],
+    "last_updated": "2024-12-13T00:00:00Z"
+  },
+  {
+    "user_id": "user-maria-002",
+    "depth_preferences": [
+      {
+        "query_type": "factual",
+        "preferred_depth": 1,
+        "confidence": 0.92,
+        "learned_from_interactions": 18,
+        "examples": [
+          "Lista de tarefas pendentes",
+          "Próximas reuniões"
+        ]
+      },
+      {
+        "query_type": "operational",
+        "preferred_depth": 2,
+        "confidence": 0.87,
+        "learned_from_interactions": 12,
+        "examples": [
+          "Como melhorar CAC?",
+          "Revisar processo de onboarding"
+        ]
+      }
+    ],
+    "last_updated": "2024-12-10T00:00:00Z"
+  }
+]

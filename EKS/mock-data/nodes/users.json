@@ -1,0 +1,70 @@
+[
+  {
+    "id": "user-joao-001",
+    "name": "João Silva",
+    "email": "joao@cocreate.ai",
+    "role": "admin",
+    "organizationType": "cocreate",
+    "company": "CoCreateAI",
+    "area": "Investimentos",
+    "avatar_url": null,
+    "preferences": {
+      "theme": "light",
+      "notifications": true,
+      "language": "pt-BR"
+    },
+    "created_at": "2024-01-15T10:00:00Z",
+    "last_login": "2024-12-13T14:00:00Z"
+  },
+  {
+    "id": "user-maria-002",
+    "name": "Maria Santos",
+    "email": "maria@cocreate.ai",
+    "role": "user",
+    "organizationType": "cocreate",
+    "company": "CoCreateAI",
+    "area": "Análise",
+    "avatar_url": null,
+    "preferences": {
+      "theme": "light",
+      "notifications": true,
+      "language": "pt-BR"
+    },
+    "created_at": "2024-02-01T10:00:00Z",
+    "last_login": "2024-12-13T09:30:00Z"
+  },
+  {
+    "id": "user-pedro-003",
+    "name": "Pedro Costa",
+    "email": "pedro@cvc-example.com",
+    "role": "user",
+    "organizationType": "cvc",
+    "company": "CVC Example",
+    "area": "Due Diligence",
+    "avatar_url": null,
+    "preferences": {
+      "theme": "dark",
+      "notifications": true,
+      "language": "pt-BR"
+    },
+    "created_at": "2024-03-10T10:00:00Z",
+    "last_login": "2024-12-12T16:45:00Z"
+  },
+  {
+    "id": "user-ana-004",
+    "name": "Ana Oliveira",
+    "email": "ana@techcorp.ai",
+    "role": "user",
+    "organizationType": "startup",
+    "company": "TechCorp AI",
+    "area": "Produto",
+    "avatar_url": null,
+    "preferences": {
+      "theme": "light",
+      "notifications": false,
+      "language": "pt-BR"
+    },
+    "created_at": "2024-04-05T10:00:00Z",
+    "last_login": "2024-12-13T11:20:00Z"
+  }
+]

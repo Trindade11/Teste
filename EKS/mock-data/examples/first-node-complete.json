@@ -1,0 +1,125 @@
+{
+  "description": "Primeiro Node Completo - Exemplo de Knowledge Node corporativo",
+  "node": {
+    "id": "knowledge-first-001",
+    "label": "Knowledge",
+    "type": "insight",
+    "content": "Startup TechCorp AI demonstra forte crescimento (35% MoM) mas burn rate elevado requer atenção. Recomendo reunião de follow-up para revisar projeções Q1 2025.",
+    "summary": "Crescimento forte, burn rate alto",
+    "visibility": "corporate",
+    "scope": {
+      "company_id": "company-cocreate-001",
+      "area_id": "area-investment-001",
+      "startup_id": "startup-techcorp-001",
+      "project_id": null
+    },
+    "provenance": {
+      "source": "conversation",
+      "conversation_id": "conv-001",
+      "message_id": "msg-042",
+      "evidence": "Análise baseada em relatório financeiro Q4 2024",
+      "confidence": 0.87
+    },
+    "metadata": {
+      "tags": ["investimento", "análise financeira", "risco"],
+      "language": "pt-BR",
+      "sentiment": "neutral",
+      "priority": "high",
+      "valid_from": "2024-12-13T14:30:00Z",
+      "valid_to": null,
+      "asserted_at": "2024-12-13T14:30:15Z"
+    },
+    "created_by": {
+      "user_id": "user-joao-001",
+      "user_name": "João Silva",
+      "user_role": "analyst"
+    },
+    "created_at": "2024-12-13T14:30:00Z",
+    "updated_at": "2024-12-13T14:30:00Z",
+    "version": 1,
+    "status": "active"
+  },
+  "relationships": [
+    {
+      "from": "user-joao-001",
+      "to": "knowledge-first-001",
+      "type": "CREATED",
+      "properties": {
+        "timestamp": "2024-12-13T14:30:00Z"
+      }
+    },
+    {
+      "from": "knowledge-first-001",
+      "to": "startup-techcorp-001",
+      "type": "ABOUT",
+      "properties": {
+        "relevance": 0.95
+      }
+    },
+    {
+      "from": "knowledge-first-001",
+      "to": "conv-001",
+      "type": "ORIGINATED_FROM",
+      "properties": {
+        "message_id": "msg-042"
+      }
+    },
+    {
+      "from": "knowledge-first-001",
+      "to": "task-001",
+      "type": "GENERATED",
+      "properties": {
+        "task_title": "Agendar reunião follow-up TechCorp",
+        "created_at": "2024-12-13T14:31:00Z"
+      }
+    }
+  ],
+  "related_entities": {
+    "user": {
+      "id": "user-joao-001",
+      "name": "João Silva",
+      "email": "joao@cocreate.ai",
+      "role": "analyst",
+      "company": "CoCreateAI"
+    },
+    "startup": {
+      "id": "startup-techcorp-001",
+      "name": "TechCorp AI",
+      "stage": "Series A",
+      "sector": "IA & Automação",
+      "status": "active"
+    },
+    "conversation": {
+      "id": "conv-001",
+      "title": "Análise TechCorp Q4 2024",
+      "type": "corporate",
+      "created_at": "2024-12-13T14:00:00Z"
+    },
+    "task_generated": {
+      "id": "task-001",
+      "title": "Agendar reunião follow-up TechCorp",
+      "status": "pending",
+      "assigned_to": "user-maria-002",
+      "due_date": "2024-12-20T00:00:00Z"
+    }
+  },
+  "usage_example": {
+    "description": "Como usar este node em uma query",
+    "cypher": "MATCH (k:Knowledge {id: 'knowledge-first-001'})-[:ABOUT]->(s:Startup) RETURN k, s",
+    "mongodb": "db.knowledge.findOne({id: 'knowledge-first-001'})",
+    "api_response": {
+      "success": true,
+      "data": {
+        "node": "...",
+        "relationships": "...",
+        "related": "..."
+      }
+    }
+  },
+  "notes": [
+    "Este node segue Golden Rule GR-001: tem temporalidade (valid_from, asserted_at) e proveniência (source, evidence, confidence)",
+    "Visibilidade 'corporate' significa que todos da área 'investment' podem ver",
+    "Relacionamento GENERATED → Task demonstra como conhecimento gera ação",
+    "Metadata tags facilitam busca e categorização"
+  ]
+}

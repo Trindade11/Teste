@@ -1,0 +1,44 @@
+[
+  {
+    "id": "company-cocreate-001",
+    "name": "CoCreateAI",
+    "type": "cocreate",
+    "description": "Aceleradora e mentoria para startups de IA",
+    "website": "https://cocreate.ai",
+    "logo_url": null,
+    "metadata": {
+      "employees": 25,
+      "founded": "2023",
+      "location": "São Paulo, Brasil"
+    },
+    "created_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "company-cvc-001",
+    "name": "CVC Example",
+    "type": "cvc",
+    "description": "Corporate Venture Capital focado em IA",
+    "website": "https://cvc-example.com",
+    "logo_url": null,
+    "metadata": {
+      "aum": "50M USD",
+      "focus": ["IA", "Automação", "B2B SaaS"],
+      "stage": ["Seed", "Series A"]
+    },
+    "created_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "company-techcorp-001",
+    "name": "TechCorp AI",
+    "type": "startup",
+    "description": "Plataforma de automação inteligente para empresas",
+    "website": "https://techcorp.ai",
+    "logo_url": null,
+    "metadata": {
+      "employees": 12,
+      "founded": "2023",
+      "location": "São Paulo, Brasil"
+    },
+    "created_at": "2024-03-01T00:00:00Z"
+  }
+]

@@ -1,0 +1,149 @@
+{
+  "version": 1,
+  "project_root": "c:/Users/Luiz Carlos/Projects/Spec-Orchestrator",
+  "coverage_file": "project-coverage.json",
+  "exclude": [
+    "**/package-lock.json",
+    "**/pnpm-lock.yaml",
+    "**/yarn.lock",
+    "**/project-coverage.json",
+    "**/docs_analysis.json",
+    "**/EKS/project-coverage.json"
+  ],
+  "files": {
+    "chat/chat001.txt": {
+      "status": "partial",
+      "read_at": "2025-12-13T21:56:00Z"
+    },
+    "chat/chat003.txt": {
+      "status": "done",
+      "read_at": "2025-12-13T21:56:00Z"
+    },
+    "chat/chat004.txt": {
+      "status": "done",
+      "read_at": "2025-12-13T21:56:00Z"
+    },
+    "chat/chat005.txt": {
+      "status": "done",
+      "read_at": "2025-12-13T21:56:00Z"
+    },
+    "chat/chat006.txt": {
+      "status": "done",
+      "read_at": "2025-12-13T21:56:00Z"
+    },
+    "chat/chat007.txt": {
+      "status": "done",
+      "read_at": "2025-12-13T21:56:00Z"
+    },
+    "chat/chat009.txt": {
+      "status": "done",
+      "read_at": "2025-12-13T21:56:00Z"
+    },
+    "chat/chat010.txt": {
+      "status": "partial",
+      "read_at": "2025-12-13T21:56:00Z"
+    },
+    "EKS/scripts/analyze-project-coverage.py": {
+      "status": "done",
+      "read_at": "2025-12-13T21:56:00Z"
+    },
+    "scripts/verify_chat_reading.py": {
+      "status": "done",
+      "read_at": "2025-12-13T21:56:00Z"
+    },
+    "analyze_docs.py": {
+      "status": "done",
+      "read_at": "2025-12-13T21:56:00Z"
+    },
+    "_docs_review_progress.tmp.md": {
+      "status": "done",
+      "read_at": "2025-12-13T21:56:00Z"
+    },
+    "EKS/frontend/src/lib/api.ts": {
+      "status": "done",
+      "read_at": "2025-12-13T21:56:00Z"
+    },
+    "EKS/frontend/src/lib/mockApi.ts": {
+      "status": "done",
+      "read_at": "2025-12-13T21:56:00Z"
+    },
+    "EKS/backend/src/scripts/seed-admin.ts": {
+      "status": "done",
+      "read_at": "2025-12-13T21:56:00Z"
+    },
+    "EKS/backend/src/config/env.ts": {
+      "status": "done",
+      "read_at": "2025-12-13T21:56:00Z"
+    },
+    "EKS/specs/007-chat-knowledge-capture/spec.md": {
+      "status": "done",
+      "read_at": "2025-12-14T00:24:14Z"
+    },
+    ".specify/docs/sdp-pdca.md": {
+      "status": "done",
+      "read_at": "2025-12-14T00:24:14Z"
+    },
+    "EKS/specs/008-task-generation-canvas/spec.md": {
+      "status": "done",
+      "read_at": "2025-12-14T00:27:33Z"
+    },
+    "CATALOG.md": {
+      "status": "done",
+      "read_at": "2025-12-14T00:27:33Z"
+    },
+    ".specify/docs/memory-system.md": {
+      "status": "done",
+      "read_at": "2025-12-14T00:29:04Z"
+    },
+    "EKS/specs/001-knowledge-pipeline/spec.md": {
+      "status": "done",
+      "read_at": "2025-12-14T00:29:04Z"
+    },
+    "EKS/frontend/src/app/admin/page.tsx": {
+      "status": "done",
+      "read_at": "2025-12-14T00:30:13Z"
+    },
+    "EKS/specs/022-onboarding-ai-profile/spec.md": {
+      "status": "done",
+      "read_at": "2025-12-14T00:30:13Z"
+    },
+    "EKS/chat.txt": {
+      "status": "done",
+      "read_at": "2025-12-14T00:31:33Z"
+    },
+    "EKS/specs/019-multi-agent-orchestration/spec.md": {
+      "status": "done",
+      "read_at": "2025-12-14T00:31:51Z"
+    },
+    "EKS/specs/009-user-memory-decision/spec.md": {
+      "status": "done",
+      "read_at": "2025-12-14T00:31:51Z"
+    },
+    ".specify/docs/project-rhythm.md": {
+      "status": "done",
+      "read_at": "2025-12-14T00:31:51Z"
+    },
+    ".specify/docs/examples.md": {
+      "status": "done",
+      "read_at": "2025-12-14T00:32:58Z"
+    },
+    "commands/speckit-checklist.md": {
+      "status": "done",
+      "read_at": "2025-12-14T00:32:58Z"
+    },
+    "EKS/specs/033-mongodb-setup/spec.md": {
+      "status": "done",
+      "read_at": "2025-12-14T00:32:58Z"
+    },
+    "README.md": {
+      "status": "done",
+      "read_at": "2025-12-14T00:32:58Z"
+    },
+    "EKS/SIMULACAO-MOCK.md": {
+      "status": "done",
+      "read_at": "2025-12-14T00:32:58Z"
+    }
+  },
+  "created_at": "2025-12-13T21:56:00Z",
+  "updated_at": "2025-12-14T00:32:58Z"
+}

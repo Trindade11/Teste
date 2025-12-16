@@ -1,0 +1,327 @@
+Pular para o conteúdo
+Histórico de chats
+
+
+
+
+Convidar membros da equipe
+Você disse:
+Sabe uma coisa que eu tô refletindo aqui e pra mim faz muito sentido? Que a gente quer ficar muito definindo o que a IA deve fazer. Mas o principal mesmo é a gente deixar transparente o resultado que a gente almeja e deixar transparente o cenário atual. Impossível. Porque com isso a IA tem elementos para visualizar como chegar naquele objetivo e sabe aonde está pisando, entre aspas. Conhece o cenário. Isso eu falo do sentido, do meu ponto de vista, que é de criar soluções com IA. Principalmente soluções corporativas, enterprise Knowledge systems. Mas não somente isso, mas do ponto de vista do usuário que vai se utilizar desse ecossistema. Ele, o usuário, deixar claro, ensinar na realidade do usuário a deixar claro esse cenário. E mais, treinar a IA para lidar com esse cenário. Eu acho que é altamente promissor, dentro do meu ponto de vista. Agora, concordar comigo é fácil. Eu quero ver, provar que eu tô certo.
+O ChatGPT disse:
+
+Pensou por 16s
+Faz MUITO sentido, e dá pra ir além de “parece uma boa ideia”: dá pra transformar isso em princípio de arquitetura + forma de testar na prática.
+
+Vou organizar assim:
+
+O que exatamente você está propondo (em termos de sistema)
+
+Por que isso é forte do ponto de vista de IA (paralelo com controle, RL, planejamento)
+
+Como isso se traduz em Enterprise Knowledge Systems (do lado do builder e do usuário final)
+
+Onde isso pode falhar / limites (pra não virar dogma)
+
+Como “provar” que você está certo (experimentos concretos)
+
+1. O que você está propondo (em linguagem de sistema)
+Se eu destilar a sua intuição, ela é mais ou menos:
+
+Em vez de dizer à IA “como se comportar”, eu digo aonde quero chegar (resultado) e onde estou agora (cenário/estado).
+A IA, conhecendo o terreno e o destino, descobre o caminho.
+
+Na prática, isso vira um contrato de uso entre humano e sistema de IA:
+
+Entrada “boa” não é só um prompt. É um tripé:
+
+Resultado-alvo: o que é “sucesso” aqui? (formato, impacto, restrições básicas)
+
+Estado atual: dados, contexto, restrições, maturidade, atores, limitações.
+
+Regras do jogo: coisas que não podem ser violadas (compliance, políticas, tom de voz, etc.).
+
+Saída esperada da IA:
+
+Plano + execução parcial ou total para “sair do estado atual e chegar no estado desejado”, respeitando as regras.
+
+Isso é diferente de:
+
+“IA, escreva um e-mail”,
+e mais próximo de:
+
+“Estamos no ponto X, queremos chegar em Y, com estas restrições Z. O que você recomenda / faz?”
+
+Ou seja: você está defendendo um modelo orientado a objetivo e estado, não orientado a instruções micromanageadas.
+
+2. Por que isso é forte do ponto de vista de IA
+Se a gente conecta com conceitos clássicos (sem jargão demais):
+
+Teoria de controle / automação
+Sistemas de controle (termostato, piloto automático, etc.) precisam de:
+
+Estado atual (temperatura agora, posição do avião…)
+
+Estado desejado (setpoint)
+
+Regras de atuação (limites, segurança…)
+
+Se você só fala “funcione direito”, o sistema não sabe o que é “direito”.
+Se você não diz onde está, ele não sabe o tamanho do erro.
+
+→ Você está propondo aplicar essa lógica à camada cognitiva (IA) em vez de só à camada física/sensorial.
+
+Reinforcement Learning / agentes
+Em RL, o agente aprende a agir num ambiente dado:
+
+Estado (observações do ambiente)
+
+Objetivo (maximizar recompensa, chegar a um goal)
+
+Quando a gente faz prompt-style “faça X desse jeito”, é quase como codar a policy na mão.
+Quando a gente dá Estado + Objetivo, a IA pode:
+
+Escolher caminhos alternativos
+
+Se adaptar quando o cenário muda
+
+Generalizar para casos que você não previu explicitamente
+
+Planejamento / busca
+Em planners clássicos, você modela:
+
+Estado inicial
+
+Estado final desejado
+
+Ações possíveis com pré-condições/efeitos
+
+O planner constrói a sequência de ações.
+É exatamente o que você está pedindo para a IA fazer:
+planejar a partir de um “mapa do mundo” (estado) em direção a um “alvo” (objetivo).
+
+Então, conceitualmente, a sua tese está alinhadíssima com o que já funciona há décadas em controle, RL e planejamento.
+O que muda agora é: fazer isso na camada semântica/organizacional, não só na camada de sensores/atuadores.
+
+3. Como isso se traduz em Enterprise Knowledge Systems
+Vamos colocar isso em termos de arquitetura de um EKS (Enterprise Knowledge System).
+
+3.1. Do ponto de vista do sistema (builder / architect)
+Você quer que o sistema tenha três grandes blocos persistentes:
+
+Modelo de Estado da Organização
+
+Onde estamos?
+
+Dados, processos, políticas, objetivos atuais, contexto regulatório, organograma, sistemas legados, etc.
+
+Isso é o seu graph / knowledge base / contexto corporativo.
+
+Modelo de Objetivos / Resultados
+
+Objetivos estratégicos (OKRs, metas ESG, KPIs)
+
+Objetivos táticos (um relatório, uma análise, um plano de ação, um playbook)
+
+Critérios de sucesso por persona (o que é “bom” para o CSO, para Operações, para TI, etc.)
+
+Mecanismo de Planejamento + Execução Assistida
+
+Dado (Estado atual + Objetivo + Restrições), o agente decide:
+
+Quais fontes consultar
+
+Quais passos dar (coletar dados, sintetizar, checar compliance…)
+
+Como retornar algo útil (plano, resposta, artefato)
+
+É diferente de:
+“um chatbot que responde perguntas sobre a empresa”.
+
+É mais:
+“um planner corporativo que conhece a empresa (estado), entende o que a liderança quer (objetivos) e tenta traçar o caminho”.
+
+3.2. Do ponto de vista do usuário final
+O ponto que você traz é crucial: ensinar o usuário a explicitar cenário + objetivo.
+
+Em termos de UX, isso significa:
+
+Interfaces que não pedem só “pergunta”, mas algo tipo:
+
+Onde você está? (situação, dados, contexto)
+
+Aonde quer chegar? (resultado alvo, formato, prazo)
+
+Restrições? (políticas, linguagem, stakeholders)
+
+Exemplos:
+
+Em vez de uma caixa de texto única, um “form de raciocínio”:
+
+Campo 1: “Descreva brevemente a situação atual.”
+
+Campo 2: “O que você precisa obter? Para quem? Em que formato?”
+
+Campo 3: “Regras ou limitações importantes?”
+
+E do lado do modelo:
+
+Agentes especializados em “traduzir” isso para um problema bem definido:
+“Estado atual X, objetivo Y, com restrição Z → plano de ação + artefatos A, B, C”.
+
+Você está, no fundo, propondo educar o usuário a pensar em termos de problema bem especificado, não só de “me dá uma resposta”.
+
+4. Quando isso NÃO basta (limites / pontos de atenção)
+Pra não virar mantra cego, alguns limites:
+
+Se o Estado está muito errado, a IA otimiza o objetivo em cima de premissas falsas.
+
+“Garbage in, garbage out” continua valendo.
+
+Isso aumenta a importância de curadoria do estado (dados, políticas, ontologias, grafos).
+
+Nem sempre o usuário sabe o objetivo certo.
+
+Às vezes o problema é mal formulado (“quero um dashboard”, mas o que ele precisa é de um alarme de exceção).
+
+Aqui entram agentes de “refinamento de problema”:
+
+Perguntar: “por que você quer isso?”, “para qual decisão?”, “qual métrica muda se der certo?”
+
+Cenários de alta regulação/compliance
+
+Você não pode delegar tudo ao “planejamento livre” da IA.
+
+Precisa de trilhos: políticas duras, revisões humanas obrigatórias, logs auditáveis.
+
+Ainda assim, o paradigma Estado + Objetivo ajuda, mas sempre com guard rails fortes.
+
+Custo cognitivo para o usuário
+
+Se exigir demais na entrada (“descreva cenário em 10 dimensões”), ninguém usa.
+
+O truque é: o sistema ajudar a explicitar o cenário:
+
+Auto-completar contexto a partir de dados internos
+
+Sugerir hipóteses de objetivo (“parece que você quer X, é isso?”)
+
+Aprender preferências ao longo do tempo.
+
+5. Como provar que você está certo (e não só “faz sentido”)
+Aqui entra a parte que você pediu: menos concordar, mais testar.
+
+5.1. Experimento A/B de abordagem
+Crie dois modos em um mesmo produto/POC:
+
+Modo A – “Prompt comportamental”
+
+Usuário só escreve: “faça um relatório sobre emissões da empresa X para o board”.
+
+O modelo tem acesso ao mesmo conjunto de ferramentas/dados.
+
+Modo B – “Estado + Objetivo”
+
+Interface guiada:
+
+Situação atual: “quais dados temos”, “para qual país”, “qual período”
+
+Objetivo: “relatório para board”, “ênfase em risco regulatório”, “tamanho esperado”, etc.
+
+O modelo recebe de forma estruturada: {estado, objetivo, restrições}.
+
+Meça:
+
+Taxa de “resposta útil” na primeira tentativa
+
+Número de iterações até o usuário dizer “ok, é isso”
+
+Tempo total até um artefato pronto
+
+Satisfação qualitativa (NPSzinho rápido)
+
+Se o Modo B performar melhor de forma consistente, você tem evidência empírica.
+
+5.2. Experimento com agentes multi-passos
+Monte um agente que sempre trabalha em dois passos:
+
+Passo 1 – Compreender e reconstruir Estado + Objetivo
+
+Ele não sai resolvendo de cara.
+
+Ele primeiro retorna:
+
+“Pelo que entendi, sua situação é X, seu objetivo é Y, suas restrições são Z. Está certo?”
+
+Ou, em contexto corporativo, reconstrói isso a partir da base de conhecimento.
+
+Passo 2 – Planejar e executar
+
+Só depois de “fixar” esse entendimento é que ele começa a gerar resposta/artefatos.
+
+Compare com um agente que vai direto para a resposta (sem esse meta-passo).
+De novo, meça: qualidade, correção, necessidade de correção humana.
+
+5.3. Métrica de “generalização a mudanças”
+Um teste ainda mais forte:
+
+Peça ao sistema várias tarefas parecidas (por exemplo, relatórios ESG para países / unidades diferentes).
+
+Mude o cenário (dados, regulações, stakeholders).
+
+Compare:
+
+Sistema treinado/construído com foco em “comportamento fixo”
+(“sempre produza relatório nesse formato aqui”)
+
+Versus sistema que sempre reavalia Estado + Objetivo a cada pedido.
+
+A hipótese que você quer validar:
+
+O segundo sistema lida melhor com variações de cenário sem precisar ser reprogramado.
+
+Se isso aparecer nos dados, você não tem só uma “boa tese”, você tem um differentiator de arquitetura.
+
+5.4. Documentar como “princípio de design”
+Por fim, você pode transformar isso em um princípio explícito do seu stack:
+
+Princípio Estado + Objetivo:
+Nenhuma interação relevante com IA ocorre sem:
+
+Uma representação (explícita ou inferida) do estado atual do sistema/usuário;
+
+Uma descrição clara do resultado desejado;
+
+Um mecanismo de reconciliação entre os dois (planejamento).
+
+Isso vira:
+
+Guideline de produto
+
+Guideline de prompt design
+
+Guideline de UX (formular problemas)
+
+Guideline de arquitetura (como modelar contexto/knowledge base)
+
+Ou seja: você não está só “achando”: você está propondo um padrão arquitetural que conversa com:
+
+Controle
+
+RL
+
+Planejamento
+
+E necessidades reais de sistemas enterprise.
+
+Se você quiser, no próximo passo eu posso:
+
+Desenhar isso como um fluxo de agentes (quem cuida do estado, quem cuida dos objetivos, quem faz planning, quem executa)
+
+E/ou como um “contrato de interação” entre usuário ↔ sistema ↔ enterprise knowledge base.
+
+
+
+
+
+Nenhum arquivo escolhidoNenhum arquivo escolhido
+O ChatGPT pode cometer erros. A OpenAI não usa dados do espaço de trabalho CoCreateAI Team para treinar os modelos.

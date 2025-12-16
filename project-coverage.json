@@ -1,0 +1,2307 @@
+{
+  "project_root": "c:\\Users\\Luiz Carlos\\Projects\\Spec-Orchestrator",
+  "total_files": 230,
+  "total_chars": 2310873,
+  "total_lines": 69725,
+  "by_extension": {
+    ".json": {
+      "count": 22,
+      "chars": 593303,
+      "lines": 17417
+    },
+    ".txt": {
+      "count": 10,
+      "chars": 158466,
+      "lines": 3700
+    },
+    ".tsx": {
+      "count": 11,
+      "chars": 67330,
+      "lines": 1936
+    },
+    ".md": {
+      "count": 147,
+      "chars": 1398298,
+      "lines": 43180
+    },
+    ".py": {
+      "count": 8,
+      "chars": 32012,
+      "lines": 974
+    },
+    ".ts": {
+      "count": 25,
+      "chars": 56280,
+      "lines": 2249
+    },
+    ".yml": {
+      "count": 4,
+      "chars": 4286,
+      "lines": 200
+    },
+    ".js": {
+      "count": 1,
+      "chars": 471,
+      "lines": 18
+    },
+    "": {
+      "count": 2,
+      "chars": 427,
+      "lines": 51
+    }
+  },
+  "largest_files": [
+    {
+      "path": "EKS\\backend\\package-lock.json",
+      "size_bytes": 288729,
+      "chars": 280886,
+      "lines": 7844,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 12.154973466737463
+    },
+    {
+      "path": "EKS\\frontend\\package-lock.json",
+      "size_bytes": 245012,
+      "chars": 238254,
+      "lines": 6759,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 10.310129548443381
+    },
+    {
+      "path": "chat\\chat005.txt",
+      "size_bytes": 46691,
+      "chars": 43682,
+      "lines": 1257,
+      "extension": ".txt",
+      "readable": true,
+      "percentage": 1.8902812919619556
+    },
+    {
+      "path": "EKS\\chat.txt",
+      "size_bytes": 36472,
+      "chars": 35264,
+      "lines": 72,
+      "extension": ".txt",
+      "readable": true,
+      "percentage": 1.526003376213232
+    },
+    {
+      "path": "EKS\\project-coverage.json",
+      "size_bytes": 36308,
+      "chars": 34866,
+      "lines": 1443,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 1.5087804479086475
+    },
+    {
+      "path": "EKS\\frontend\\src\\app\\admin\\page.tsx",
+      "size_bytes": 27918,
+      "chars": 27197,
+      "lines": 652,
+      "extension": ".tsx",
+      "readable": true,
+      "percentage": 1.1769145253763404
+    },
+    {
+      "path": "EKS\\specs\\007-chat-knowledge-capture\\spec.md",
+      "size_bytes": 24626,
+      "chars": 23623,
+      "lines": 532,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 1.0222543601487404
+    },
+    {
+      "path": ".specify\\docs\\sdp-pdca.md",
+      "size_bytes": 23443,
+      "chars": 22437,
+      "lines": 750,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.970931764748647
+    },
+    {
+      "path": "EKS\\specs\\008-task-generation-canvas\\spec.md",
+      "size_bytes": 22842,
+      "chars": 21837,
+      "lines": 527,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.9449675512241478
+    },
+    {
+      "path": "CATALOG.md",
+      "size_bytes": 20204,
+      "chars": 19480,
+      "lines": 540,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.8429714657620735
+    },
+    {
+      "path": "EKS\\specs\\022-onboarding-ai-profile\\spec.md",
+      "size_bytes": 20031,
+      "chars": 19208,
+      "lines": 394,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.8312010222976338
+    },
+    {
+      "path": "chat\\chat006.txt",
+      "size_bytes": 20431,
+      "chars": 19024,
+      "lines": 637,
+      "extension": ".txt",
+      "readable": true,
+      "percentage": 0.8232386634834541
+    },
+    {
+      "path": ".specify\\docs\\memory-system.md",
+      "size_bytes": 19319,
+      "chars": 18600,
+      "lines": 615,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.8048906192594747
+    },
+    {
+      "path": "chat\\chat003.txt",
+      "size_bytes": 19994,
+      "chars": 18559,
+      "lines": 591,
+      "extension": ".txt",
+      "readable": true,
+      "percentage": 0.8031163980019672
+    },
+    {
+      "path": "EKS\\specs\\019-multi-agent-orchestration\\spec.md",
+      "size_bytes": 18861,
+      "chars": 18102,
+      "lines": 319,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7833403220341404
+    },
+    {
+      "path": "EKS\\specs\\001-knowledge-pipeline\\spec.md",
+      "size_bytes": 18470,
+      "chars": 17651,
+      "lines": 409,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7638238882015586
+    },
+    {
+      "path": "EKS\\specs\\009-user-memory-decision\\spec.md",
+      "size_bytes": 18035,
+      "chars": 17244,
+      "lines": 397,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7462114966941065
+    },
+    {
+      "path": ".specify\\docs\\project-rhythm.md",
+      "size_bytes": 17949,
+      "chars": 17232,
+      "lines": 575,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7456922124236165
+    },
+    {
+      "path": ".specify\\docs\\examples.md",
+      "size_bytes": 18074,
+      "chars": 17221,
+      "lines": 662,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7452162018423341
+    },
+    {
+      "path": "commands\\speckit-checklist.md",
+      "size_bytes": 17109,
+      "chars": 16727,
+      "lines": 295,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7238389993738297
+    }
+  ],
+  "all_files": [
+    {
+      "path": "EKS\\backend\\package-lock.json",
+      "size_bytes": 288729,
+      "chars": 280886,
+      "lines": 7844,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 12.154973466737463
+    },
+    {
+      "path": "EKS\\frontend\\package-lock.json",
+      "size_bytes": 245012,
+      "chars": 238254,
+      "lines": 6759,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 10.310129548443381
+    },
+    {
+      "path": "chat\\chat005.txt",
+      "size_bytes": 46691,
+      "chars": 43682,
+      "lines": 1257,
+      "extension": ".txt",
+      "readable": true,
+      "percentage": 1.8902812919619556
+    },
+    {
+      "path": "EKS\\chat.txt",
+      "size_bytes": 36472,
+      "chars": 35264,
+      "lines": 72,
+      "extension": ".txt",
+      "readable": true,
+      "percentage": 1.526003376213232
+    },
+    {
+      "path": "EKS\\project-coverage.json",
+      "size_bytes": 36308,
+      "chars": 34866,
+      "lines": 1443,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 1.5087804479086475
+    },
+    {
+      "path": "EKS\\frontend\\src\\app\\admin\\page.tsx",
+      "size_bytes": 27918,
+      "chars": 27197,
+      "lines": 652,
+      "extension": ".tsx",
+      "readable": true,
+      "percentage": 1.1769145253763404
+    },
+    {
+      "path": "EKS\\specs\\007-chat-knowledge-capture\\spec.md",
+      "size_bytes": 24626,
+      "chars": 23623,
+      "lines": 532,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 1.0222543601487404
+    },
+    {
+      "path": ".specify\\docs\\sdp-pdca.md",
+      "size_bytes": 23443,
+      "chars": 22437,
+      "lines": 750,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.970931764748647
+    },
+    {
+      "path": "EKS\\specs\\008-task-generation-canvas\\spec.md",
+      "size_bytes": 22842,
+      "chars": 21837,
+      "lines": 527,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.9449675512241478
+    },
+    {
+      "path": "CATALOG.md",
+      "size_bytes": 20204,
+      "chars": 19480,
+      "lines": 540,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.8429714657620735
+    },
+    {
+      "path": "EKS\\specs\\022-onboarding-ai-profile\\spec.md",
+      "size_bytes": 20031,
+      "chars": 19208,
+      "lines": 394,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.8312010222976338
+    },
+    {
+      "path": "chat\\chat006.txt",
+      "size_bytes": 20431,
+      "chars": 19024,
+      "lines": 637,
+      "extension": ".txt",
+      "readable": true,
+      "percentage": 0.8232386634834541
+    },
+    {
+      "path": ".specify\\docs\\memory-system.md",
+      "size_bytes": 19319,
+      "chars": 18600,
+      "lines": 615,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.8048906192594747
+    },
+    {
+      "path": "chat\\chat003.txt",
+      "size_bytes": 19994,
+      "chars": 18559,
+      "lines": 591,
+      "extension": ".txt",
+      "readable": true,
+      "percentage": 0.8031163980019672
+    },
+    {
+      "path": "EKS\\specs\\019-multi-agent-orchestration\\spec.md",
+      "size_bytes": 18861,
+      "chars": 18102,
+      "lines": 319,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7833403220341404
+    },
+    {
+      "path": "EKS\\specs\\001-knowledge-pipeline\\spec.md",
+      "size_bytes": 18470,
+      "chars": 17651,
+      "lines": 409,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7638238882015586
+    },
+    {
+      "path": "EKS\\specs\\009-user-memory-decision\\spec.md",
+      "size_bytes": 18035,
+      "chars": 17244,
+      "lines": 397,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7462114966941065
+    },
+    {
+      "path": ".specify\\docs\\project-rhythm.md",
+      "size_bytes": 17949,
+      "chars": 17232,
+      "lines": 575,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7456922124236165
+    },
+    {
+      "path": ".specify\\docs\\examples.md",
+      "size_bytes": 18074,
+      "chars": 17221,
+      "lines": 662,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7452162018423341
+    },
+    {
+      "path": "commands\\speckit-checklist.md",
+      "size_bytes": 17109,
+      "chars": 16727,
+      "lines": 295,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7238389993738297
+    },
+    {
+      "path": "EKS\\specs\\033-mongodb-setup\\spec.md",
+      "size_bytes": 17356,
+      "chars": 16562,
+      "lines": 734,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7166988406545924
+    },
+    {
+      "path": "README.md",
+      "size_bytes": 17368,
+      "chars": 16499,
+      "lines": 502,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7139725982345201
+    },
+    {
+      "path": "EKS\\SIMULACAO-MOCK.md",
+      "size_bytes": 16706,
+      "chars": 16479,
+      "lines": 630,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7131071244503701
+    },
+    {
+      "path": "EKS\\specs\\029-ux-professional\\spec.md",
+      "size_bytes": 20871,
+      "chars": 16459,
+      "lines": 623,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7122416506662201
+    },
+    {
+      "path": "EKS\\specs\\003-admin-login-config\\spec.md",
+      "size_bytes": 17289,
+      "chars": 16446,
+      "lines": 411,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7116790927065226
+    },
+    {
+      "path": ".specify\\docs\\flows\\command-flow.md",
+      "size_bytes": 17128,
+      "chars": 16440,
+      "lines": 485,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7114194505712776
+    },
+    {
+      "path": "EKS\\specs\\017-memory-ecosystem\\spec.md",
+      "size_bytes": 16934,
+      "chars": 16251,
+      "lines": 350,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.7032407233110604
+    },
+    {
+      "path": "commands\\speckit-specify.md",
+      "size_bytes": 16573,
+      "chars": 16194,
+      "lines": 338,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.700774123026233
+    },
+    {
+      "path": "EKS\\specs\\005-agent-router\\spec.md",
+      "size_bytes": 16697,
+      "chars": 15955,
+      "lines": 426,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.6904317113056408
+    },
+    {
+      "path": "EKS\\project-context\\database-schema.md",
+      "size_bytes": 16469,
+      "chars": 15903,
+      "lines": 438,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.6881814794668508
+    },
+    {
+      "path": "EKS\\plans\\mvp-core-plan.md",
+      "size_bytes": 17277,
+      "chars": 15883,
+      "lines": 636,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.6873160056827009
+    },
+    {
+      "path": "EKS\\specs\\028-file-upload\\spec.md",
+      "size_bytes": 16472,
+      "chars": 15775,
+      "lines": 635,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.6826424472482909
+    },
+    {
+      "path": "EKS\\project-context\\system-flows.md",
+      "size_bytes": 16596,
+      "chars": 15615,
+      "lines": 619,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.6757186569750913
+    },
+    {
+      "path": "EKS\\specs\\004-user-agent-factory\\spec.md",
+      "size_bytes": 16097,
+      "chars": 15327,
+      "lines": 410,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.6632558344833317
+    },
+    {
+      "path": "EKS\\project-context\\project-overview.md",
+      "size_bytes": 16013,
+      "chars": 15238,
+      "lines": 395,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.6594044761438642
+    },
+    {
+      "path": "EKS\\specs\\035-export-share\\spec.md",
+      "size_bytes": 15806,
+      "chars": 15047,
+      "lines": 647,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.651139201505232
+    },
+    {
+      "path": "EKS\\specs\\030-corporate-mode\\spec.md",
+      "size_bytes": 16312,
+      "chars": 14964,
+      "lines": 606,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.6475474853010096
+    },
+    {
+      "path": "EKS\\specs\\039-context-compression\\spec.md",
+      "size_bytes": 15884,
+      "chars": 14756,
+      "lines": 558,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.6385465579458499
+    },
+    {
+      "path": "EKS\\_context\\ANALISE-CONSOLIDADA.md",
+      "size_bytes": 15291,
+      "chars": 14365,
+      "lines": 475,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.6216265454657179
+    },
+    {
+      "path": "EKS\\specs\\006-chat-action-menu\\spec.md",
+      "size_bytes": 15254,
+      "chars": 14350,
+      "lines": 418,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.6209774401276055
+    },
+    {
+      "path": ".specify\\diagrams\\eks-framework-complete.md",
+      "size_bytes": 15209,
+      "chars": 14263,
+      "lines": 470,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.6172126291665531
+    },
+    {
+      "path": "EKS\\specs\\031-design-system\\spec.md",
+      "size_bytes": 14977,
+      "chars": 14196,
+      "lines": 584,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.6143132919896507
+    },
+    {
+      "path": "EKS\\specs\\032-adaptive-retrieval\\spec.md",
+      "size_bytes": 14904,
+      "chars": 13943,
+      "lines": 531,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.6033650486201535
+    },
+    {
+      "path": "commands\\speckit-triage.md",
+      "size_bytes": 14454,
+      "chars": 13844,
+      "lines": 459,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.5990809533886111
+    },
+    {
+      "path": "EKS\\specs\\023-agenda-calendar-system\\spec.md",
+      "size_bytes": 14172,
+      "chars": 13601,
+      "lines": 326,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.588565446911189
+    },
+    {
+      "path": "EKS\\specs\\002-admin-node-manager\\spec.md",
+      "size_bytes": 14339,
+      "chars": 13557,
+      "lines": 420,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.5866614045860591
+    },
+    {
+      "path": "EKS\\specs\\024-retrieval-orchestration\\spec.md",
+      "size_bytes": 14110,
+      "chars": 13534,
+      "lines": 308,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.5856661097342866
+    },
+    {
+      "path": ".specify\\docs\\agent-context.md",
+      "size_bytes": 13657,
+      "chars": 13226,
+      "lines": 344,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.572337813458377
+    },
+    {
+      "path": "EKS\\REORGANIZATION-PLAN.md",
+      "size_bytes": 15146,
+      "chars": 13171,
+      "lines": 557,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.5699577605519646
+    },
+    {
+      "path": "EKS\\specs\\025-conversation-persistence-system\\spec.md",
+      "size_bytes": 13436,
+      "chars": 12923,
+      "lines": 281,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.559225885628505
+    },
+    {
+      "path": "EKS\\_context\\DUAL-DATABASE-STRATEGY.md",
+      "size_bytes": 13420,
+      "chars": 12918,
+      "lines": 435,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.5590095171824674
+    },
+    {
+      "path": "EKS\\project-context\\project-workplan.md",
+      "size_bytes": 13348,
+      "chars": 12865,
+      "lines": 191,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.55671601165447
+    },
+    {
+      "path": "EKS\\ROADMAP-SPECS.md",
+      "size_bytes": 14903,
+      "chars": 12590,
+      "lines": 445,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.5448157471224079
+    },
+    {
+      "path": "EKS\\FRONTEND-STATUS.md",
+      "size_bytes": 14504,
+      "chars": 12537,
+      "lines": 489,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.5425222415944104
+    },
+    {
+      "path": "EKS\\specs\\001-knowledge-pipeline\\plan.md",
+      "size_bytes": 13236,
+      "chars": 12500,
+      "lines": 323,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.540921115093733
+    },
+    {
+      "path": "EKS\\specs\\010-data-filtration\\spec.md",
+      "size_bytes": 12964,
+      "chars": 12383,
+      "lines": 302,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.5358580934564556
+    },
+    {
+      "path": ".specify\\docs\\migration-guide.md",
+      "size_bytes": 12965,
+      "chars": 12334,
+      "lines": 426,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.5337376826852882
+    },
+    {
+      "path": ".specify\\docs\\flows\\project-lifecycle.md",
+      "size_bytes": 12840,
+      "chars": 12323,
+      "lines": 381,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.5332616721040057
+    },
+    {
+      "path": "EKS\\_context\\SESSAO-SPECS-COMPLETA.md",
+      "size_bytes": 13206,
+      "chars": 12310,
+      "lines": 458,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.5326991141443083
+    },
+    {
+      "path": "EKS\\.windsurf\\workflows\\speckit-triage.md",
+      "size_bytes": 12732,
+      "chars": 12168,
+      "lines": 419,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.5265542502768434
+    },
+    {
+      "path": "EKS\\.windsurf\\workflows\\speckit-specify.md",
+      "size_bytes": 12401,
+      "chars": 12130,
+      "lines": 249,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.5249098500869586
+    },
+    {
+      "path": "EKS\\.windsurf\\workflows\\speckit-checklist.md",
+      "size_bytes": 12398,
+      "chars": 12124,
+      "lines": 207,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.5246502079517135
+    },
+    {
+      "path": "EKS\\specs\\012-graph-curation-ecosystem\\spec.md",
+      "size_bytes": 12451,
+      "chars": 11919,
+      "lines": 291,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.5157791016641763
+    },
+    {
+      "path": "EKS\\_context\\REFINAMENTO-COMPLETO.md",
+      "size_bytes": 13446,
+      "chars": 11882,
+      "lines": 429,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.5141779751634988
+    },
+    {
+      "path": "project-context\\agent-framework.md",
+      "size_bytes": 12376,
+      "chars": 11804,
+      "lines": 476,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.5108026274053139
+    },
+    {
+      "path": "EKS\\specs\\011-validation-agent\\spec.md",
+      "size_bytes": 12341,
+      "chars": 11727,
+      "lines": 293,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.5074705533363365
+    },
+    {
+      "path": "EKS\\.windsurf\\workflows\\speckit-clarify.md",
+      "size_bytes": 11727,
+      "chars": 11515,
+      "lines": 187,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.4982965312243468
+    },
+    {
+      "path": "commands\\speckit-clarify.md",
+      "size_bytes": 11520,
+      "chars": 11313,
+      "lines": 182,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.4895552460044321
+    },
+    {
+      "path": "SYSTEM-PROMPT-CONTEXT.md",
+      "size_bytes": 11654,
+      "chars": 11093,
+      "lines": 356,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.48003503437878237
+    },
+    {
+      "path": "docs_analysis.json",
+      "size_bytes": 11245,
+      "chars": 10894,
+      "lines": 352,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.4714235702264901
+    },
+    {
+      "path": ".specify\\diagrams\\eks-sprint1-mvp.md",
+      "size_bytes": 11903,
+      "chars": 10868,
+      "lines": 400,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.4702984543070952
+    },
+    {
+      "path": "chat\\chat004.txt",
+      "size_bytes": 11759,
+      "chars": 10864,
+      "lines": 328,
+      "extension": ".txt",
+      "readable": true,
+      "percentage": 0.47012535955026524
+    },
+    {
+      "path": "EKS\\_context\\API-DESIGN.md",
+      "size_bytes": 11030,
+      "chars": 10533,
+      "lines": 442,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.45580176842258313
+    },
+    {
+      "path": "EKS\\_context\\SESSAO-DESIGN-FRONTEND.md",
+      "size_bytes": 12520,
+      "chars": 10477,
+      "lines": 396,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.45337844182696324
+    },
+    {
+      "path": "chat\\chat007.txt",
+      "size_bytes": 10894,
+      "chars": 10179,
+      "lines": 330,
+      "extension": ".txt",
+      "readable": true,
+      "percentage": 0.44048288244312866
+    },
+    {
+      "path": ".specify\\docs\\flows\\decision-tree.md",
+      "size_bytes": 10269,
+      "chars": 9951,
+      "lines": 261,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.4306164813038189
+    },
+    {
+      "path": "project-context\\project-overview.md",
+      "size_bytes": 10341,
+      "chars": 9914,
+      "lines": 326,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.4290153548031415
+    },
+    {
+      "path": "EKS\\frontend\\src\\components\\chat\\ChatPanel.tsx",
+      "size_bytes": 10055,
+      "chars": 9736,
+      "lines": 304,
+      "extension": ".tsx",
+      "readable": true,
+      "percentage": 0.4213126381242068
+    },
+    {
+      "path": "EKS\\.windsurf\\workflows\\speckit-implement.md",
+      "size_bytes": 9912,
+      "chars": 9650,
+      "lines": 187,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.41759110085236184
+    },
+    {
+      "path": "commands\\speckit-implement.md",
+      "size_bytes": 9772,
+      "chars": 9515,
+      "lines": 182,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.41174915280934954
+    },
+    {
+      "path": "EKS\\specs\\013-ingestion-ecosystem\\spec.md",
+      "size_bytes": 9989,
+      "chars": 9504,
+      "lines": 266,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.411273142228067
+    },
+    {
+      "path": ".specify\\docs\\best-practices.md",
+      "size_bytes": 9910,
+      "chars": 9467,
+      "lines": 345,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.4096720157273896
+    },
+    {
+      "path": "EKS\\.windsurf\\rules\\specrules.md",
+      "size_bytes": 9725,
+      "chars": 9391,
+      "lines": 195,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.4063832153476197
+    },
+    {
+      "path": "EKS\\_context\\ENTREGAS-UX-MOCK.md",
+      "size_bytes": 9891,
+      "chars": 9341,
+      "lines": 269,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.40421953088724477
+    },
+    {
+      "path": ".specify\\docs\\flows\\entry-lifecycle.md",
+      "size_bytes": 9625,
+      "chars": 9314,
+      "lines": 294,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.4030511412786423
+    },
+    {
+      "path": ".specify\\docs\\flows\\artifact-relationships.md",
+      "size_bytes": 9973,
+      "chars": 9310,
+      "lines": 316,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.40287804652181236
+    },
+    {
+      "path": "EKS\\_context\\STACK-EVALUATION.md",
+      "size_bytes": 10547,
+      "chars": 9241,
+      "lines": 409,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.39989216196649496
+    },
+    {
+      "path": "EKS\\specs\\027-voice-input\\spec.md",
+      "size_bytes": 10212,
+      "chars": 9187,
+      "lines": 404,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.3975553827492899
+    },
+    {
+      "path": ".specify\\templates\\tasks-template.md",
+      "size_bytes": 9428,
+      "chars": 9140,
+      "lines": 252,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.3955215193565375
+    },
+    {
+      "path": "EKS\\specs\\026-intelligent-router\\spec.md",
+      "size_bytes": 9625,
+      "chars": 9122,
+      "lines": 380,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.3947425929508026
+    },
+    {
+      "path": "project-context\\database-schema.md",
+      "size_bytes": 9520,
+      "chars": 9088,
+      "lines": 384,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.3932712875177476
+    },
+    {
+      "path": ".specify\\diagrams\\RESUMO-VISUAL.md",
+      "size_bytes": 9613,
+      "chars": 8957,
+      "lines": 367,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.38760243423156526
+    },
+    {
+      "path": "EKS\\specs\\014-provenance-system\\spec.md",
+      "size_bytes": 8942,
+      "chars": 8524,
+      "lines": 227,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.3688649268047184
+    },
+    {
+      "path": "EKS\\_context\\MVP-V1-SCOPE.md",
+      "size_bytes": 9514,
+      "chars": 8386,
+      "lines": 402,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.3628931576940836
+    },
+    {
+      "path": "_docs_review_progress.tmp.md",
+      "size_bytes": 8501,
+      "chars": 8382,
+      "lines": 74,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.3627200629372536
+    },
+    {
+      "path": "EKS\\specs\\016-main-interface-layout\\spec.md",
+      "size_bytes": 8745,
+      "chars": 8335,
+      "lines": 175,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.36068619954450115
+    },
+    {
+      "path": ".specify\\docs\\flows\\triage-system.md",
+      "size_bytes": 8472,
+      "chars": 8200,
+      "lines": 242,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.3548442515014888
+    },
+    {
+      "path": "commands\\speckit-context.md",
+      "size_bytes": 8338,
+      "chars": 7964,
+      "lines": 242,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.34463166084851915
+    },
+    {
+      "path": "project-context\\tools-registry.md",
+      "size_bytes": 8320,
+      "chars": 7886,
+      "lines": 384,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.3412563130903342
+    },
+    {
+      "path": "EKS\\specs\\018-observability-dashboard\\spec.md",
+      "size_bytes": 8166,
+      "chars": 7796,
+      "lines": 197,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.33736168106165937
+    },
+    {
+      "path": "EKS\\frontend\\src\\components\\layout\\Sidebar.tsx",
+      "size_bytes": 8050,
+      "chars": 7793,
+      "lines": 229,
+      "extension": ".tsx",
+      "readable": true,
+      "percentage": 0.3372318599940369
+    },
+    {
+      "path": "commands\\speckit-constitution.md",
+      "size_bytes": 7940,
+      "chars": 7778,
+      "lines": 138,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.3365827546559244
+    },
+    {
+      "path": "EKS\\project-context\\tools-registry.md",
+      "size_bytes": 8106,
+      "chars": 7758,
+      "lines": 317,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.33571728087177444
+    },
+    {
+      "path": "EKS\\.windsurf\\workflows\\speckit-context.md",
+      "size_bytes": 8091,
+      "chars": 7716,
+      "lines": 243,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.3338997859250595
+    },
+    {
+      "path": ".specify\\docs\\flows\\overview.md",
+      "size_bytes": 7761,
+      "chars": 7470,
+      "lines": 222,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.3232544583800148
+    },
+    {
+      "path": "chat\\chat010.txt",
+      "size_bytes": 7958,
+      "chars": 7390,
+      "lines": 265,
+      "extension": ".txt",
+      "readable": true,
+      "percentage": 0.31979256324341493
+    },
+    {
+      "path": "EKS\\specs\\015-neo4j-graph-model\\spec.md",
+      "size_bytes": 7716,
+      "chars": 7384,
+      "lines": 194,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.31953292110816994
+    },
+    {
+      "path": ".specify\\scripts\\analyze_chat_coverage.py",
+      "size_bytes": 7646,
+      "chars": 7370,
+      "lines": 185,
+      "extension": ".py",
+      "readable": true,
+      "percentage": 0.31892708945926496
+    },
+    {
+      "path": "EKS\\.windsurf\\workflows\\speckit-analyze.md",
+      "size_bytes": 7546,
+      "chars": 7353,
+      "lines": 190,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.3181914367427375
+    },
+    {
+      "path": "EKS\\.windsurf\\workflows\\speckit-tasks.md",
+      "size_bytes": 7549,
+      "chars": 7337,
+      "lines": 168,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.31749905771541753
+    },
+    {
+      "path": "EKS\\frontend\\src\\components\\canvas\\Canvas.tsx",
+      "size_bytes": 7583,
+      "chars": 7315,
+      "lines": 263,
+      "extension": ".tsx",
+      "readable": true,
+      "percentage": 0.31654703655285255
+    },
+    {
+      "path": "commands\\speckit-tasks.md",
+      "size_bytes": 7504,
+      "chars": 7297,
+      "lines": 163,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.31576811014711753
+    },
+    {
+      "path": ".specify\\memory\\constitution.md",
+      "size_bytes": 7495,
+      "chars": 7280,
+      "lines": 195,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.3150324574305901
+    },
+    {
+      "path": "commands\\speckit-analyze.md",
+      "size_bytes": 7361,
+      "chars": 7173,
+      "lines": 185,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.3104021726853877
+    },
+    {
+      "path": "EKS\\_context\\constitution.md",
+      "size_bytes": 7535,
+      "chars": 7108,
+      "lines": 276,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.3075893828869003
+    },
+    {
+      "path": "EKS\\backend\\src\\routes\\admin.routes.ts",
+      "size_bytes": 7326,
+      "chars": 7044,
+      "lines": 283,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.3048198667776204
+    },
+    {
+      "path": "EKS\\scripts\\analyze-project-coverage.py",
+      "size_bytes": 7243,
+      "chars": 7002,
+      "lines": 197,
+      "extension": ".py",
+      "readable": true,
+      "percentage": 0.3030023718309055
+    },
+    {
+      "path": "EKS\\project-context\\env-vars.md",
+      "size_bytes": 7212,
+      "chars": 6957,
+      "lines": 256,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.301055055816568
+    },
+    {
+      "path": "EKS\\project-context\\frontend-flow-spec.md",
+      "size_bytes": 7359,
+      "chars": 6946,
+      "lines": 204,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.3005790452352855
+    },
+    {
+      "path": "EKS\\.windsurf\\workflows\\speckit-constitution.md",
+      "size_bytes": 7053,
+      "chars": 6905,
+      "lines": 124,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.2988048239777781
+    },
+    {
+      "path": "EKS\\frontend\\src\\lib\\mockApi.ts",
+      "size_bytes": 7196,
+      "chars": 6872,
+      "lines": 297,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.29737679223393065
+    },
+    {
+      "path": ".specify\\docs\\flows\\gap-notation.md",
+      "size_bytes": 7073,
+      "chars": 6796,
+      "lines": 212,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.29408799185416074
+    },
+    {
+      "path": "chat\\chat009.txt",
+      "size_bytes": 7125,
+      "chars": 6746,
+      "lines": 130,
+      "extension": ".txt",
+      "readable": true,
+      "percentage": 0.29192430739378583
+    },
+    {
+      "path": ".specify\\docs\\glossary.md",
+      "size_bytes": 6856,
+      "chars": 6595,
+      "lines": 262,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.28538998032345353
+    },
+    {
+      "path": ".specify\\docs\\concept-model-simulation.md",
+      "size_bytes": 7318,
+      "chars": 6266,
+      "lines": 159,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.2711529365741865
+    },
+    {
+      "path": "analyze_docs.py",
+      "size_bytes": 6302,
+      "chars": 6101,
+      "lines": 169,
+      "extension": ".py",
+      "readable": true,
+      "percentage": 0.2640127778549492
+    },
+    {
+      "path": "EKS\\specs\\_ROADMAP.md",
+      "size_bytes": 6356,
+      "chars": 6032,
+      "lines": 239,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.2610268932996318
+    },
+    {
+      "path": "EKS\\specs\\021-notification-center\\spec.md",
+      "size_bytes": 6337,
+      "chars": 6002,
+      "lines": 147,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.25972868262340687
+    },
+    {
+      "path": ".specify\\templates\\plan-template.md",
+      "size_bytes": 6182,
+      "chars": 5823,
+      "lines": 198,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.25198269225526454
+    },
+    {
+      "path": "EKS\\LIMPEZA-CONCLUIDA.md",
+      "size_bytes": 6520,
+      "chars": 5773,
+      "lines": 238,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.24981900779488964
+    },
+    {
+      "path": "EKS\\frontend\\src\\lib\\api.ts",
+      "size_bytes": 5988,
+      "chars": 5757,
+      "lines": 227,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.24912662876756964
+    },
+    {
+      "path": "EKS\\specs\\020-gamification-user-kpis\\spec.md",
+      "size_bytes": 6038,
+      "chars": 5731,
+      "lines": 144,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.24800151284817468
+    },
+    {
+      "path": "EKS\\backend\\src\\services\\AuthService.ts",
+      "size_bytes": 5903,
+      "chars": 5697,
+      "lines": 207,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.24653020741511972
+    },
+    {
+      "path": ".specify\\templates\\spec-template.md",
+      "size_bytes": 5610,
+      "chars": 5443,
+      "lines": 168,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.23553869035641506
+    },
+    {
+      "path": "EKS\\.windsurf\\workflows\\speckit-plan.md",
+      "size_bytes": 5422,
+      "chars": 5255,
+      "lines": 134,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.22740323678540533
+    },
+    {
+      "path": "EKS\\project-context\\folder-structure.md",
+      "size_bytes": 5968,
+      "chars": 5243,
+      "lines": 169,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.22688395251491536
+    },
+    {
+      "path": "commands\\speckit-plan.md",
+      "size_bytes": 5299,
+      "chars": 5142,
+      "lines": 129,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.222513309904958
+    },
+    {
+      "path": "EKS\\README.md",
+      "size_bytes": 6214,
+      "chars": 5083,
+      "lines": 214,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.21996016224171558
+    },
+    {
+      "path": "chat\\chat001.txt",
+      "size_bytes": 4764,
+      "chars": 4611,
+      "lines": 8,
+      "extension": ".txt",
+      "readable": true,
+      "percentage": 0.19953498093577623
+    },
+    {
+      "path": "EKS\\RODAR-FRONTEND.md",
+      "size_bytes": 4678,
+      "chars": 4278,
+      "lines": 237,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.18512484242967917
+    },
+    {
+      "path": "EKS\\docs\\SETUP.md",
+      "size_bytes": 4292,
+      "chars": 4081,
+      "lines": 212,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.17659992565580196
+    },
+    {
+      "path": "EKS\\MODO-SIMULACAO.md",
+      "size_bytes": 4215,
+      "chars": 3883,
+      "lines": 199,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.1680317351927172
+    },
+    {
+      "path": "scripts\\verify_chat_reading.py",
+      "size_bytes": 3970,
+      "chars": 3808,
+      "lines": 127,
+      "extension": ".py",
+      "readable": true,
+      "percentage": 0.1647862085021548
+    },
+    {
+      "path": "EKS\\mock-data\\README.md",
+      "size_bytes": 4180,
+      "chars": 3804,
+      "lines": 197,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.1646131137453248
+    },
+    {
+      "path": "project-context\\project-workplan.md",
+      "size_bytes": 3958,
+      "chars": 3782,
+      "lines": 112,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.16366109258275985
+    },
+    {
+      "path": "EKS\\mock-data\\examples\\first-node-complete.json",
+      "size_bytes": 3811,
+      "chars": 3663,
+      "lines": 126,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.1585115235670675
+    },
+    {
+      "path": "EKS\\project-context\\agno-reference.md",
+      "size_bytes": 3807,
+      "chars": 3614,
+      "lines": 150,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.15639111279590007
+    },
+    {
+      "path": "EKS\\frontend\\src\\app\\login\\page.tsx",
+      "size_bytes": 3573,
+      "chars": 3453,
+      "lines": 105,
+      "extension": ".tsx",
+      "readable": true,
+      "percentage": 0.1494240488334928
+    },
+    {
+      "path": "EKS\\SETUP-BACKEND.md",
+      "size_bytes": 3239,
+      "chars": 3019,
+      "lines": 152,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.13064326771743837
+    },
+    {
+      "path": "EKS\\frontend\\src\\app\\page.tsx",
+      "size_bytes": 3049,
+      "chars": 2965,
+      "lines": 82,
+      "extension": ".tsx",
+      "readable": true,
+      "percentage": 0.12830648850023346
+    },
+    {
+      "path": "EKS\\backend\\src\\index.ts",
+      "size_bytes": 2986,
+      "chars": 2859,
+      "lines": 107,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.12371947744423861
+    },
+    {
+      "path": "EKS\\frontend\\src\\store\\authStore.ts",
+      "size_bytes": 2974,
+      "chars": 2851,
+      "lines": 124,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.12337328793057861
+    },
+    {
+      "path": "EKS\\backend\\README.md",
+      "size_bytes": 3098,
+      "chars": 2845,
+      "lines": 142,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.12311364579533364
+    },
+    {
+      "path": "EKS\\mock-data\\nodes\\conversations.json",
+      "size_bytes": 2910,
+      "chars": 2786,
+      "lines": 86,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.1205604981320912
+    },
+    {
+      "path": "EKS\\frontend\\README.md",
+      "size_bytes": 3089,
+      "chars": 2764,
+      "lines": 110,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.11960847696952624
+    },
+    {
+      "path": ".specify\\memory\\chat_coverage.json",
+      "size_bytes": 2845,
+      "chars": 2755,
+      "lines": 91,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.11921901376665875
+    },
+    {
+      "path": "EKS\\frontend\\src\\components\\chat\\AgentSelector.tsx",
+      "size_bytes": 2811,
+      "chars": 2733,
+      "lines": 79,
+      "extension": ".tsx",
+      "readable": true,
+      "percentage": 0.11826699260409379
+    },
+    {
+      "path": "EKS\\mock-data\\nodes\\knowledge.json",
+      "size_bytes": 2794,
+      "chars": 2696,
+      "lines": 84,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.11666586610341632
+    },
+    {
+      "path": "project-context\\env-vars.md",
+      "size_bytes": 2767,
+      "chars": 2613,
+      "lines": 143,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.11307414989919394
+    },
+    {
+      "path": "EKS\\agents\\src\\utils\\mongodb_client.py",
+      "size_bytes": 2668,
+      "chars": 2579,
+      "lines": 86,
+      "extension": ".py",
+      "readable": true,
+      "percentage": 0.11160284446613898
+    },
+    {
+      "path": "EKS\\backend\\src\\routes\\auth.routes.ts",
+      "size_bytes": 2655,
+      "chars": 2549,
+      "lines": 107,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.11030463378991402
+    },
+    {
+      "path": ".specify\\docs\\flows\\FLOWS.md",
+      "size_bytes": 2580,
+      "chars": 2468,
+      "lines": 88,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.10679946496410665
+    },
+    {
+      "path": "EKS\\mock-data\\nodes\\tasks.json",
+      "size_bytes": 2538,
+      "chars": 2437,
+      "lines": 81,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.10545798059867419
+    },
+    {
+      "path": "EKS\\frontend\\src\\store\\task-store.ts",
+      "size_bytes": 2372,
+      "chars": 2278,
+      "lines": 93,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.0985774640146819
+    },
+    {
+      "path": "EKS\\backend\\src\\scripts\\seed-admin.ts",
+      "size_bytes": 2284,
+      "chars": 2187,
+      "lines": 77,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.09463955829679953
+    },
+    {
+      "path": "EKS\\agents\\src\\main.py",
+      "size_bytes": 2270,
+      "chars": 2170,
+      "lines": 97,
+      "extension": ".py",
+      "readable": true,
+      "percentage": 0.09390390558027205
+    },
+    {
+      "path": ".specify\\memory\\chat_analysis_report.txt",
+      "size_bytes": 2266,
+      "chars": 2147,
+      "lines": 82,
+      "extension": ".txt",
+      "readable": true,
+      "percentage": 0.09290861072849957
+    },
+    {
+      "path": "EKS\\mock-data\\profiles\\ai-profiles.json",
+      "size_bytes": 2228,
+      "chars": 2139,
+      "lines": 63,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.09256242121483958
+    },
+    {
+      "path": "EKS\\scripts\\check-env.ts",
+      "size_bytes": 2191,
+      "chars": 2076,
+      "lines": 97,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.08983617879476717
+    },
+    {
+      "path": "EKS\\agents\\src\\utils\\neo4j_client.py",
+      "size_bytes": 2121,
+      "chars": 2047,
+      "lines": 71,
+      "extension": ".py",
+      "readable": true,
+      "percentage": 0.08858124180774972
+    },
+    {
+      "path": "EKS\\specs\\001-knowledge-pipeline\\research.md",
+      "size_bytes": 2080,
+      "chars": 1994,
+      "lines": 44,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.0862877362797523
+    },
+    {
+      "path": "EKS\\frontend\\src\\store\\chat-store.ts",
+      "size_bytes": 2108,
+      "chars": 1990,
+      "lines": 96,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.0861146415229223
+    },
+    {
+      "path": "EKS\\mock-data\\nodes\\startups.json",
+      "size_bytes": 2024,
+      "chars": 1942,
+      "lines": 75,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.08403750444096235
+    },
+    {
+      "path": "EKS\\frontend\\src\\components\\ui\\button.tsx",
+      "size_bytes": 1968,
+      "chars": 1912,
+      "lines": 57,
+      "extension": ".tsx",
+      "readable": true,
+      "percentage": 0.08273929376473739
+    },
+    {
+      "path": ".specify\\docs\\README.md",
+      "size_bytes": 2104,
+      "chars": 1903,
+      "lines": 60,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.08234983056186991
+    },
+    {
+      "path": "EKS\\backend\\src\\middleware\\auth.ts",
+      "size_bytes": 1984,
+      "chars": 1902,
+      "lines": 83,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.0823065568726624
+    },
+    {
+      "path": "EKS\\specs\\001-knowledge-pipeline\\checklists\\requirements.md",
+      "size_bytes": 1928,
+      "chars": 1853,
+      "lines": 42,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.08018614610149498
+    },
+    {
+      "path": "EKS\\frontend\\src\\components\\layout\\MobileNav.tsx",
+      "size_bytes": 1895,
+      "chars": 1824,
+      "lines": 72,
+      "extension": ".tsx",
+      "readable": true,
+      "percentage": 0.07893120911447751
+    },
+    {
+      "path": "EKS\\docs\\ENV-SETUP.md",
+      "size_bytes": 1882,
+      "chars": 1795,
+      "lines": 88,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.07767627212746006
+    },
+    {
+      "path": "EKS\\mock-data\\nodes\\users.json",
+      "size_bytes": 1763,
+      "chars": 1691,
+      "lines": 71,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.0731758084498802
+    },
+    {
+      "path": "EKS\\specs\\001-knowledge-pipeline\\data-model.md",
+      "size_bytes": 1678,
+      "chars": 1623,
+      "lines": 49,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.0702331975837703
+    },
+    {
+      "path": "EKS\\_context\\diagrams\\architecture.md",
+      "size_bytes": 1734,
+      "chars": 1620,
+      "lines": 65,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.07010337651614779
+    },
+    {
+      "path": "EKS\\agents\\README.md",
+      "size_bytes": 1768,
+      "chars": 1595,
+      "lines": 94,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.06902153428596033
+    },
+    {
+      "path": "EKS\\mock-data\\profiles\\depth-preferences.json",
+      "size_bytes": 1614,
+      "chars": 1541,
+      "lines": 65,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.0666847550687554
+    },
+    {
+      "path": "EKS\\backend\\package.json",
+      "size_bytes": 1583,
+      "chars": 1524,
+      "lines": 60,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.06594910235222792
+    },
+    {
+      "path": "EKS\\frontend\\src\\components\\ProtectedRoute.tsx",
+      "size_bytes": 1508,
+      "chars": 1456,
+      "lines": 53,
+      "extension": ".tsx",
+      "readable": true,
+      "percentage": 0.06300649148611802
+    },
+    {
+      "path": "project-context\\folder-structure.md",
+      "size_bytes": 1716,
+      "chars": 1422,
+      "lines": 55,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.061535186053063066
+    },
+    {
+      "path": "EKS\\frontend\\tailwind.config.ts",
+      "size_bytes": 1471,
+      "chars": 1421,
+      "lines": 51,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.061491912363855566
+    },
+    {
+      "path": "EKS\\specs\\001-knowledge-pipeline\\quickstart.md",
+      "size_bytes": 1474,
+      "chars": 1411,
+      "lines": 47,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.06105917547178058
+    },
+    {
+      "path": "EKS\\backend\\src\\config\\neo4j.ts",
+      "size_bytes": 1439,
+      "chars": 1377,
+      "lines": 59,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.05958787003872562
+    },
+    {
+      "path": "EKS\\backend\\src\\config\\env.ts",
+      "size_bytes": 1410,
+      "chars": 1369,
+      "lines": 42,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.059241680525065635
+    },
+    {
+      "path": ".specify\\templates\\checklist-template.md",
+      "size_bytes": 1352,
+      "chars": 1312,
+      "lines": 41,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.05677508024023822
+    },
+    {
+      "path": "EKS\\tests\\e2e\\chat.spec.ts",
+      "size_bytes": 1304,
+      "chars": 1271,
+      "lines": 34,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.05500085898273077
+    },
+    {
+      "path": "EKS\\_context\\docs\\onboarding.md",
+      "size_bytes": 1337,
+      "chars": 1265,
+      "lines": 69,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.05474121684748578
+    },
+    {
+      "path": "EKS\\.windsurf\\workflows\\speckit-taskstoissues.md",
+      "size_bytes": 1273,
+      "chars": 1240,
+      "lines": 34,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.05365937461729831
+    },
+    {
+      "path": "EKS\\mock-data\\profiles\\conversation-profiles.json",
+      "size_bytes": 1278,
+      "chars": 1234,
+      "lines": 45,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.053399732482053326
+    },
+    {
+      "path": "EKS\\.github\\workflows\\agents-tests.yml",
+      "size_bytes": 1281,
+      "chars": 1226,
+      "lines": 56,
+      "extension": ".yml",
+      "readable": true,
+      "percentage": 0.05305354296839333
+    },
+    {
+      "path": "EKS\\frontend\\src\\store\\context-store.ts",
+      "size_bytes": 1250,
+      "chars": 1206,
+      "lines": 45,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.05218806918424335
+    },
+    {
+      "path": "EKS\\scripts\\seed-admin.ts",
+      "size_bytes": 1219,
+      "chars": 1167,
+      "lines": 49,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.05050039530515091
+    },
+    {
+      "path": "EKS\\mock-data\\nodes\\companies.json",
+      "size_bytes": 1183,
+      "chars": 1133,
+      "lines": 45,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.04902908987209595
+    },
+    {
+      "path": "EKS\\backend\\src\\utils\\logger.ts",
+      "size_bytes": 1163,
+      "chars": 1124,
+      "lines": 40,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.04863962666922847
+    },
+    {
+      "path": "EKS\\docker-compose.yml",
+      "size_bytes": 1143,
+      "chars": 1089,
+      "lines": 55,
+      "extension": ".yml",
+      "readable": true,
+      "percentage": 0.04712504754696602
+    },
+    {
+      "path": "EKS\\_context\\diagrams\\data-model.md",
+      "size_bytes": 1155,
+      "chars": 1075,
+      "lines": 35,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.04651921589806104
+    },
+    {
+      "path": "commands\\speckit-taskstoissues.md",
+      "size_bytes": 1097,
+      "chars": 1069,
+      "lines": 29,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.046259573762816045
+    },
+    {
+      "path": "EKS\\tests\\e2e\\auth.spec.ts",
+      "size_bytes": 1082,
+      "chars": 1053,
+      "lines": 30,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.045567194735496065
+    },
+    {
+      "path": "EKS\\.github\\workflows\\backend-tests.yml",
+      "size_bytes": 1088,
+      "chars": 1040,
+      "lines": 49,
+      "extension": ".yml",
+      "readable": true,
+      "percentage": 0.045004636775798586
+    },
+    {
+      "path": "EKS\\frontend\\package.json",
+      "size_bytes": 1038,
+      "chars": 1000,
+      "lines": 39,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.04327368920749864
+    },
+    {
+      "path": "EKS\\frontend\\src\\app\\layout.tsx",
+      "size_bytes": 986,
+      "chars": 946,
+      "lines": 40,
+      "extension": ".tsx",
+      "readable": true,
+      "percentage": 0.040936909990293716
+    },
+    {
+      "path": "EKS\\agents\\src\\config.py",
+      "size_bytes": 976,
+      "chars": 935,
+      "lines": 42,
+      "extension": ".py",
+      "readable": true,
+      "percentage": 0.04046089940901122
+    },
+    {
+      "path": "EKS\\.github\\workflows\\deploy-staging.yml",
+      "size_bytes": 970,
+      "chars": 931,
+      "lines": 40,
+      "extension": ".yml",
+      "readable": true,
+      "percentage": 0.04028780465218123
+    },
+    {
+      "path": "EKS\\backend\\src\\models\\User.ts",
+      "size_bytes": 963,
+      "chars": 917,
+      "lines": 47,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.03968197300327625
+    },
+    {
+      "path": "EKS\\tests\\README.md",
+      "size_bytes": 1011,
+      "chars": 917,
+      "lines": 55,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.03968197300327625
+    },
+    {
+      "path": "EKS\\_context\\README.md",
+      "size_bytes": 974,
+      "chars": 910,
+      "lines": 35,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.03937905717882376
+    },
+    {
+      "path": "EKS\\scripts\\README.md",
+      "size_bytes": 681,
+      "chars": 637,
+      "lines": 45,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.02756534002517663
+    },
+    {
+      "path": "EKS\\tests\\e2e\\playwright.config.ts",
+      "size_bytes": 659,
+      "chars": 630,
+      "lines": 30,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.02726242420072414
+    },
+    {
+      "path": "EKS\\backend\\tsconfig.json",
+      "size_bytes": 648,
+      "chars": 624,
+      "lines": 25,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.027002782065479153
+    },
+    {
+      "path": "EKS\\frontend\\tsconfig.json",
+      "size_bytes": 604,
+      "chars": 578,
+      "lines": 27,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.025012192361934214
+    },
+    {
+      "path": "EKS\\specs\\001-knowledge-pipeline\\contracts\\README.md",
+      "size_bytes": 502,
+      "chars": 481,
+      "lines": 12,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.020814644508806848
+    },
+    {
+      "path": "EKS\\backend\\jest.config.js",
+      "size_bytes": 488,
+      "chars": 471,
+      "lines": 18,
+      "extension": ".js",
+      "readable": true,
+      "percentage": 0.020381907616731858
+    },
+    {
+      "path": ".specify\\triage\\triage_specification.md",
+      "size_bytes": 484,
+      "chars": 468,
+      "lines": 17,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.02025208654910936
+    },
+    {
+      "path": ".specify\\templates\\agent-file-template.md",
+      "size_bytes": 492,
+      "chars": 464,
+      "lines": 29,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.020078991792279368
+    },
+    {
+      "path": "EKS\\frontend\\public\\manifest.json",
+      "size_bytes": 468,
+      "chars": 446,
+      "lines": 22,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.019300065386544392
+    },
+    {
+      "path": ".specify\\triage\\triage_constitution.md",
+      "size_bytes": 457,
+      "chars": 441,
+      "lines": 17,
+      "extension": ".md",
+      "readable": true,
+      "percentage": 0.0190836969405069
+    },
+    {
+      "path": "EKS\\tests\\backend\\unit\\config.test.ts",
+      "size_bytes": 296,
+      "chars": 286,
+      "lines": 11,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.01237627511334461
+    },
+    {
+      "path": "EKS\\backend\\.gitignore",
+      "size_bytes": 298,
+      "chars": 265,
+      "lines": 34,
+      "extension": "",
+      "readable": true,
+      "percentage": 0.01146752763998714
+    },
+    {
+      "path": "EKS\\frontend\\next-env.d.ts",
+      "size_bytes": 233,
+      "chars": 228,
+      "lines": 6,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.009866401139309689
+    },
+    {
+      "path": "EKS\\frontend\\src\\lib\\utils.ts",
+      "size_bytes": 175,
+      "chars": 169,
+      "lines": 7,
+      "extension": ".ts",
+      "readable": true,
+      "percentage": 0.00731325347606727
+    },
+    {
+      "path": "EKS\\.gitignore",
+      "size_bytes": 178,
+      "chars": 162,
+      "lines": 17,
+      "extension": "",
+      "readable": true,
+      "percentage": 0.00701033765161478
+    },
+    {
+      "path": ".specify\\triage\\triage_log.json",
+      "size_bytes": 130,
+      "chars": 124,
+      "lines": 7,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.005365937461729831
+    },
+    {
+      "path": "EKS\\package-lock.json",
+      "size_bytes": 96,
+      "chars": 90,
+      "lines": 7,
+      "extension": ".json",
+      "readable": true,
+      "percentage": 0.003894632028674877
+    }
+  ]
+}

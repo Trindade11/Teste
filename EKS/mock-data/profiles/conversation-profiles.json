@@ -1,0 +1,44 @@
+[
+  {
+    "user_id": "user-joao-001",
+    "conversation_profile": {
+      "id": "conv-profile-001",
+      "response_length_preference": "detailed",
+      "visual_preference": "charts",
+      "question_type": "strategic",
+      "action_tendency": "analytical",
+      "tone_preference": "formal",
+      "learned_from_interactions": 50,
+      "confidence": 0.92,
+      "patterns": {
+        "avg_query_length": 15,
+        "prefers_followup": true,
+        "uses_voice": false,
+        "uploads_files": true,
+        "typical_session_duration_minutes": 25
+      },
+      "last_updated": "2024-12-13T00:00:00Z"
+    }
+  },
+  {
+    "user_id": "user-maria-002",
+    "conversation_profile": {
+      "id": "conv-profile-002",
+      "response_length_preference": "concise",
+      "visual_preference": "text",
+      "question_type": "operational",
+      "action_tendency": "immediate",
+      "tone_preference": "casual",
+      "learned_from_interactions": 35,
+      "confidence": 0.85,
+      "patterns": {
+        "avg_query_length": 8,
+        "prefers_followup": false,
+        "uses_voice": true,
+        "uploads_files": false,
+        "typical_session_duration_minutes": 10
+      },
+      "last_updated": "2024-12-10T00:00:00Z"
+    }
+  }
+]

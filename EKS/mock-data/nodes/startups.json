@@ -1,0 +1,74 @@
+[
+  {
+    "id": "startup-techcorp-001",
+    "name": "TechCorp AI",
+    "company_id": "company-techcorp-001",
+    "stage": "Series A",
+    "sector": "IA & Automação",
+    "description": "Automação inteligente de processos empresariais usando IA",
+    "metrics": {
+      "runway_months": 18,
+      "burn_rate_monthly": 80000,
+      "revenue_monthly": 120000,
+      "revenue_growth_mom": 0.35,
+      "cac": 1500,
+      "ltv": 6000,
+      "cac_ltv_ratio": 0.25,
+      "employees": 12,
+      "mrr": 120000,
+      "arr": 1440000
+    },
+    "funding": {
+      "total_raised": 2500000,
+      "last_round": "Series A",
+      "last_round_date": "2024-06-15",
+      "investors": ["CVC Example", "Angel Investors"]
+    },
+    "team": {
+      "ceo_id": "user-ana-004",
+      "cto_id": null,
+      "team_size": 12
+    },
+    "status": "active",
+    "risk_level": "medium",
+    "tags": ["IA", "B2B", "SaaS", "Automação"],
+    "created_at": "2024-03-01T00:00:00Z",
+    "updated_at": "2024-12-13T00:00:00Z"
+  },
+  {
+    "id": "startup-fintech-001",
+    "name": "FinTech Solutions",
+    "company_id": "company-fintech-001",
+    "stage": "Seed",
+    "sector": "Fintech",
+    "description": "Soluções de pagamento com IA para e-commerce",
+    "metrics": {
+      "runway_months": 10,
+      "burn_rate_monthly": 45000,
+      "revenue_monthly": 30000,
+      "revenue_growth_mom": 0.22,
+      "cac": 800,
+      "ltv": 2400,
+      "cac_ltv_ratio": 0.33,
+      "employees": 6,
+      "mrr": 30000,
+      "arr": 360000
+    },
+    "funding": {
+      "total_raised": 500000,
+      "last_round": "Seed",
+      "last_round_date": "2024-09-01",
+      "investors": ["Angel Investors"]
+    },
+    "team": {
+      "ceo_id": null,
+      "cto_id": null,
+      "team_size": 6
+    },
+    "status": "active",
+    "risk_level": "high",
+    "tags": ["Fintech", "Pagamentos", "IA", "E-commerce"],
+    "created_at": "2024-07-15T00:00:00Z",
+    "updated_at": "2024-12-13T00:00:00Z"
+  }
+]

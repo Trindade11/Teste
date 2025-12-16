@@ -1,0 +1,62 @@
+[
+  {
+    "user_id": "user-joao-001",
+    "ai_profile": {
+      "id": "ai-profile-001",
+      "level": "técnico",
+      "technical_path": true,
+      "needs": ["análise financeira", "dashboards", "relatórios"],
+      "preferences": {
+        "response_format": "detailed",
+        "visual_aids": true,
+        "code_snippets": false
+      },
+      "created_at": "2024-01-15T10:30:00Z",
+      "updated_at": "2024-12-01T00:00:00Z"
+    },
+    "persona_version": {
+      "id": "persona-v3",
+      "version": "v3",
+      "status": "active",
+      "prompt": "Você é um assistente especializado em análise de investimentos e métricas de startups. Foco em dados financeiros, KPIs e recomendações estratégicas. Usuário prefere respostas detalhadas com números e evidências.",
+      "mcps_suggested": ["excel_integration", "charts_generator"],
+      "abilities": ["Análise Financeira", "Due Diligence", "Relatórios Executivos"],
+      "preferences": {
+        "language": "technical",
+        "ui_complexity": "advanced"
+      },
+      "created_at": "2024-11-15T00:00:00Z",
+      "created_by": "feedback_agent"
+    }
+  },
+  {
+    "user_id": "user-maria-002",
+    "ai_profile": {
+      "id": "ai-profile-002",
+      "level": "intermediário",
+      "technical_path": false,
+      "needs": ["análise", "tarefas", "organização"],
+      "preferences": {
+        "response_format": "concise",
+        "visual_aids": true,
+        "code_snippets": false
+      },
+      "created_at": "2024-02-01T10:30:00Z",
+      "updated_at": "2024-10-15T00:00:00Z"
+    },
+    "persona_version": {
+      "id": "persona-v2",
+      "version": "v2",
+      "status": "active",
+      "prompt": "Você é um assistente focado em análise operacional e gestão de tarefas. Respostas diretas e acionáveis. Usuário valoriza clareza e objetividade.",
+      "mcps_suggested": ["task_manager", "calendar_integration"],
+      "abilities": ["Análise Operacional", "Gestão de Tarefas", "Planejamento"],
+      "preferences": {
+        "language": "simple",
+        "ui_complexity": "basic"
+      },
+      "created_at": "2024-09-01T00:00:00Z",
+      "created_by": "feedback_agent"
+    }
+  }
+]
