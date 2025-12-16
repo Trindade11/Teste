@@ -1,0 +1,26 @@
+# Inckui - Componente UI do Projeto
+
+Este arquivo contém componentes e configurações UI para o projeto Spec-Orchestrator.
+
+## Configurações
+
+- Framework: React/Next.js
+- Estilos: TailwindCSS
+- Componentes: Lucide Icons
+
+## Estrutura
+
+```javascript
+// Componente principal Inckui
+export const Inckui = () => {
+  return (
+    <div className="inckui-container">
+      <h1>Inckui UI Component</h1>
+    </div>
+  );
+};
+```
+
+## Versão
+
+v1.0.0 - Criado em 16/12/2025
