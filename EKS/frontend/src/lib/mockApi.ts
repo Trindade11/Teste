@@ -3,6 +3,16 @@
  * Simula latência e comportamento real da API
  */
 
+import type { OrgNode } from './orgChartData';
+import {
+  getNodeByEmail,
+  getNodeById,
+  getManager,
+  getPeers,
+  getSubordinates,
+  orgChartNodes,
+} from './orgChartData';
+
 // Simular latência de rede
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -325,16 +335,13 @@ export const mockApi = {
    * Mock Get Org Chart Data (baseado no CSV)
    */
   async getOrgChartForUser(idOrEmail: string): Promise<ApiResponse<{
-    user: import('./orgChartData').OrgNode;
-    manager?: import('./orgChartData').OrgNode;
-    peers: import('./orgChartData').OrgNode[];
-    subordinates: import('./orgChartData').OrgNode[];
+    user: OrgNode;
+    manager?: OrgNode;
+    peers: OrgNode[];
+    subordinates: OrgNode[];
   } | null>> {
     await delay(300);
-    
-    // Importação dinâmica para evitar circular dependency
-    const { getNodeById, getNodeByEmail, getManager, getPeers, getSubordinates } = await import('./orgChartData');
-    
+
     const userNode = getNodeById(idOrEmail) || getNodeByEmail(idOrEmail);
     if (!userNode) {
       return {
@@ -359,11 +366,9 @@ export const mockApi = {
   /**
    * Mock Get All Org Chart Nodes (admin only)
    */
-  async getAllOrgChartNodes(): Promise<ApiResponse<import('./orgChartData').OrgNode[]>> {
+  async getAllOrgChartNodes(): Promise<ApiResponse<OrgNode[]>> {
     await delay(500);
-    
-    const { orgChartNodes } = await import('./orgChartData');
-    
+
     return {
       success: true,
       data: orgChartNodes

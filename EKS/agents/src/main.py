@@ -9,7 +9,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.config import settings
 from src.utils.neo4j_client import Neo4jClient
-from src.utils.mongodb_client import MongoDBClient
 
 # Configure logging
 logging.basicConfig(
@@ -29,9 +28,6 @@ async def lifespan(app: FastAPI):
     neo4j_client = Neo4jClient()
     await neo4j_client.connect()
     
-    mongodb_client = MongoDBClient()
-    await mongodb_client.connect()
-    
     logger.info("✅ All connections initialized")
     
     yield
@@ -39,7 +35,6 @@ async def lifespan(app: FastAPI):
     # Shutdown
     logger.info("Shutting down EKS Agents server...")
     await neo4j_client.close()
-    await mongodb_client.close()
     logger.info("✅ Shutdown complete")
 
 

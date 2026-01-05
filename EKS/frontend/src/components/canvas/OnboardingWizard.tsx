@@ -8,9 +8,9 @@ import {
   useOnboardingStore,
 } from "@/store/onboarding-store";
 import { useAuthStore } from "@/store/authStore";
+import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { OrgNode } from "@/lib/orgChartData";
 import {
   ArrowLeft,
   ArrowRight,
@@ -56,10 +56,10 @@ export function OnboardingWizard() {
 
   const [competencyDraft, setCompetencyDraft] = useState("");
   const [orgChartData, setOrgChartData] = useState<{
-    user: OrgNode;
-    manager?: OrgNode;
-    peers: OrgNode[];
-    subordinates: OrgNode[];
+    user: { id: string; name: string; email: string; company: string; role: string; department: string };
+    manager: { id: string; name: string; email: string; company: string; role: string; department: string } | null;
+    peers: Array<{ id: string; name: string; email: string; company: string; role: string; department: string }>;
+    subordinates: Array<{ id: string; name: string; email: string; company: string; role: string; department: string }>;
   } | null>(null);
   const [orgChartLoading, setOrgChartLoading] = useState(false);
   const [orgChartError, setOrgChartError] = useState<string | null>(null);
@@ -175,8 +175,7 @@ export function OnboardingWizard() {
       setOrgChartLoading(true);
       setOrgChartError(null);
 
-      const { mockApi } = await import("@/lib/mockApi");
-      const result = await mockApi.getOrgChartForUser(identifier);
+      const result = await api.getOrgChart(identifier);
 
       if (cancelled) return;
 
@@ -199,26 +198,19 @@ export function OnboardingWizard() {
   }, [currentStepId, responses.email, user?.email]);
 
   const handleStart = async () => {
-    // Buscar dados de perfil do usuário (se existir)
-    const profileData = user?.userId
-      ? await (await import('@/lib/mockApi')).mockApi.getProfileData(user.userId)
+    const prefillResponse = await api.getOnboardingPrefill();
+
+    const backendPrefill = prefillResponse.success && prefillResponse.data
+      ? prefillResponse.data.prefill
       : null;
 
     const prefillData: Partial<OnboardingResponses> = {
-      fullName: user?.name || responses.fullName,
-      email: user?.email || responses.email,
-      company: user?.company || responses.company,
-      department: (user as any)?.department || responses.department,
-      jobRole: (user as any)?.jobRole || responses.jobRole,
+      fullName: responses.fullName || user?.name || backendPrefill?.name || "",
+      email: responses.email || user?.email || backendPrefill?.email || "",
+      company: responses.company || user?.company || backendPrefill?.company || "",
+      department: responses.department || (user as any)?.department || backendPrefill?.department || "",
+      jobRole: responses.jobRole || (user as any)?.jobRole || backendPrefill?.jobTitle || "",
     };
-
-    // Pré-preencher competências e descrição do perfil se disponível
-    if (profileData?.success && profileData.data) {
-      prefillData.competencies = profileData.data.competencies;
-      prefillData.profileDescription = profileData.data.profileDescription;
-      prefillData.roleDescription = profileData.data.roleDescription;
-      prefillData.departmentDescription = profileData.data.departmentDescription;
-    }
 
     start(prefillData);
   };
@@ -437,29 +429,24 @@ export function OnboardingWizard() {
                         }
                         className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
                         placeholder="Nome da empresa"
-                        disabled
                       />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Pré-preenchido do seu cadastro. Edite se necessário.
+                      </p>
                     </div>
 
                     <div>
                       <label className="text-sm font-medium">Departamento</label>
-                      <div className="mt-1 flex gap-2">
-                        <input
-                          value={responses.department}
-                          className="flex-1 rounded-lg border border-input bg-muted px-3 py-2 text-sm"
-                          placeholder="Ex.: Gerência de Processos, TI, RH"
-                          disabled
-                        />
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => alert('Relato enviado ao administrador')}
-                        >
-                          Relatar Erro
-                        </Button>
-                      </div>
+                      <input
+                        value={responses.department}
+                        onChange={(e) =>
+                          updateResponse("department", e.target.value)
+                        }
+                        className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                        placeholder="Ex.: Gerência de Processos, TI, RH"
+                      />
                       <p className="text-xs text-muted-foreground mt-1">
-                        Pré-preenchido do seu cadastro. Use "Relatar Erro" se estiver incorreto.
+                        Pré-preenchido do seu cadastro. Edite se necessário.
                       </p>
                     </div>
                   </div>
@@ -581,80 +568,56 @@ export function OnboardingWizard() {
                       <div className="w-px h-6 bg-border"></div>
                     </div>
 
-                    {/* Seu Nível - Você + Pares */}
-                    <div className="flex items-center justify-center gap-4">
-                      {/* Par Esquerdo (Gerência de Risco - simulado) */}
-                      <div className="bg-muted/50 border border-border rounded-lg p-3 w-48 opacity-70">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
-                            {orgChartLoading
-                              ? "…"
-                              : (orgChartData?.peers?.[0]?.name || "")
+                    {/* Seu Nível - Você + Pares (com scroll horizontal) */}
+                    <div className="overflow-x-auto pb-2">
+                      <div className="flex items-center justify-center gap-3 min-w-max px-4">
+                        {/* Pares à esquerda */}
+                        {orgChartData?.peers && orgChartData.peers.length > 0 ? (
+                          orgChartData.peers.map((peer, idx) => (
+                            <div key={peer.id || idx} className="bg-muted/50 border border-border rounded-lg p-3 w-44 flex-shrink-0 opacity-80 hover:opacity-100 transition-opacity">
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
+                                  {peer.name
+                                    .split(" ")
+                                    .map((n) => n[0])
+                                    .join("")
+                                    .slice(0, 2)
+                                    .toUpperCase()}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-xs font-medium truncate">{peer.name}</div>
+                                  <div className="text-xs text-muted-foreground truncate">{peer.role}</div>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="bg-muted/30 border border-dashed border-border rounded-lg p-3 w-44 flex-shrink-0">
+                            <div className="text-xs text-muted-foreground text-center italic">Sem pares</div>
+                          </div>
+                        )}
+
+                        {/* Você (Destaque Central) */}
+                        <div className="relative flex-shrink-0">
+                          <div className="absolute -inset-1 bg-primary/20 rounded-lg blur-sm"></div>
+                          <div className="relative bg-primary border-2 border-primary rounded-lg p-4 w-56 shadow-lg">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-primary-foreground flex items-center justify-center text-primary font-bold">
+                                {(orgChartData?.user?.name || responses.fullName || user?.name || "")
                                   .split(" ")
                                   .map((n) => n[0])
                                   .join("")
                                   .slice(0, 2)
                                   .toUpperCase() || "—"}
-                          </div>
-                          <div className="flex-1">
-                            <div className="text-xs font-medium">
-                              {orgChartLoading
-                                ? "Carregando..."
-                                : orgChartData?.peers?.[0]?.name || "Sem par"}
+                              </div>
+                              <div className="flex-1 text-primary-foreground min-w-0">
+                                <div className="font-semibold truncate">{orgChartData?.user?.name || responses.fullName}</div>
+                                <div className="text-xs opacity-90 truncate">{orgChartData?.user?.role || responses.jobRole}</div>
+                                <div className="text-xs opacity-75 truncate">{orgChartData?.user?.department || responses.department}</div>
+                              </div>
                             </div>
-                            <div className="text-xs text-muted-foreground">
-                              {orgChartLoading ? "" : orgChartData?.peers?.[0]?.role || ""}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Você (Destaque Central) */}
-                      <div className="relative">
-                        <div className="absolute -inset-1 bg-primary/20 rounded-lg blur-sm"></div>
-                        <div className="relative bg-primary border-2 border-primary rounded-lg p-4 w-64 shadow-lg">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-full bg-primary-foreground flex items-center justify-center text-primary font-bold text-lg">
-                              {(orgChartData?.user?.name || responses.fullName || user?.name || "")
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")
-                                .slice(0, 2)
-                                .toUpperCase() || "—"}
-                            </div>
-                            <div className="flex-1 text-primary-foreground">
-                              <div className="font-semibold">{orgChartData?.user?.name || responses.fullName}</div>
-                              <div className="text-xs opacity-90">{orgChartData?.user?.role || responses.jobRole}</div>
-                              <div className="text-xs opacity-75">{orgChartData?.user?.department || responses.department}</div>
-                            </div>
-                          </div>
-                          <div className="absolute -top-2 -right-2 bg-yellow-500 text-yellow-950 text-xs font-bold px-2 py-1 rounded-full shadow-sm">
-                            VOCÊ
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Par Direito (Gerência Investimentos - simulado) */}
-                      <div className="bg-muted/50 border border-border rounded-lg p-3 w-48 opacity-70">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
-                            {orgChartLoading
-                              ? "…"
-                              : (orgChartData?.peers?.[1]?.name || "")
-                                  .split(" ")
-                                  .map((n) => n[0])
-                                  .join("")
-                                  .slice(0, 2)
-                                  .toUpperCase() || "—"}
-                          </div>
-                          <div className="flex-1">
-                            <div className="text-xs font-medium">
-                              {orgChartLoading
-                                ? "Carregando..."
-                                : orgChartData?.peers?.[1]?.name || ""}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {orgChartLoading ? "" : orgChartData?.peers?.[1]?.role || ""}
+                            <div className="absolute -top-2 -right-2 bg-yellow-500 text-yellow-950 text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                              VOCÊ
                             </div>
                           </div>
                         </div>
@@ -662,7 +625,7 @@ export function OnboardingWizard() {
                     </div>
 
                     <div className="text-center text-xs text-muted-foreground italic">
-                      {orgChartError ? orgChartError : "Pares do mesmo nível hierárquico"}
+                      {orgChartError ? orgChartError : `${orgChartData?.peers?.length || 0} par(es) do mesmo nível hierárquico`}
                     </div>
 
                     {/* Conectores */}
@@ -670,18 +633,44 @@ export function OnboardingWizard() {
                       <div className="w-px h-6 bg-border"></div>
                     </div>
 
-                    {/* Nível Inferior - Subordinados */}
+                    {/* Nível Inferior - Subordinados (com scroll horizontal) */}
                     <div className="flex flex-col items-center">
                       <div className="text-xs text-muted-foreground mb-2">↓ Subordinados diretos</div>
-                      <div className="bg-muted/30 border border-dashed border-border rounded-lg p-4 w-64">
-                        <div className="text-sm text-muted-foreground text-center italic">
-                          {orgChartLoading
-                            ? "Carregando..."
-                            : (orgChartData?.subordinates?.length || 0) === 0
-                              ? "Nenhum subordinado cadastrado"
-                              : `${orgChartData?.subordinates?.length || 0} subordinado(s)`}
+                      {orgChartData?.subordinates && orgChartData.subordinates.length > 0 ? (
+                        <div className="overflow-x-auto w-full pb-2">
+                          <div className="flex items-center justify-center gap-2 min-w-max px-4">
+                            {orgChartData.subordinates.map((sub, idx) => (
+                              <div key={sub.id || idx} className="bg-muted/40 border border-border rounded-lg p-2 w-40 flex-shrink-0">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
+                                    {sub.name
+                                      .split(" ")
+                                      .map((n) => n[0])
+                                      .join("")
+                                      .slice(0, 2)
+                                      .toUpperCase()}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="text-xs font-medium truncate">{sub.name}</div>
+                                    <div className="text-xs text-muted-foreground truncate">{sub.role}</div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        <div className="bg-muted/30 border border-dashed border-border rounded-lg p-4 w-64">
+                          <div className="text-sm text-muted-foreground text-center italic">
+                            Nenhum subordinado cadastrado
+                          </div>
+                        </div>
+                      )}
+                      {(orgChartData?.subordinates?.length || 0) > 0 && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {orgChartData?.subordinates?.length} subordinado(s)
+                        </div>
+                      )}
                     </div>
                   </div>
 

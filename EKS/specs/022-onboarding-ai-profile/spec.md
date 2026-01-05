@@ -1,6 +1,50 @@
-# Spec 022 – Onboarding & AI Profile (Canvas Adaptativo em Tempo Real)
+# Spec 022 – Persona Knowledge Profile (PKP) & Onboarding
+
+**Feature Branch**: `022-onboarding-ai-profile`  
+**Created**: 2025-12-07  
+**Updated**: 2025-12-29 (Refined to PKP architecture)  
+**Status**: Draft  
+**Priority**: P0 (Foundation)  
+**Source**: TRG-SPC-20251206-012 + Chat insights (chat011, chat012) + PKP architectural pattern
 
 ## Context & Purpose
+
+The **Persona Knowledge Profile (PKP)** extends the simple AI Profile into a comprehensive, progressively built user model with provenance tracking. PKP is not just onboarding - it's **continuous profiling** that evolves with every interaction.
+
+### Evolution: AI Profile → PKP
+
+**Original AI Profile (Simple)**:
+- One-time onboarding questionnaire → AI literacy level (Iniciante/Intermediário/Técnico) → Static profile
+
+**PKP (Sophisticated)**:
+- 6 quick questions (initial) → Continuous background extraction (LinkedIn, interactions, documents) → Curator Agent proposes updates → User reviews & validates → Versioned profile with provenance per claim → Confidence scores → Link to BIG objectives
+
+PKP enables:
+- **Progressive Profiling** - Profile builds over time, not just at onboarding
+- **Provenance per Claim** - Every profile attribute has source: user input, LinkedIn, observed behavior, inferred
+- **Confidence Scores** - Each claim has confidence (0.0-1.0) based on source quality and corroboration
+- **User Control** - User reviews and approves AI-suggested profile updates
+- **Versioning** - Profile evolves with full history and rollback capability
+- **Objective Alignment** - Profile links to user's current objectives from BIG
+
+The PKP integrates with:
+- **BIG (Business Intent Graph)** - User's role determines which objectives are relevant
+- **PLA (Personal Lead Agent)** - Uses PKP to personalize routing and responses
+- **Canvas** - Adapts UI in real-time based on PKP (literacy level, preferences, tools)
+- **Memory Decay Agent** - Identifies long-term patterns to suggest profile updates
+
+### PKP Components
+
+1. **Initial Profile (6 Quick Questions)** - Fast onboarding, minimal friction
+2. **Background Extraction** - Continuous extraction from LinkedIn, documents, interactions
+3. **Curator Agent** - Proposes profile updates with confidence scores
+4. **User Review Workflow** - User validates/rejects/modifies suggestions
+5. **Provenance Tracking** - Every claim has source + confidence + validation history
+6. **Versioning** - Profile versions with [:SUPERSEDES] relationships
+
+---
+
+## Original System (Preserved for Compatibility)
 
 O **Onboarding & AI Profile** é o sistema de avaliação inicial e contínua do nível de literacia em IA do usuário e seu "caminho" (técnico vs usuário comum), **levando em conta o tipo de organização e papel da pessoa** (CoCreate, CVC, Startup). Esse perfil é gravado no grafo, alimenta a persona do Personal Agent (019), e faz o Canvas (016) se adaptar **em tempo real em produção** para renderizar:
 
@@ -168,6 +212,116 @@ sequenceDiagram
 **When** Personal Agent detecta pergunta técnica avançada,  
 **Then** Canvas sugere upgrade de literacia ou exibe tutorial contextual inline,  
 **And** FeedbackAgent registra esse evento para futura proposta de upgrade.
+
+---
+
+## PKP Progressive Profiling Flow (New)
+
+```mermaid
+flowchart TD
+    NewUser[New User] --> QuickQuestions[6 Quick Questions]
+    QuickQuestions --> InitialPKP[Create Initial PKP v1]
+    
+    InitialPKP --> BackgroundExtraction[Background Extraction Agent]
+    BackgroundExtraction --> LinkedIn[Extract from LinkedIn<br/>with user consent]
+    BackgroundExtraction --> Interactions[Monitor Interactions]
+    BackgroundExtraction --> Documents[Analyze User Documents]
+    
+    LinkedIn --> CuratorAgent[PKP Curator Agent]
+    Interactions --> CuratorAgent
+    Documents --> CuratorAgent
+    
+    CuratorAgent --> AnalyzeClaims[Analyze Extracted Claims]
+    AnalyzeClaims --> AssignConfidence[Assign Confidence Scores]
+    AssignConfidence --> DetectConflicts[Detect Conflicts with Existing Profile]
+    
+    DetectConflicts --> ProposalReview{Create Update Proposal}
+    ProposalReview --> NotifyUser[Notify User]
+    NotifyUser --> UserReviews[User Reviews Proposal]
+    
+    UserReviews -->|Approve| CreateNewVersion[Create PKP v2]
+    UserReviews -->|Reject| LogRejection[Log Rejection + Learn]
+    UserReviews -->|Modify| UserEdits[User Edits Claims]
+    
+    UserEdits --> CreateNewVersion
+    CreateNewVersion --> UpdateProvenance[Update Provenance Chain]
+    UpdateProvenance --> ActivateVersion[Activate New Version]
+    
+    ActivateVersion --> UpdatePLA[Update PLA Context]
+    ActivateVersion --> UpdateCanvas[Update Canvas Rendering]
+    
+    LogRejection --> ImproveExtraction[Improve Future Extraction]
+    
+    classDef initial fill:#e3f2fd,stroke:#1976d2,color:#000
+    classDef extraction fill:#fff3e0,stroke:#ff9800,color:#000
+    classDef curation fill:#e8f5e9,stroke:#4caf50,color:#000
+    classDef user fill:#fce4ec,stroke:#e91e63,color:#000
+    
+    class NewUser,QuickQuestions,InitialPKP initial
+    class BackgroundExtraction,LinkedIn,Interactions,Documents extraction
+    class CuratorAgent,AnalyzeClaims,AssignConfidence,DetectConflicts,ProposalReview curation
+    class NotifyUser,UserReviews,UserEdits,CreateNewVersion,UpdateProvenance,ActivateVersion,LogRejection,ImproveExtraction,UpdatePLA,UpdateCanvas user
+```
+
+### 6 Quick Questions (Initial PKP)
+
+The initial onboarding is intentionally minimal to reduce friction:
+
+1. **"What's your role?"** - Job title/function (used to link to BIG objectives)
+2. **"Have you worked with AI before?"** - Yes/No/A little (literacy baseline)
+3. **"Are you technical?"** - Developer/Technical/Business user (determines UI complexity)
+4. **"What do you want to achieve?"** - Free text (initial objective mapping)
+5. **"How do you prefer to communicate?"** - Chat/Email/Visual/Detailed (communication style)
+6. **"Any tools you use daily?"** - Free text (tool familiarity)
+
+These 6 questions take <2 minutes and provide enough to start. Everything else is extracted progressively.
+
+---
+
+## PKP-Specific Requirements (New)
+
+### Progressive Profiling
+
+- **REQ-PKP-001**: Initial onboarding MUST complete in <2 minutes with 6 quick questions
+- **REQ-PKP-002**: System MUST continue profile building in background after initial onboarding
+- **REQ-PKP-003**: Background extraction MUST run: on user consent (LinkedIn), continuously (interactions), on document upload
+- **REQ-PKP-004**: Extraction MUST be non-blocking: user can use system while profile builds
+
+### Provenance Tracking
+
+- **REQ-PKP-005**: Every profile claim MUST have provenance: source type, source reference, extracted_at, confidence
+- **REQ-PKP-006**: Source types MUST include: `user_input`, `linkedin`, `observed_behavior`, `document_analysis`, `inferred`
+- **REQ-PKP-007**: Provenance chain MUST be traversable: Claim → Source → Original Data
+- **REQ-PKP-008**: System MUST support provenance queries: "Where did this information come from?"
+
+### Confidence Scores
+
+- **REQ-PKP-009**: Every claim MUST have confidence score (0.0-1.0) based on source quality
+- **REQ-PKP-010**: Confidence scoring: User input (1.0), LinkedIn (0.9), Observed behavior (0.7), Inferred (0.5)
+- **REQ-PKP-011**: Multiple sources MUST increase confidence: 2 sources = +0.1, 3+ sources = +0.2 (capped at 1.0)
+- **REQ-PKP-012**: Conflicting sources MUST decrease confidence and flag for user review
+
+### Curator Agent & User Review
+
+- **REQ-PKP-013**: PKP Curator Agent MUST run daily to analyze new data and propose updates
+- **REQ-PKP-014**: Proposals MUST include: new claims, confidence scores, sources, reasoning
+- **REQ-PKP-015**: User MUST be notified of proposals via notification center (non-intrusive)
+- **REQ-PKP-016**: User MUST be able to: approve all, approve selected, reject all, modify claims
+- **REQ-PKP-017**: User modifications MUST be recorded as `user_input` source with confidence 1.0
+
+### Versioning
+
+- **REQ-PKP-018**: PKP MUST be versioned: v1, v2, v3, ... with [:SUPERSEDES] relationships
+- **REQ-PKP-019**: Each version MUST be immutable: changes create new version
+- **REQ-PKP-020**: System MUST support rollback: activate previous version if needed
+- **REQ-PKP-021**: Version history MUST show: what changed, when, why, who approved
+
+### Integration with BIG
+
+- **REQ-PKP-022**: User role in PKP MUST link to relevant objectives in BIG
+- **REQ-PKP-023**: PKP MUST include: current_objectives (from BIG), expertise_areas (linked to BIG concepts)
+- **REQ-PKP-024**: When user role changes, system MUST suggest objective updates
+- **REQ-PKP-025**: PKP MUST filter knowledge retrieval by user's objective context
 
 ---
 

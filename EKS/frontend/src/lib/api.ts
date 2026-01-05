@@ -7,8 +7,9 @@
 
 import mockApi from './mockApi';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === 'true' || true; // SEMPRE MOCK para focar em UX
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+// Use backend by default; enable mock only if explicitly set
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === 'true';
 
 interface ApiResponse<T = any> {
   success: boolean;
@@ -31,6 +32,38 @@ interface UserProfile {
   company: string;
   department?: string;
   jobRole?: string;
+}
+
+interface OnboardingPrefillPayload {
+  userId: string;
+  prefill: {
+    name: string | null;
+    email: string | null;
+    company: string | null;
+    jobTitle: string | null;
+    department: string | null;
+    location: string | null;
+    organizationType: string | null;
+    status: string | null;
+    relationshipType: string | null;
+    accessTypes: string[];
+  };
+}
+
+interface OrgChartUser {
+  id: string;
+  name: string;
+  email: string;
+  company: string;
+  role: string;
+  department: string;
+}
+
+interface OrgChartData {
+  user: OrgChartUser;
+  manager: OrgChartUser | null;
+  peers: OrgChartUser[];
+  subordinates: OrgChartUser[];
 }
 
 class ApiClient {
@@ -163,6 +196,31 @@ class ApiClient {
     return this.request<UserProfile>('/auth/me');
   }
 
+  // ===== Onboarding =====
+
+  async getOrgChart(email: string): Promise<ApiResponse<OrgChartData>> {
+    return this.request<OrgChartData>(`/orgchart/${encodeURIComponent(email)}`);
+  }
+
+  async getOnboardingPrefill(): Promise<ApiResponse<OnboardingPrefillPayload>> {
+    if (USE_MOCK) {
+      return { success: true, data: { userId: 'mock', prefill: {
+        name: null,
+        email: null,
+        company: null,
+        jobTitle: null,
+        department: null,
+        location: null,
+        organizationType: null,
+        status: null,
+        relationshipType: null,
+        accessTypes: [],
+      } } };
+    }
+
+    return this.request<OnboardingPrefillPayload>('/onboarding/prefill');
+  }
+
   // ===== Admin Endpoints =====
 
   async listUsers(): Promise<ApiResponse<any[]>> {
@@ -219,6 +277,76 @@ class ApiClient {
 
   async healthCheck(): Promise<ApiResponse<{ status: string }>> {
     return this.request<{ status: string }>('/health');
+  }
+
+  // ===== Data Ingestion =====
+
+  async getIngestStatus(): Promise<ApiResponse<{
+    nodeCounts: Record<string, number>;
+    relationshipCounts: Record<string, number>;
+    sampleUsers: Array<{
+      email: string;
+      name: string;
+      status: string;
+      department: string;
+      organization: string;
+      accessTypes: string[];
+    }>;
+    isEmpty: boolean;
+  }>> {
+    const raw = await this.request<any>('/admin/ingest/status');
+    if (!raw.success) return raw;
+
+    // Backend returns payload at top-level (not wrapped in data)
+    const payload = raw.data ?? {
+      nodeCounts: raw.nodeCounts,
+      relationshipCounts: raw.relationshipCounts,
+      sampleUsers: raw.sampleUsers,
+      isEmpty: raw.isEmpty,
+    };
+
+    return { success: true, data: payload };
+  }
+
+  async uploadOrgChart(file: File): Promise<ApiResponse<{
+    summary: {
+      totalRows: number;
+      usersCreated: number;
+      usersUpdated: number;
+      departmentsCreated: number;
+      locationsCreated: number;
+      organizationsCreated: number;
+      relationshipsCreated: number;
+      errors: Array<{ row: number; email: string; error: string }>;
+    };
+    users: Array<{
+      email: string;
+      name: string;
+      action: 'created' | 'updated';
+      department: string;
+      accessAreas: string[];
+      accessTypes: string[];
+    }>;
+  }>> {
+    const token = this.getToken();
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${this.baseUrl}/admin/ingest/orgchart`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { success: false, error: data.error || 'Upload failed' };
+    }
+
+    return { success: true, data };
   }
 }
 

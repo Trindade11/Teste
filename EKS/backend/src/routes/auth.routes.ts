@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { authService } from '../services/AuthService';
 import { authenticate } from '../middleware/auth';
+import { neo4jConnection } from '../config/neo4j';
 import { logger } from '../utils/logger';
 
 const router = Router();
@@ -9,7 +10,7 @@ const router = Router();
 // Validation schemas
 const loginSchema = z.object({
   email: z.string().email('Invalid email format'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string().min(4, 'Password must be at least 4 characters'),
 });
 
 const refreshSchema = z.object({
@@ -96,11 +97,58 @@ router.post('/logout', authenticate, (req: Request, res: Response) => {
  * GET /auth/me
  * Get current user info
  */
-router.get('/me', authenticate, (req: Request, res: Response) => {
-  res.json({
-    success: true,
-    data: req.user,
-  });
+router.get('/me', authenticate, async (req: Request, res: Response) => {
+  const session = neo4jConnection.getSession();
+
+  try {
+    const email = req.user?.email?.trim().toLowerCase();
+    if (!email) {
+      res.status(401).json({
+        success: false,
+        error: 'Authentication required',
+      });
+      return;
+    }
+
+    const result = await session.run(
+      `MATCH (u:User {email: $email})
+       OPTIONAL MATCH (u)-[:MEMBER_OF]->(d:Department)
+       RETURN u.id AS userId, u.email AS email, u.name AS name, u.role AS role,
+              u.company AS company, d.name AS department, u.jobTitle AS jobRole`,
+      { email }
+    );
+
+    if (result.records.length === 0) {
+      res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+      return;
+    }
+
+    const record = result.records[0];
+
+    res.json({
+      success: true,
+      data: {
+        userId: record.get('userId'),
+        email: record.get('email'),
+        name: record.get('name') || '',
+        role: record.get('role') || 'user',
+        company: record.get('company') || '',
+        department: record.get('department') || undefined,
+        jobRole: record.get('jobRole') || undefined,
+      },
+    });
+  } catch (error) {
+    logger.error('Get current user route error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to load current user',
+    });
+  } finally {
+    await session.close();
+  }
 });
 
 export default router;

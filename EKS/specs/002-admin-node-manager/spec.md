@@ -402,6 +402,201 @@ Quando Admin cadastra uma organização/área:
 
 ---
 
+## 9. Admin Agent Manager - Gestão de Agentes Globais
+
+### 9.1 Visão Geral
+
+Além de gerenciar nodes organizacionais, o Admin também gerencia **Agentes Globais** que ficam disponíveis para usuários. Isso complementa a criação de agentes pessoais pelos usuários (Spec 004 - User Agent Factory).
+
+**Diferença-Chave**:
+- **Agentes Globais**: Criados por Admin, disponíveis para múltiplos usuários/áreas
+- **Agentes Pessoais**: Criados por usuários, visíveis apenas para o criador
+
+### 9.2 Tipos de Agentes
+
+| Tipo | Criador | Escopo (`scope`) | Visibilidade | Editável por |
+|------|---------|------------------|--------------|--------------|
+| **Global** | Admin | `"global"` | `corporate` / `area` / `project` | Apenas Admin |
+| **Pessoal** | Usuário | `"user"` | `personal` | Apenas criador |
+| **Sistema** | Sistema | `"system"` | Varies | Não editável |
+
+### 9.3 Interface Admin - Agent Manager
+
+**Funcionalidades**:
+
+1. **Criar Agente Global**
+   - Nome, descrição
+   - Prompt base e personalidade
+   - Ferramentas/MCPs disponíveis
+   - Ícone personalizado
+
+2. **Atribuir Visibilidade**
+   - `corporate`: Todos usuários da empresa
+   - `area`: Todos usuários de uma área específica
+   - `project`: Todos usuários de um projeto específico
+   - `user-specific`: Usuários selecionados manualmente
+
+3. **Configurar Prioridade**
+   - `priority_score` (0-10): Influencia roteamento do PLA (Spec 005)
+   - Agentes com maior prioridade são preferidos em caso de empate
+
+4. **Monitorar Uso**
+   - Dashboard com métricas por agente:
+     - Queries processadas
+     - Tempo médio de resposta
+     - Taxa de satisfação (feedback de usuários)
+     - Top usuários do agente
+
+5. **Ativar/Desativar**
+   - `is_active: true/false`
+   - Agentes inativos não aparecem no Agent Team dos usuários
+
+### 9.4 Modelo de Dados
+
+```cypher
+// Node de Agente
+(:Agent {
+  id: UUID,
+  name: String,
+  description: String,
+  prompt_base: String,
+  personality: String,
+  scope: "global" | "user" | "system",  // NOVO
+  visibility: "corporate" | "area" | "project" | "personal",  // NOVO
+  priority_score: Integer,  // 0-10, NOVO para agentes globais
+  mcp_tools: Array<String>,
+  icon: String,  // emoji ou URL
+  is_active: Boolean,
+  created_by: UUID,
+  created_at: DateTime,
+  updated_at: DateTime,
+  usage_count: Integer,
+  avg_response_time: Float,
+  satisfaction_score: Float  // 0-5
+})
+
+// Relacionamentos de Atribuição (NOVOS)
+(:Agent {scope: "global"})-[:AVAILABLE_TO]->(:User)
+(:Agent {scope: "global"})-[:AVAILABLE_TO]->(:Area)
+(:Agent {scope: "global"})-[:AVAILABLE_TO]->(:Project)
+(:Agent {scope: "global"})-[:AVAILABLE_TO]->(:Organization)
+
+// Relacionamento de Criação
+(:Agent)-[:CREATED_BY]->(:User {role: "admin"})
+```
+
+### 9.5 Fluxo de Criação de Agente Global
+
+```mermaid
+sequenceDiagram
+    participant Admin
+    participant AdminUI as Admin Interface
+    participant Backend
+    participant Neo4j
+    participant Users as Affected Users
+    
+    Admin->>AdminUI: Criar Novo Agente Global
+    AdminUI->>Admin: Form: Nome, Descrição, Prompt, MCPs
+    Admin->>AdminUI: Preencher dados
+    AdminUI->>Admin: Configurar Visibilidade (corporate/area/project)
+    Admin->>AdminUI: Selecionar visibilidade + priority_score
+    AdminUI->>Backend: POST /admin/agents/global
+    Backend->>Neo4j: CREATE (:Agent {scope: "global"})
+    Neo4j-->>Backend: Agent created
+    Backend->>Neo4j: CREATE [:AVAILABLE_TO] relationships
+    Neo4j-->>Backend: Relationships created
+    Backend->>Users: Notify new agent available
+    Backend-->>AdminUI: Success + agent_id
+    AdminUI-->>Admin: "Agente criado com sucesso!"
+```
+
+### 9.6 User Stories - Admin Agent Manager
+
+#### User Story 9A: Criar Agente Global para Área
+
+**Como** Admin, **quero** criar um agente global "Analista Financeiro" e atribuí-lo à área de Finanças **para que** todos os membros da área tenham acesso a análises financeiras especializadas.
+
+**Cenários de Aceitação**:
+
+1. **Dado** Admin acessa Agent Manager, **Quando** clica "Criar Agente Global", **Então** form é exibido com campos: nome, descrição, prompt_base, personality, mcp_tools, visibility, priority_score
+
+2. **Dado** Admin preenche dados do agente, **Quando** seleciona `visibility: "area"` e escolhe "Finanças", **Então** sistema cria (:Agent {scope: "global"})-[:AVAILABLE_TO]->(:Area {name: "Finanças"})
+
+3. **Dado** agente foi criado, **Quando** usuários da área Finanças abrem Agent Selector, **Então** veem agente com ícone 🌐 e tooltip "Agente Global - criado por Admin"
+
+#### User Story 9B: Monitorar Uso de Agente Global
+
+**Como** Admin, **quero** visualizar métricas de uso do agente "Especialista Jurídico" **para que** eu possa avaliar sua efetividade e fazer ajustes.
+
+**Cenários de Aceitação**:
+
+1. **Dado** agente global tem 3 meses de uso, **Quando** Admin acessa dashboard do agente, **Então** vê métricas: 245 queries processadas, 3.2s tempo médio de resposta, 4.5/5.0 satisfação, top 5 usuários
+
+2. **Dado** satisfação está abaixo de 4.0, **Quando** Admin visualiza feedback negativo, **Então** pode editar prompt_base para melhorar qualidade
+
+3. **Dado** agente não está sendo usado, **Quando** usage_count = 0 em 30 dias, **Então** sistema sugere desativar ou revisar atribuição
+
+#### User Story 9C: Desativar Agente Global
+
+**Como** Admin, **quero** desativar temporariamente o agente "Assistente de Vendas" **para que** eu possa fazer ajustes sem afetar usuários.
+
+**Cenários de Aceitação**:
+
+1. **Dado** agente está ativo, **Quando** Admin clica "Desativar", **Então** sistema define `is_active: false` e remove agente do Agent Team de todos os usuários
+
+2. **Dado** agente foi desativado, **Quando** Admin faz edições e clica "Reativar", **Então** sistema define `is_active: true` e agente volta a aparecer no Agent Team dos usuários com acesso
+
+### 9.7 Requisitos Funcionais - Admin Agent Manager
+
+- **REQ-AAM-001**: Admin DEVE poder criar agentes com `scope: "global"`
+- **REQ-AAM-002**: Admin DEVE poder configurar `visibility`: `corporate`, `area`, `project`, ou list de user IDs
+- **REQ-AAM-003**: Admin DEVE poder definir `priority_score` (0-10) para influenciar roteamento do PLA
+- **REQ-AAM-004**: Admin DEVE poder editar configuração de qualquer agente (global ou de usuário)
+- **REQ-AAM-005**: Admin DEVE poder ativar/desativar agentes sem deletá-los
+- **REQ-AAM-006**: Admin DEVE visualizar dashboard de uso com: queries processadas, tempo de resposta, satisfação, top usuários
+- **REQ-AAM-007**: Sistema DEVE notificar usuários quando novo agente global é disponibilizado
+- **REQ-AAM-008**: Sistema DEVE remover agente do Agent Team quando Admin desativa
+- **REQ-AAM-009**: Agente global DEVE ter ícone distintivo (🌐) no Agent Selector dos usuários
+
+### 9.8 UI/UX - Admin Agent Manager
+
+**Wireframe Simplificado**:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Admin > Gestão de Agentes                                  │
+│                                                              │
+│  [+ Criar Agente Global]  [📊 Dashboard de Uso]             │
+│                                                              │
+│  ┌──────────────────────────────────────────────┐           │
+│  │ 🌐 Agentes Globais (criados por Admin)      │           │
+│  ├──────────────────────────────────────────────┤           │
+│  │ ✅ Analista Financeiro                       │  [✏️ Editar] [📊 Métricas] [🔴 Desativar] │
+│  │    Descrição: Analisa dados financeiros...   │           │
+│  │    Atribuído: Área Financeira (12 users)    │           │
+│  │    Prioridade: 8/10 | Uso: 243 queries      │           │
+│  │    Satisfação: 4.5/5 ⭐⭐⭐⭐⭐               │           │
+│  ├──────────────────────────────────────────────┤           │
+│  │ ✅ Especialista Jurídico                     │  [✏️ Editar] [📊 Métricas] [🔴 Desativar] │
+│  │    Descrição: Auxilia com questões legais    │           │
+│  │    Atribuído: Usuários específicos (3)      │           │
+│  │    Prioridade: 9/10 | Uso: 89 queries       │           │
+│  │    Satisfação: 4.8/5 ⭐⭐⭐⭐⭐               │           │
+│  └──────────────────────────────────────────────┘           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 9.9 Integração com Outras Specs
+
+| Spec | Integração |
+|------|------------|
+| **004 - User Agent Factory** | Usuários criam agentes pessoais; Admin cria agentes globais |
+| **005 - Agent Router (PLA)** | PLA carrega Agent Team (global + pessoal + sistema) e respeita `priority_score` |
+| **015 - Neo4j Graph Model** | Modelo :Agent com propriedades `scope`, `visibility`, `priority_score` |
+| **016 - Main Interface Layout** | Agent Selector exibe agentes com ícones distintivos (🌐 global, 👤 pessoal) |
+
+---
+
 ## 10. Dependências
 
 | Dependência | Status | Impacto |

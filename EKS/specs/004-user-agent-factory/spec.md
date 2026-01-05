@@ -100,6 +100,81 @@ flowchart TD
 
 ---
 
+## Agent Scope & Visibility
+
+### Tipos de Agentes
+
+O EKS suporta dois tipos de agentes com diferentes escopos de criação e visibilidade:
+
+| Tipo | Criador | Visibilidade | Editável por | Ícone no Seletor |
+|------|---------|--------------|--------------|------------------|
+| **Global** | Admin | Configurável (corporativo/área/projeto) | Apenas Admin | 🌐 |
+| **Pessoal** | Usuário | Apenas próprio usuário | Apenas criador | 👤 |
+
+### Agentes Globais (Criados por Admin)
+
+**Características**:
+- Criados via interface administrativa (Spec 002 - Admin Node Manager)
+- Podem ser atribuídos a múltiplos usuários, áreas ou projetos
+- Propriedade `scope: "global"` no grafo
+- Admin define `visibility`: `corporate` (todos), `area` (área específica), `project` (projeto específico)
+- Aparecem automaticamente no Agent Team dos usuários com acesso
+
+**Casos de Uso**:
+- "Analista Financeiro" atribuído à área de Finanças
+- "Especialista Jurídico" atribuído a usuários específicos
+- "Assistente de Compliance" corporativo (todos têm acesso)
+
+**Modelo de Dados**:
+
+```cypher
+(:Agent {
+  scope: "global",
+  created_by: admin_user_id,
+  visibility: "area" | "corporate" | "project"
+})
+
+// Atribuições
+(:Agent {scope: "global"})-[:AVAILABLE_TO]->(:User)
+(:Agent {scope: "global"})-[:AVAILABLE_TO]->(:Area)
+(:Agent {scope: "global"})-[:AVAILABLE_TO]->(:Project)
+```
+
+### Agentes Pessoais (Criados por Usuário)
+
+**Características**:
+- Criados via User Agent Factory (esta spec)
+- Visíveis apenas para o criador
+- Propriedade `scope: "user"` no grafo
+- Usuário tem controle total: editar, desativar, deletar
+- Limitados por user (ex: máximo 10 agentes pessoais)
+
+**Casos de Uso**:
+- "Meu Assistente de Produtividade" configurado com preferências pessoais
+- "Revisor de Textos" customizado com estilo pessoal
+- "Pesquisador Técnico" focado em tópicos de interesse
+
+**Modelo de Dados**:
+
+```cypher
+(:Agent {
+  scope: "user",
+  created_by: user_id,
+  visibility: "personal"
+})-[:CREATED_BY]->(:User)
+```
+
+### Agent Team do Usuário
+
+Todo usuário tem um "Agent Team" composto por:
+1. **Agentes Globais** - atribuídos pelo Admin
+2. **Agentes Pessoais** - criados pelo próprio usuário
+3. **Agentes de Sistema** - Router, Memory Decay, etc. (sempre presentes)
+
+Este Agent Team é carregado pelo Personal Lead Agent (Spec 005) para roteamento de queries.
+
+---
+
 ## Agent Collaboration
 
 ```mermaid

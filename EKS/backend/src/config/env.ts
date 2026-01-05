@@ -11,6 +11,9 @@ const envSchema = z.object({
   PORT: z.string().transform(Number).default('3001'),
   CORS_ORIGIN: z.string().default('http://localhost:3000'),
 
+  MAX_FILE_SIZE_MB: z.string().transform(Number).default('10'),
+  UPLOAD_DIR: z.string().default('./uploads'),
+
   // Neo4j
   NEO4J_URI: z.string().min(1, 'NEO4J_URI is required'),
   NEO4J_USERNAME: z.string().min(1, 'NEO4J_USERNAME is required'),

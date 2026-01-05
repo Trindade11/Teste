@@ -7,7 +7,7 @@ Multi-agent orchestration system built with Agno Framework.
 - **Python**: 3.11+
 - **Framework**: Agno (multi-agent orchestration)
 - **API**: FastAPI + Uvicorn
-- **Database**: Neo4j (graph), MongoDB (long-term memory)
+- **Database**: Neo4j (graph)
 - **AI**: Azure OpenAI GPT-4o
 
 ## Setup

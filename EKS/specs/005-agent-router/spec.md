@@ -1,10 +1,35 @@
-# Feature Specification: Agent Router System
+# Feature Specification: Personal Lead Agent (PLA) & Agent Router
 
 **Feature Branch**: `005-agent-router`  
 **Created**: 2025-12-07  
+**Updated**: 2025-12-29 (Refined to PLA architecture)  
 **Status**: Draft  
-**Priority**: P1 (Backend Core)  
-**Source**: TRG-SPC-20251206-009 + User input
+**Priority**: P0 (Foundation)  
+**Source**: TRG-SPC-20251206-009 + Chat insights (chat011, chat012) + PLA architectural pattern
+
+## Context & Purpose
+
+The **Personal Lead Agent (PLA)** transforms the simple Agent Router into a sophisticated orchestrator. Instead of just classifying intent and routing to agents, the PLA acts as:
+
+- **Personal Orchestrator** - Each user gets their own PLA instance that learns their patterns
+- **Planner** - Analyzes user state + objectives + intent to plan execution strategy
+- **Policy Engine** - Applies routing policies based on user profile and context
+- **Dispatcher** - Delegates to specialized agents with rich context packages
+- **Learner** - Improves routing decisions based on user feedback and outcomes
+
+### Evolution: Router → PLA
+
+**Original Router (Simple)**:
+- Intent classification → Match capability → Select agent → Execute
+
+**PLA (Sophisticated)**:
+- Load user profile + objectives (from BIG) → Analyze state + intent + objectives → Plan execution (single/team/research) → Query Agent Directory Graph → Dispatch with context package → Learn from outcome
+
+The PLA integrates with:
+- **BIG (Business Intent Graph)** - Filters agents by user's current objectives
+- **Agent Directory Graph** - Rich metadata about agent capabilities, tools, MCPs, personas
+- **PKP (Persona Knowledge Profile)** - User's preferences, expertise, communication style
+- **Hierarchical Agents (spec 035)** - Can activate multi-level agent conversations
 
 ## Process Flow (Business View)
 
@@ -77,6 +102,118 @@ flowchart TD
     class LoadAgent,LoadPrompt,LoadContext,Execute,Response exec
 ```
 
+### Agent Team Composition
+
+Todo usuário possui um "Agent Team" dinâmico composto por três categorias de agentes:
+
+#### 1. Agentes Globais (🌐 Admin-Managed)
+
+**Origem**: Criados e gerenciados pelo Admin via Admin Node Manager (Spec 002)  
+**Visibilidade**: Configurável por Admin (`corporate`, `area`, `project`, ou `user-specific`)  
+**Características**:
+- Propriedade `scope: "global"` no grafo
+- Relacionamento `(:Agent {scope:"global"})-[:AVAILABLE_TO]->(:User|:Area|:Project)`
+- Não editável pelo usuário (apenas Admin)
+- Pode ter `priority_score` definido pelo Admin para influenciar roteamento
+- Aparece no seletor com ícone 🌐
+
+**Casos de Uso**:
+- "Analista Financeiro" atribuído à área de Finanças
+- "Especialista Jurídico" atribuído a usuários específicos
+- "Assistente de Compliance" corporativo (todos têm acesso)
+
+#### 2. Agentes Pessoais (👤 User-Created)
+
+**Origem**: Criados pelo próprio usuário via User Agent Factory (Spec 004)  
+**Visibilidade**: Apenas para o criador  
+**Características**:
+- Propriedade `scope: "user"` no grafo
+- Relacionamento `(:Agent {scope:"user"})-[:CREATED_BY]->(:User)`
+- Editável pelo usuário (prompt, personalidade, ferramentas)
+- PLA aprende padrões de uso para roteamento
+- Aparece no seletor com ícone 👤
+
+**Casos de Uso**:
+- "Meu Assistente de Produtividade" customizado
+- "Revisor de Textos" com estilo pessoal
+- "Pesquisador Técnico" focado em tópicos de interesse
+
+#### 3. Agentes de Sistema (⚙️ System-Level)
+
+**Origem**: Pré-configurados no sistema  
+**Visibilidade**: Sempre disponíveis (alguns invisíveis no seletor)  
+**Características**:
+- Propriedade `scope: "system"` no grafo
+- Funções essenciais (Router, Memory Decay, Curation, etc.)
+- Não editáveis
+- Alguns aparecem no seletor (Router), outros são internos
+
+**Casos de Uso**:
+- Router Agent (padrão de seleção automática)
+- Memory Decay Agent (background - invisible)
+- Curation Agent (background - invisible)
+
+### PLA Agent Loading Strategy
+
+Quando PLA precisa rotear uma query, ele carrega o Agent Team do usuário:
+
+```cypher
+// 1. Carregar Agentes Globais atribuídos ao usuário
+MATCH (user:User {id: $userId})
+MATCH (agent:Agent {scope: "global"})-[:AVAILABLE_TO]->(user)
+WHERE agent.is_active = true
+
+UNION
+
+// 2. Carregar Agentes Globais da área do usuário
+MATCH (user:User {id: $userId})-[:BELONGS_TO]->(area:Area)
+MATCH (agent:Agent {scope: "global"})-[:AVAILABLE_TO]->(area)
+WHERE agent.is_active = true
+
+UNION
+
+// 3. Carregar Agentes Pessoais do usuário
+MATCH (user:User {id: $userId})
+MATCH (agent:Agent {scope: "user"})-[:CREATED_BY]->(user)
+WHERE agent.is_active = true
+
+UNION
+
+// 4. Carregar Agentes de Sistema
+MATCH (agent:Agent {scope: "system"})
+WHERE agent.is_active = true
+
+RETURN agent
+ORDER BY 
+  agent.priority_score DESC,  // Agentes globais com prioridade
+  agent.usage_count DESC      // Agentes pessoais por frequência
+```
+
+### Routing Priority Logic
+
+PLA usa a seguinte lógica de prioridade para roteamento:
+
+1. **User Manual Selection** (prioridade máxima) - Se usuário selecionou agente explicitamente, usar esse
+2. **Global Agent Priority Score** - Admin define priority_score (0-10) para agentes globais
+3. **Personal Agent Usage Patterns** - PLA aprende qual agente pessoal usar para qual tipo de query
+4. **Confidence Score** - PLA calcula confidence por agente baseado em capabilities
+5. **Fallback to Router** - Se nenhum agente específico tem confidence >0.7, usar Router padrão
+
+**Exemplo de Decisão**:
+
+```
+User query: "Analise a situação financeira do projeto X"
+
+PLA Analysis:
+1. Load Agent Team: [Analista Financeiro (global), Meu Assistente (pessoal), Router (system)]
+2. Calculate confidence:
+   - Analista Financeiro: 0.95 (capability: financial_analysis, priority_score: 8)
+   - Meu Assistente: 0.60 (generic, usage_count: 100)
+   - Router: 0.50 (fallback)
+3. Decision: Route to "Analista Financeiro" (highest confidence + priority)
+4. Log: Store routing decision for future learning
+```
+
 ### Flow Insights
 
 **Gaps identificados**:
@@ -97,6 +234,64 @@ flowchart TD
 - Custo: cada roteamento usa tokens LLM
 - Erro de classificação: escolher agente errado frustra usuário
 - Conflito: usuário força agente ruim para tarefa
+
+---
+
+## PLA Architecture (Enhanced Flow)
+
+```mermaid
+flowchart TD
+    UserQuery[User Query] --> PLA[Personal Lead Agent]
+    
+    PLA --> LoadProfile[Load User Profile]
+    LoadProfile --> LoadObjectives[Load Current Objectives from BIG]
+    LoadObjectives --> AnalyzeState[Analyze: State + Intent + Objectives]
+    
+    AnalyzeState --> PlanExecution{Plan Execution Strategy}
+    
+    PlanExecution -->|Simple Query| SingleAgent[Single Agent Execution]
+    PlanExecution -->|Complex Task| TeamExecution[Team-Based Execution]
+    PlanExecution -->|Research Needed| ResearchExecution[Research & Planning]
+    
+    SingleAgent --> QueryDirectory[Query Agent Directory Graph]
+    TeamExecution --> QueryDirectory
+    ResearchExecution --> QueryDirectory
+    
+    QueryDirectory --> MatchAgents[Match Agents by:<br/>Capability + Tools + Persona + Objective]
+    MatchAgents --> ApplyPolicy[Apply Routing Policy]
+    
+    ApplyPolicy --> PrepareContext[Prepare Context Package:<br/>User Profile + Objectives + History]
+    PrepareContext --> Dispatch[Dispatch to Agent/Team]
+    
+    Dispatch --> Execute[Agent Executes]
+    Execute --> Response[Response to User]
+    
+    Response --> LogDecision[Log Routing Decision]
+    LogDecision --> UpdatePLA[Update PLA Learning]
+    UpdatePLA --> ImproveRouting[Improve Future Routing]
+    
+    classDef pla fill:#e3f2fd,stroke:#1976d2,color:#000
+    classDef planning fill:#fff3e0,stroke:#ff9800,color:#000
+    classDef directory fill:#e8f5e9,stroke:#4caf50,color:#000
+    classDef execution fill:#fce4ec,stroke:#e91e63,color:#000
+    
+    class UserQuery,PLA,LoadProfile,LoadObjectives,AnalyzeState pla
+    class PlanExecution,SingleAgent,TeamExecution,ResearchExecution planning
+    class QueryDirectory,MatchAgents,ApplyPolicy directory
+    class PrepareContext,Dispatch,Execute,Response,LogDecision,UpdatePLA,ImproveRouting execution
+```
+
+### PLA vs Simple Router
+
+| Aspect | Simple Router | Personal Lead Agent (PLA) |
+|--------|--------------|---------------------------|
+| **Scope** | Intent classification only | State + Intent + Objectives |
+| **Agent Selection** | Match capability | Match capability + tools + persona + objective alignment |
+| **Context** | Conversation history | User profile + objectives + preferences + history |
+| **Execution** | Single agent always | Single / Team / Research (adaptive) |
+| **Learning** | None | Learns from outcomes, improves routing |
+| **Personalization** | Generic for all users | Per-user PLA instance |
+| **Integration** | Standalone | Integrates with BIG, PKP, Agent Directory |
 
 ---
 
@@ -339,6 +534,62 @@ Usuário está em conversa com Task Agent. Envia mensagem ambígua "E depois?". 
 (:RoutingLog)-[:USED_AGENT]->(:Agent)
 (:RoutingLog)-[:IN_CONVERSATION]->(:Conversation)
 ```
+
+---
+
+## PLA-Specific Requirements (New)
+
+### Personal Lead Agent Instance
+
+- **REQ-PLA-001**: Every user MUST have a dedicated PLA instance stored as (:UserAgent) in Neo4j
+- **REQ-PLA-002**: PLA instance MUST persist: routing history, learned patterns, user preferences, success metrics
+- **REQ-PLA-003**: PLA MUST load user profile from PKP (Persona Knowledge Profile) on every interaction
+- **REQ-PLA-004**: PLA MUST load user's current objectives from BIG (Business Intent Graph)
+
+### Execution Planning
+
+- **REQ-PLA-005**: PLA MUST analyze query to determine execution strategy: single_agent | team_based | research_planning
+- **REQ-PLA-006**: Single agent strategy: Direct routing for simple queries
+- **REQ-PLA-007**: Team-based strategy: Activate multiple specialized agents for complex tasks
+- **REQ-PLA-008**: Research & planning strategy: Hierarchical agents (spec 035) for strategic queries
+- **REQ-PLA-009**: Execution plan MUST be logged for transparency and learning
+
+### Agent Directory Graph
+
+- **REQ-PLA-010**: System MUST maintain Agent Directory Graph with nodes: (:AgentCapability), (:Tool), (:MCP), (:Persona)
+- **REQ-PLA-011**: Every agent MUST link to capabilities: (:Agent)-[:HAS_CAPABILITY]->(:AgentCapability)
+- **REQ-PLA-012**: Every agent MUST link to tools: (:Agent)-[:USES_TOOL]->(:Tool)
+- **REQ-PLA-013**: Agent Directory MUST support semantic search: match by capability description, not just keywords
+- **REQ-PLA-014**: PLA MUST query Agent Directory with filters: user objectives, required capabilities, available tools
+
+### Context Package
+
+- **REQ-PLA-015**: PLA MUST prepare context package for dispatched agents including: user profile, current objectives, conversation history, relevant knowledge chunks
+- **REQ-PLA-016**: Context package MUST be optimized: <10K tokens total, prioritize recent + relevant
+- **REQ-PLA-017**: Context package MUST include BIG context: which objective is user working on, related OKRs, metrics
+- **REQ-PLA-018**: Context package MUST be versioned: track what context was provided for debugging
+
+### Routing Policy Engine
+
+- **REQ-PLA-019**: PLA MUST apply routing policies: user role-based, objective-based, time-based, load-based
+- **REQ-PLA-020**: Policies MUST be configurable per organization: conservative (always ask) vs aggressive (auto-route)
+- **REQ-PLA-021**: Policy violations MUST be logged and reviewed: e.g., routing to agent user doesn't have access to
+- **REQ-PLA-022**: PLA MUST support policy override: user can force agent selection despite policy
+
+### Learning & Improvement
+
+- **REQ-PLA-023**: PLA MUST log every routing decision with outcome: user satisfaction, task completion, time to resolution
+- **REQ-PLA-024**: PLA MUST learn from explicit feedback: user thumbs up/down, agent switch, task abandonment
+- **REQ-PLA-025**: PLA MUST learn from implicit signals: conversation length, follow-up questions, task completion
+- **REQ-PLA-026**: PLA MUST improve routing accuracy over time: track accuracy per user, per intent type, per agent
+- **REQ-PLA-027**: PLA MUST share learnings across users: patterns that work for similar roles/objectives
+
+### Integration with Other Specs
+
+- **REQ-PLA-028**: PLA MUST integrate with BIG (spec 030): filter agents by objective relevance
+- **REQ-PLA-029**: PLA MUST integrate with PKP (spec 022): personalize routing based on user profile
+- **REQ-PLA-030**: PLA MUST integrate with Hierarchical Agents (spec 035): activate multi-level conversations when needed
+- **REQ-PLA-031**: PLA MUST integrate with Trust Score (spec 033): prefer agents with higher trust scores for critical tasks
 
 ---
 

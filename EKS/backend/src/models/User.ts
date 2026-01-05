@@ -41,6 +41,6 @@ export interface AuthTokens {
 export interface JWTPayload {
   userId: string;
   email: string;
-  role: 'admin' | 'user';
-  organizationType: 'cocreate' | 'cvc' | 'startup';
+  role: 'admin' | 'user' | 'Administrador';
+  organizationType: 'cocreate' | 'cvc' | 'startup' | 'client';
 }

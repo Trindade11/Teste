@@ -46,7 +46,7 @@ export function OrgChartValidationCard() {
   return (
     <>
       {/* Main Validation Card */}
-      <div className="rounded-xl border border-border bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 p-6 shadow-lg">
+      <div className="rounded-xl border border-border bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 p-6 shadow-lg max-w-xl">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-2">
             <Users className="w-5 h-5 text-primary" />

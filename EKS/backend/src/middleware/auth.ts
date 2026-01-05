@@ -52,7 +52,9 @@ export const requireAdmin = (
     return;
   }
 
-  if (req.user.role !== 'admin') {
+  // Accept both 'admin' and 'Administrador' as admin roles
+  const isAdmin = req.user.role === 'admin' || req.user.role === 'Administrador';
+  if (!isAdmin) {
     res.status(403).json({ error: 'Admin access required' });
     return;
   }
@@ -63,7 +65,7 @@ export const requireAdmin = (
 /**
  * Middleware to check organization type access
  */
-export const requireOrganizationType = (...types: Array<'cocreate' | 'cvc' | 'startup'>) => {
+export const requireOrganizationType = (...types: Array<'cocreate' | 'cvc' | 'startup' | 'client'>) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
       res.status(401).json({ error: 'Authentication required' });

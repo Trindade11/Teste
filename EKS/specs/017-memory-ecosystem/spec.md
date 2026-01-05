@@ -1,19 +1,38 @@
-# Feature Specification: Memory Ecosystem & Memory Decay Agent
+# Feature Specification: Memory Ecosystem with 4 Classes & Bitemporal Model
 
 **Feature Branch**: `017-memory-ecosystem`  
 **Created**: 2025-12-07  
+**Updated**: 2025-12-29 (Refined with 4 memory classes + bitemporal model)  
 **Status**: Draft  
-**Priority**: P1 (Core)  
-**Source**: TRG-SPC-20251206-012/013/014 (Memory Ecosystem, Memory Decay Agent) + `database-schema.md` + specs 001/009/010/012/015
+**Priority**: P0 (Foundation)  
+**Source**: TRG-SPC-20251206-012/013/014 + Chat insights (chat011, chat012, chat013) + BIG integration
 
 ## Purpose
 
-Definir o **sistema de memória próprio do CVC Hub**, independente da memória interna do framework Agno:
+Definir o **sistema de memória próprio do EKS**, independente da memória interna do framework Agno, com arquitetura cognitiva inspirada em ciência cognitiva:
+
+### Original System (3 Levels)
 - Camadas de memória: curto, médio e longo prazo.  
 - Como nodes "envelhecem" (caducidade) e mudam de nível.  
-- Como o uso recente e a relevância afetam o que é lembrado ou esquecido.  
-- Como isso se conecta ao Neo4j (`memory_level`, `expires_at`, `freshness` em `database-schema.md`).
-- **Resumo de histórico de chat** para manter visão ampla sem explodir o contexto da LLM (estratégias de janelamento progressivo podem ser usadas conforme necessidade futura).
+- Como o uso recente e a relevância afetam o que é lembrado ou esquecido.
+
+### Enhanced System (4 Memory Classes + Bitemporal)
+
+**4 Memory Classes** (inspired by cognitive psychology):
+1. **Semantic Memory** - Ontology, concepts, definitions (facts about the world)
+2. **Episodic Memory** - Events, meetings, timeline (what happened when)
+3. **Procedural Memory** - Processes, playbooks, how-tos (how to do things)
+4. **Evaluative Memory** - Lessons learned, insights, wisdom (what worked/didn't work)
+
+**Bitemporal Model** (inspired by data warehousing):
+- `valid_time` - When the fact was true in the real world
+- `transaction_time` - When the system recorded the fact
+- Enables temporal queries: "What did we know on date X?" vs "What was true on date X?"
+
+**Integration with BIG**:
+- All memory anchored to objectives (Business Intent Graph)
+- Memory class determines retrieval strategy
+- Temporal model enables historical analysis and audit
 
 > Arquitetura Confirmada (triage): **Sistema de memória PRÓPRIO (não usar memória do Agno)**.
 
@@ -95,6 +114,83 @@ memory_level & expires_at"]
     class Monitor,Evaluate,Promote,Demote,Expire decay
     class Graph,SessionCache,Archive store
 ```
+
+---
+
+## 4 Memory Classes Architecture (New)
+
+```mermaid
+flowchart TD
+    Knowledge[Knowledge Ingestion] --> Classifier[Memory Class Classifier Agent]
+    
+    Classifier --> Semantic{Semantic Memory?<br/>Facts, Concepts}
+    Classifier --> Episodic{Episodic Memory?<br/>Events, Timeline}
+    Classifier --> Procedural{Procedural Memory?<br/>Processes, How-To}
+    Classifier --> Evaluative{Evaluative Memory?<br/>Lessons, Insights}
+    
+    Semantic -->|Yes| LinkConcept[Link to :Concept nodes<br/>in BIG ontology]
+    Episodic -->|Yes| LinkTimePoint[Link to :TimePoint<br/>with temporal properties]
+    Procedural -->|Yes| LinkProcess[Link to :Process<br/>as playbook steps]
+    Evaluative -->|Yes| LinkInsight[Link to :Insight<br/>with success/failure]
+    
+    LinkConcept --> StoreSemantic[Store with memory_class: semantic]
+    LinkTimePoint --> StoreEpisodic[Store with memory_class: episodic]
+    LinkProcess --> StoreProcedural[Store with memory_class: procedural]
+    LinkInsight --> StoreEvaluative[Store with memory_class: evaluative]
+    
+    StoreSemantic --> Bitemporal[Add Bitemporal Properties]
+    StoreEpisodic --> Bitemporal
+    StoreProcedural --> Bitemporal
+    StoreEvaluative --> Bitemporal
+    
+    Bitemporal --> ValidTime[valid_from, valid_to]
+    Bitemporal --> TransactionTime[recorded_at, updated_at]
+    
+    ValidTime --> Neo4j[Store in Neo4j]
+    TransactionTime --> Neo4j
+    
+    classDef input fill:#e3f2fd,stroke:#1976d2,color:#000
+    classDef classes fill:#fff3e0,stroke:#ff9800,color:#000
+    classDef links fill:#e8f5e9,stroke:#4caf50,color:#000
+    classDef storage fill:#fce4ec,stroke:#e91e63,color:#000
+    
+    class Knowledge,Classifier input
+    class Semantic,Episodic,Procedural,Evaluative classes
+    class LinkConcept,LinkTimePoint,LinkProcess,LinkInsight,StoreSemantic,StoreEpisodic,StoreProcedural,StoreEvaluative links
+    class Bitemporal,ValidTime,TransactionTime,Neo4j storage
+```
+
+### Memory Class Definitions
+
+| Memory Class | Description | Examples | Retrieval Strategy |
+|--------------|-------------|----------|-------------------|
+| **Semantic** | Facts, concepts, definitions - timeless knowledge about the world | "Company X is a SaaS startup", "OKR stands for Objectives and Key Results" | Concept-based search, ontology traversal |
+| **Episodic** | Events, meetings, timeline - what happened when | "Board meeting on 2024-03-15", "Product launch event" | Temporal search, timeline queries |
+| **Procedural** | Processes, playbooks, how-tos - knowledge about how to do things | "How to onboard a new client", "Sales process steps" | Process flow search, step-by-step retrieval |
+| **Evaluative** | Lessons learned, insights, wisdom - what worked or didn't work | "Strategy X failed because Y", "Best practice: always validate with users" | Pattern matching, success/failure analysis |
+
+### Bitemporal Model
+
+**Why Bitemporal?**
+- **Audit & Compliance** - Track when facts were recorded vs when they were true
+- **Historical Analysis** - Answer "What did we know on date X?" vs "What was true on date X?"
+- **Correction Handling** - Update facts without losing history
+- **Temporal Reasoning** - Enable sophisticated time-based queries
+
+**Two Time Dimensions**:
+1. **Valid Time** (`valid_from`, `valid_to`) - When the fact was true in the real world
+   - Example: "Company X raised $5M on 2024-01-15" → `valid_from: 2024-01-15`
+   - If corrected later: "Actually $6M" → new version with same `valid_from`, different `recorded_at`
+
+2. **Transaction Time** (`recorded_at`, `updated_at`) - When the system recorded/updated the fact
+   - Example: Fact recorded on 2024-03-10 → `recorded_at: 2024-03-10`
+   - If updated on 2024-03-20 → `updated_at: 2024-03-20`
+
+**Temporal Queries**:
+- **As-of query** (transaction time): "What did the system know on 2024-02-28?"
+  - Returns all facts where `recorded_at <= 2024-02-28`
+- **Valid-at query** (valid time): "What was true on 2024-02-28?"
+  - Returns all facts where `valid_from <= 2024-02-28 AND (valid_to IS NULL OR valid_to > 2024-02-28)`
 
 ---
 
@@ -243,6 +339,31 @@ Sistema mantém visão ampla de conversas longas sem explodir o contexto da LLM,
 - **REQ-MEMECO-021**: Estratégias mais sofisticadas de janelamento progressivo (ex.: tamanhos de janela inspirados em sequência de Fibonacci) PODEM ser adotadas no futuro, mas não são obrigatórias no MVP.
 - **REQ-MEMECO-022**: Usuário/empresa PODE desativar o uso de resumos (opt-out), caso prefira enviar mais mensagens brutas até o limite de tokens do modelo.
 - **REQ-MEMECO-023**: Interface de histórico de chat DEVE permitir que usuário veja, ao clicar em um resumo, as mensagens cobertas por aquele resumo, sem alterar a forma como o contexto é enviado para LLM.
+
+---
+
+## Memory Classes & Bitemporal Requirements (New - from BIG Integration)
+
+### Memory Class Classification
+
+- **REQ-MEM-020**: Every knowledge node MUST have `memory_class` property: `semantic` | `episodic` | `procedural` | `evaluative`
+- **REQ-MEM-021**: Memory Class Classifier Agent MUST run on every knowledge ingestion
+- **REQ-MEM-022**: Classifier MUST use LLM analysis to determine memory class with confidence ≥ 0.7
+- **REQ-MEM-023**: If confidence <0.7, Classifier MUST flag for human review
+- **REQ-MEM-024**: Semantic memory nodes MUST link to (:Concept) via [:DEFINES]
+- **REQ-MEM-025**: Episodic memory nodes MUST link to (:TimePoint) via [:OCCURRED_AT]
+- **REQ-MEM-026**: Procedural memory nodes MUST link to (:Process) via [:DESCRIBES_STEP]
+- **REQ-MEM-027**: Evaluative memory nodes MUST link to (:Insight) via [:SUPPORTS_LESSON]
+
+### Bitemporal Properties
+
+- **REQ-MEM-028**: Every knowledge node MUST have: `valid_from`, `valid_to`, `recorded_at`, `updated_at`
+- **REQ-MEM-029**: `valid_from` = when fact became true in real world (user-provided or inferred)
+- **REQ-MEM-030**: `valid_to` = when fact ceased to be true (NULL = still valid)
+- **REQ-MEM-031**: `recorded_at` = when system first recorded this fact (auto-generated)
+- **REQ-MEM-032**: `updated_at` = when node was last modified (auto-updated)
+- **REQ-MEM-033**: System MUST support "as-of" queries (transaction time)
+- **REQ-MEM-034**: System MUST support "valid-at" queries (valid time)
 
 ---
 

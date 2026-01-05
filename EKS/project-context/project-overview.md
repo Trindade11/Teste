@@ -2,7 +2,7 @@
 
 > High-level, visual overview of the project, its status, and identified gaps
 
-**Version**: V20 | **Created**: 2025-12-06 | **Updated**: 2025-12-07 22:35
+**Version**: V22 | **Created**: 2025-12-06 | **Updated**: 2025-12-29
 
 ## 🎯 Project Macro View
 
@@ -20,11 +20,13 @@ flowchart TD
     end
     
     subgraph Processing["🤖 Agent Layer"]
+        PLA["🧠 Personal Lead Agent<br/>(orquestração)"]
         Router["🔀 Agent Router<br/>(seleção dinâmica)"]
-        KnowledgeAgent["📚 Knowledge Agent<br/>(extração de conhecimento)"]
-        TaskAgent["✅ Task Agent<br/>(geração de tarefas)"]
-        CurationAgent["✅ Curation Agent<br/>(validação dados)"]
-        MemoryDecay["⏳ Memory Decay Agent<br/>(caducidade)"]
+        GlobalAgents["🌐 Agentes Globais<br/>(Admin)"]
+        PersonalAgents["👤 Agentes Pessoais<br/>(User)"]
+        PIATeam["🔍 PIA Team<br/>(Process Intelligence)"]
+        MemorySteward["🛡️ Memory Steward<br/>(governança)"]
+        TrustAgent["⚖️ Trust Score Agent<br/>(confiabilidade)"]
     end
     
     subgraph Decision["👤 User Decision Layer"]
@@ -33,31 +35,34 @@ flowchart TD
     end
     
     subgraph Storage["💾 Data Layer"]
-        Neo4j["🗂️ Neo4j Graph DB<br/>(nodes & relationships)"]
-        Docs["📄 Document Pipeline<br/>(Docling → Certificação)"]
-        Embeddings["🔢 Vector Embeddings<br/>(Azure OpenAI)"]
+        Neo4j["🗂️ Neo4j Aura<br/>(EXCLUSIVE DB)"]
+        BIG["🎯 Business Intent Graph<br/>(OKRs, Objectives)"]
+        IDG["🔄 Interaction & Delegation<br/>(Organizational Twin)"]
+        Embeddings["🔢 Vector Search<br/>(Neo4j + Azure)"]
     end
     
     User([👤 Usuário]) --> Chat
     User --> Menu
     
-    Chat --> Router
-    Router --> KnowledgeAgent
-    Router --> TaskAgent
+    Chat --> PLA
+    PLA --> Router
+    Router --> GlobalAgents
+    Router --> PersonalAgents
+    Router --> PIATeam
     
-    Docs --> CurationAgent
-    CurationAgent --> DataFilter
-    DataFilter --> MemDecision
-    MemDecision --> Neo4j
+    GlobalAgents --> Neo4j
+    PersonalAgents --> Neo4j
+    PIATeam --> IDG
     
-    KnowledgeAgent --> Neo4j
-    TaskAgent --> Neo4j
-    TaskAgent --> Canvas
+    MemorySteward -.->|monitora| Neo4j
+    TrustAgent -.->|avalia| Neo4j
     
-    KnowledgeAgent --> Embeddings
-    MemoryDecay -.->|monitora| Neo4j
+    Neo4j --> BIG
+    Neo4j --> IDG
+    Neo4j --> Embeddings
     
-    Neo4j --> Canvas
+    BIG --> Canvas
+    IDG --> Canvas
     Canvas --> User
     
     classDef uiStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
@@ -65,8 +70,8 @@ flowchart TD
     classDef dataStyle fill:#e8f5e9,stroke:#4caf50,stroke-width:2px,color:#000
     
     class Chat,Canvas,Menu uiStyle
-    class Router,KnowledgeAgent,TaskAgent,CurationAgent,MemoryDecay agentStyle
-    class Neo4j,Docs,Embeddings dataStyle
+    class PLA,Router,GlobalAgents,PersonalAgents,PIATeam,MemorySteward,TrustAgent agentStyle
+    class Neo4j,BIG,IDG,Embeddings dataStyle
     class MemDecision,DataFilter uiStyle
 ```
 
@@ -85,11 +90,13 @@ mindmap
       Canvas central
       Menu lateral
     Agentes AI
+      Personal Lead Agent
       Agent Router
-      Knowledge Agent
-      Task Agent
-      Curation Agent
-      Memory Decay Agent
+      Agentes Globais (Admin)
+      Agentes Pessoais (User)
+      PIA Team (Process Intel)
+      Memory Steward
+      Trust Score Agent
     Decisões Usuário
       Memória Corp vs Pessoal
       Real vs Passageiro
@@ -101,22 +108,29 @@ mindmap
       Caducidade
       Freshness
     Dados e Grafos
-      Neo4j
-        Metadados universais
-        Relacionamentos com métricas
-      Docling Pipeline
-        Certificação primeiro
-      Embeddings Azure
+      Neo4j Aura (EXCLUSIVE)
+        Business Intent Graph
+        Interaction & Delegation
+        Vector Search
+        Trust Scores
+      Memory Steward
+        Quality checks
+        Conflict resolution
+      PIA
+        Process mapping
+        Organizational Twin
     Stack Técnico
-      Node.js + Python
-      Neo4j Aura
+      Neo4j Aura (ONLY)
       Agno Framework
-      Next.js
-    Princípios (22)
-      Zero hardcode
-      Decisão do usuário
-      Conhecimento confirmado
-      Visibilidade hierárquica
+      Node.js + Python
+      Next.js 14
+      Azure OpenAI
+    Princípios (26)
+      Ontological Anchoring (GR-002)
+      Bitemporal Truth (GR-003)
+      Provenance Mandatory (GR-004)
+      Trust Transparency (GR-005)
+      Graph as Source of Truth (GR-006)
 ```
 
 ### Business View
@@ -147,9 +161,9 @@ mindmap
 
 | Artifact | Status | Progress | Last Updated |
 |----------|--------|----------|--------------|
-| Constitution | 🟢 Complete | v2.2.0 - 22 principles | 2025-12-07 |
-| Project Context | 🟢 Complete | 100% | 2025-12-06 |
-| Specs | 🟡 In Progress | ~20 especificadas, backlog P1/P2/P3 ainda em aberto | 2025-12-07 |
+| Constitution | 🟢 Complete | v2.3.0 - 26 principles (Neo4j-only) | 2025-12-29 |
+| Project Context | 🟢 Complete | 100% | 2025-12-29 |
+| Specs | 🟢 Complete | 47 specs (87% PT, 13% EN) | 2025-12-29 |
 | Plans | 🟡 In Progress | 2 (Knowledge Pipeline, MVP Core) | 2025-12-07 |
 | Tasks | ⚪ Not started | 0/? | - |
 | Code | 🟡 In Progress | Frontend UI done | 2025-12-07 |
@@ -276,13 +290,13 @@ gantt
 ```mermaid
 %%{init: {'theme': 'base'}}%%
 pie showData
-    title Especificações por Status (V18)
-    "Especificadas (5)" : 5
-    "Pendente P1 Core (14)" : 14
-    "Pendente P1 MVP (3)" : 3
-    "Pendente P1 Backend (2)" : 2
-    "Pendente P2 (8)" : 8
-    "Pendente P3 (1)" : 1
+    title Especificações por Status (V22)
+    "Completas & Traduzidas (41)" : 41
+    "Completas em EN (6)" : 6
+    "P1 Foundation (18)" : 18
+    "P1 MVP (12)" : 12
+    "P2 Advanced (11)" : 11
+    "P3 Future (6)" : 6
 ```
 
 ### Stack de Tecnologias Ativas
@@ -292,10 +306,10 @@ pie showData
 flowchart LR
     subgraph Disponível["✅ Tecnologias Disponíveis"]
         Context7["🔍 Context7 MCP<br/>(docs atualizadas)"]
-        Neo4j["🗂️ Neo4j Aura<br/>(graph DB)"]
-        Azure["☁️ Azure OpenAI<br/>(embeddings)"]
-        Docling["📄 Docling<br/>(document processing)"]
-        Agno["🤖 Agno Framework<br/>(agent orchestration)"]
+        Neo4j["🗂️ Neo4j Aura<br/>(EXCLUSIVE DB)"]
+        Azure["☁️ Azure OpenAI<br/>(GPT-4o + embeddings)"]
+        Agno["🤖 Agno Framework<br/>(multi-agent)"]
+        NextJS14["⚛️ Next.js 14<br/>(frontend)"]
     end
     
     subgraph Criado["🟡 Criado Agora"]
@@ -310,11 +324,11 @@ flowchart LR
     end
     
     Context7 --> Agno
-    Context7 --> Docling
     Agno --> AgentsCode
-    NextJS --> NodeAPI
+    NextJS14 --> NodeAPI
     NodeAPI --> Neo4j
-    NodeAPI --> Azure
+    AgentsCode --> Neo4j
+    Neo4j --> Azure
 ```
 
 ### Artefatos Criados (Resumo Visual)
@@ -378,6 +392,7 @@ mindmap
 | V19 | 2025-12-07 | Overview atualizado com specs de memória/observabilidade/multi-agente (017, 018, 019), onboarding (022, 023) e backlog alinhado. | AI Agent |
 | V20 | 2025-12-07 | Sequências 3–5 consolidadas: criação/integr. de 024 (Retrieval Orchestration) e 025 (Conversation Persistence), refinamentos de onboarding/admin e atualização dos próximos passos para Planning do MVP Core. | AI Agent |
 | V21 | 2025-12-07 | MVP Core Plan criado (`plans/mvp-core-plan.md`): arquitetura completa com diagramas Mermaid, 5 fases de implementação (Backend Foundation, Agent System, Core Features, Advanced Features, Polish), 10 semanas estimadas, integração frontend existente. | AI Agent |
+| V22 | 2025-12-29 | **CONSOLIDAÇÃO COMPLETA**: 47 specs (87% PT), MongoDB deprecado (Neo4j-only), 6 specs traduzidas (041-046: GIN, GID, Memory Steward, Trust Score, Simulation, Hierarchical Brainstorm, PIA), Sistema de customização de agentes (Global/Pessoal/Sistema), Zero sobreposições, Diagramas atualizados. | AI Agent |
 
 ---
 

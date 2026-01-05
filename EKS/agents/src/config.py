@@ -17,10 +17,6 @@ class Settings(BaseSettings):
     neo4j_user: str
     neo4j_password: str
     
-    # MongoDB
-    mongodb_uri: str
-    mongodb_database: str = "eks"
-    
     # Azure OpenAI
     azure_openai_endpoint: str
     azure_openai_api_key: str

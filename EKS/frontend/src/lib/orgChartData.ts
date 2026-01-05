@@ -614,7 +614,14 @@ export function getPeers(nodeId: string): OrgNode[] {
   const node = getNodeById(nodeId);
   if (!node) return [];
   
-  // Pares são pessoas no mesmo departamento com o mesmo gestor
+  // Prioridade 1: peerIds explícitos definidos no nó
+  if (node.peerIds && node.peerIds.length > 0) {
+    return node.peerIds
+      .map(id => getNodeById(id))
+      .filter((n): n is OrgNode => n !== undefined);
+  }
+  
+  // Prioridade 2: pessoas no mesmo departamento com o mesmo gestor
   return orgChartNodes.filter(n => 
     n.id !== nodeId &&
     n.department === node.department &&

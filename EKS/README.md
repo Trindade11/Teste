@@ -33,7 +33,7 @@ EKS é uma plataforma que combina:
 
 ```
 ┌─────────────────────────────────────────┐
-│  🎨 UI (Next.js)                       │
+│  🎨 UI (Next.js 14)                    │
 │  Sidebar | Canvas | Chat               │
 └──────────────┬──────────────────────────┘
                │
@@ -44,12 +44,12 @@ EKS é uma plataforma que combina:
                │
 ┌──────────────▼──────────────────────────┐
 │  🤖 Agents (Python + Agno)             │
-│  Router | Teams | Specialized           │
+│  PLA | Router | Global/Personal | PIA  │
 └──────────────┬──────────────────────────┘
                │
 ┌──────────────▼──────────────────────────┐
-│  💾 Storage                             │
-│  Neo4j | MongoDB | Redis                │
+│  💾 Storage (Neo4j ONLY)               │
+│  Graph DB | BIG | IDG | Vector Search  │
 └─────────────────────────────────────────┘
 ```
 
@@ -61,32 +61,35 @@ EKS é uma plataforma que combina:
 
 - Node.js 20+
 - Python 3.11+
-- Docker Desktop
-- Neo4j Aura account
-- MongoDB Atlas account
+- Docker Desktop (optional)
+- Neo4j Aura account (EXCLUSIVE DB)
 - Azure OpenAI API key
 
-### Setup
+### Setup (ambientes)
 
 ```bash
 # 1. Clone
 git clone <repo>
 cd EKS
 
-# 2. Start infrastructure
-docker-compose up -d
+# 2. Backend
+cd backend
 
-# 3. Backend
-cd backend && npm install && npm run dev
+npm install
+npm run dev    # http://localhost:3001
 
-# 4. Agents
-cd ../agents && poetry install && poetry run python src/main.py
+# 3. Agents
+cd ../agents
 
-# 5. Frontend
-cd ../frontend && npm install && npm run dev
+poetry install
+poetry run python src/main.py   # http://localhost:8000
+
+# 4. Frontend
+cd ../frontend
+
+npm install
+npm run dev    # http://localhost:3000
 ```
-
-**Detailed setup**: [docs/SETUP.md](./docs/SETUP.md)
 
 ---
 
@@ -94,17 +97,11 @@ cd ../frontend && npm install && npm run dev
 
 ```
 EKS/
-├── _context/              # ⚠️ Contexto temporário (pode deletar)
-│   ├── constitution.md
-│   ├── diagrams/
-│   └── docs/
 ├── frontend/              # Next.js 14 UI
 ├── backend/               # Node.js API
 ├── agents/                # Python agents
-├── specs/                 # 25 feature specs
-│   └── _ROADMAP.md       # Sprint plan
-├── plans/                 # MVP plan
-├── project-context/       # Database schema, env vars
+├── specs/                 # Feature specs
+├── project-context/       # Database schema, env vars (ativos)
 └── docker-compose.yml
 
 NOTA: Metodologia Spec-Driven está em ../Spec-Orchestrator/.specify/
@@ -162,11 +159,11 @@ NOTA: Metodologia Spec-Driven está em ../Spec-Orchestrator/.specify/
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | Next.js 14, React 18, Tailwind CSS, Radix UI |
+| Frontend | Next.js 14, React 18, Tailwind CSS, Radix UI, Zustand |
 | Backend | Node.js 20, TypeScript, Express, Socket.io |
 | Agents | Python 3.11, Agno Framework, FastAPI |
-| Database | Neo4j Aura, MongoDB Atlas, Redis |
-| AI | Azure OpenAI GPT-4o, text-embedding-3 |
+| Database | **Neo4j Aura (EXCLUSIVE)** - Graph + Vector Search |
+| AI | Azure OpenAI GPT-4o, text-embedding-3-large |
 | Deploy | Vercel (FE), Railway (BE), Docker |
 
 ---
@@ -174,9 +171,10 @@ NOTA: Metodologia Spec-Driven está em ../Spec-Orchestrator/.specify/
 ## 📊 Project Status
 
 - ✅ Frontend layout complete
-- ✅ 25 specs documented
-- ✅ Constitution defined
+- ✅ **47 specs documented** (87% PT, 13% EN)
+- ✅ Constitution v2.3.0 (Neo4j-only)
 - ✅ Roadmap prioritized
+- ✅ Specs 040-046 traduzidas (GIN, GID, PIA, etc.)
 - ⏳ Backend in progress
 - ⏳ Agents setup
 - ⏳ Sprint 1 pending
@@ -209,5 +207,5 @@ Proprietary - CoCreateAI © 2024
 
 ---
 
-**Last Updated**: 2024-12-13  
-**Version**: 0.1.0 (MVP Development)
+**Last Updated**: 2025-12-29  
+**Version**: 0.2.0 (Specs Complete - Ready for Implementation)

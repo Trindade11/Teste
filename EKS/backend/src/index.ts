@@ -6,15 +6,27 @@ import { logger } from './utils/logger';
 import { neo4jConnection } from './config/neo4j';
 import authRoutes from './routes/auth.routes';
 import adminRoutes from './routes/admin.routes';
+import ingestRoutes from './routes/ingest.routes';
+import onboardingRoutes from './routes/onboarding.routes';
+import orgchartRoutes from './routes/orgchart.routes';
 
 const app = express();
+
+const corsOrigins = env.CORS_ORIGIN
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
 
 // Security middleware
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 app.use(cors({
-  origin: env.CORS_ORIGIN,
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (corsOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -50,6 +62,9 @@ app.get('/', (req, res) => {
 // API Routes
 app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
+app.use('/admin/ingest', ingestRoutes);
+app.use('/onboarding', onboardingRoutes);
+app.use('/orgchart', orgchartRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
