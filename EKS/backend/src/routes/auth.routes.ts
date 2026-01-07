@@ -93,6 +93,7 @@ router.post('/logout', authenticate, (req: Request, res: Response) => {
   });
 });
 
+
 /**
  * GET /auth/me
  * Get current user info

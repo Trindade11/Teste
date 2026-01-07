@@ -8,7 +8,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.config import settings
-from src.utils.neo4j_client import Neo4jClient
+from src.utils.neo4j_client import neo4j_client
+from src.routers.chat_router import router as chat_router
 
 # Configure logging
 logging.basicConfig(
@@ -24,17 +25,23 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("Starting EKS Agents server...")
     
-    # Initialize connections
-    neo4j_client = Neo4jClient()
-    await neo4j_client.connect()
+    # Initialize Neo4j connection (optional - continues if fails)
+    try:
+        await neo4j_client.connect()
+        logger.info("✅ Neo4j connection initialized")
+    except Exception as e:
+        logger.warning(f"⚠️ Neo4j connection failed: {e}. Chat will work with limited personalization.")
     
-    logger.info("✅ All connections initialized")
+    logger.info("✅ Server started successfully")
     
     yield
     
     # Shutdown
     logger.info("Shutting down EKS Agents server...")
-    await neo4j_client.close()
+    try:
+        await neo4j_client.close()
+    except Exception:
+        pass
     logger.info("✅ Shutdown complete")
 
 
@@ -75,9 +82,8 @@ async def root():
     }
 
 
-# TODO: Import and register routers
-# from src.router.agent_router import router as agent_router
-# app.include_router(agent_router, prefix="/agents", tags=["agents"])
+# Register routers
+app.include_router(chat_router)
 
 
 if __name__ == "__main__":

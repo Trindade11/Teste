@@ -50,6 +50,27 @@ interface OnboardingPrefillPayload {
   };
 }
 
+interface OnboardingDraftPayload {
+  roleDescription: string;
+  departmentDescription: string;
+  profileDescription: string;
+  competencies: string[];
+  primaryObjective: string;
+  topChallenges: string;
+  orgChartValidated: boolean;
+  defaultVisibility: 'corporate' | 'personal';
+  memoryLevel: 'short' | 'medium' | 'long';
+}
+
+interface OnboardingDraftResponse {
+  draft: Partial<OnboardingDraftPayload>;
+  updatedAt: string;
+}
+
+interface OnboardingCompleteResponse {
+  completedAt: string;
+}
+
 interface OrgChartUser {
   id: string;
   name: string;
@@ -73,6 +94,20 @@ class ApiClient {
     this.baseUrl = baseUrl;
   }
 
+  private isAuthEndpoint(endpoint: string): boolean {
+    return (
+      endpoint.startsWith('/auth/login') ||
+      endpoint.startsWith('/auth/refresh') ||
+      endpoint.startsWith('/auth/logout')
+    );
+  }
+
+  private clearTokens(): void {
+    if (typeof window === 'undefined') return;
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+  }
+
   /**
    * Get access token from localStorage
    */
@@ -88,6 +123,14 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
+    return this.requestWithRetry<T>(endpoint, options, true);
+  }
+
+  private async requestWithRetry<T>(
+    endpoint: string,
+    options: RequestInit,
+    allowRetry: boolean
+  ): Promise<ApiResponse<T>> {
     const token = this.getToken();
   
     const headers = new Headers(options.headers);
@@ -102,6 +145,23 @@ class ApiClient {
         ...options,
         headers,
       });
+
+      if (response.status === 401 && allowRetry && !this.isAuthEndpoint(endpoint)) {
+        const refreshToken = typeof window === 'undefined' ? null : localStorage.getItem('refreshToken');
+
+        if (!refreshToken) {
+          this.clearTokens();
+          return { success: false, error: 'Authentication required' };
+        }
+
+        const refreshResponse = await this.refreshToken();
+        if (!refreshResponse.success) {
+          this.clearTokens();
+          return { success: false, error: 'Authentication required' };
+        }
+
+        return this.requestWithRetry<T>(endpoint, options, false);
+      }
 
       const data = await response.json();
 
@@ -165,28 +225,38 @@ class ApiClient {
     await this.request('/auth/logout', { method: 'POST' });
     
     // Clear tokens
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    this.clearTokens();
   }
 
   async refreshToken(): Promise<ApiResponse<AuthTokens>> {
-    const refreshToken = localStorage.getItem('refreshToken');
+    const refreshTokenValue = localStorage.getItem('refreshToken');
     
-    if (!refreshToken) {
+    if (!refreshTokenValue) {
       return { success: false, error: 'No refresh token available' };
     }
 
-    const response = await this.request<AuthTokens>('/auth/refresh', {
-      method: 'POST',
-      body: JSON.stringify({ refreshToken }),
-    });
+    try {
+      const response = await fetch(`${this.baseUrl}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken: refreshTokenValue }),
+      });
 
-    if (response.success && response.data) {
-      localStorage.setItem('accessToken', response.data.accessToken);
-      localStorage.setItem('refreshToken', response.data.refreshToken);
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data.error || 'Refresh failed' };
+      }
+
+      if (data.success && data.data) {
+        localStorage.setItem('accessToken', data.data.accessToken);
+        localStorage.setItem('refreshToken', data.data.refreshToken);
+      }
+
+      return data;
+    } catch (error) {
+      return { success: false, error: 'Refresh request failed' };
     }
-
-    return response;
   }
 
   async getCurrentUser(): Promise<ApiResponse<UserProfile>> {
@@ -200,6 +270,28 @@ class ApiClient {
 
   async getOrgChart(email: string): Promise<ApiResponse<OrgChartData>> {
     return this.request<OrgChartData>(`/orgchart/${encodeURIComponent(email)}`);
+  }
+
+  async getOnboardingDraft(): Promise<ApiResponse<OnboardingDraftResponse | null>> {
+    return this.request<OnboardingDraftResponse | null>('/onboarding/draft');
+  }
+
+  async saveOnboardingDraft(draft: Partial<OnboardingDraftPayload>): Promise<ApiResponse<{ updatedAt: string }>> {
+    return this.request<{ updatedAt: string }>('/onboarding/draft', {
+      method: 'POST',
+      body: JSON.stringify({ draft }),
+    });
+  }
+
+  async completeOnboarding(payload: Partial<OnboardingDraftPayload>): Promise<ApiResponse<OnboardingCompleteResponse>> {
+    return this.request<OnboardingCompleteResponse>('/onboarding/complete', {
+      method: 'POST',
+      body: JSON.stringify({ payload }),
+    });
+  }
+
+  async getOnboardingStatus(): Promise<ApiResponse<{ status: string; completedAt: string | null }>> {
+    return this.request<{ status: string; completedAt: string | null }>('/onboarding/status');
   }
 
   async getOnboardingPrefill(): Promise<ApiResponse<OnboardingPrefillPayload>> {
@@ -219,6 +311,46 @@ class ApiClient {
     }
 
     return this.request<OnboardingPrefillPayload>('/onboarding/prefill');
+  }
+
+  // ===== User Profile Data (Neo4j) =====
+
+  async getUserProfileData(): Promise<ApiResponse<{
+    user: {
+      userId: string;
+      email: string;
+      name: string;
+      role: string;
+      company: string;
+      organizationType: string | null;
+      jobTitle: string | null;
+      relationshipType: string | null;
+      accessTypes: string[];
+      status: string | null;
+      createdAt: any;
+      updatedAt: any;
+    };
+    onboardingResponse: {
+      roleDescription?: string;
+      departmentDescription?: string;
+      profileDescription?: string;
+      competencies?: string[];
+      primaryObjective?: string;
+      topChallenges?: string;
+      orgChartValidated?: boolean;
+      createdAt?: string;
+      updatedAt?: string;
+      defaultVisibility?: string;
+      memoryLevel?: string;
+    } | null;
+    department: string | null;
+    organization: string | null;
+    location: string | null;
+  }>> {
+    if (USE_MOCK) {
+      return mockApi.getUserProfileData();
+    }
+    return this.request<any>('/user/profile-data');
   }
 
   // ===== Admin Endpoints =====
@@ -297,12 +429,13 @@ class ApiClient {
     const raw = await this.request<any>('/admin/ingest/status');
     if (!raw.success) return raw;
 
-    // Backend returns payload at top-level (not wrapped in data)
-    const payload = raw.data ?? {
-      nodeCounts: raw.nodeCounts,
-      relationshipCounts: raw.relationshipCounts,
-      sampleUsers: raw.sampleUsers,
-      isEmpty: raw.isEmpty,
+    // Normalize: backend should return {success, data} but we accept either data-wrapped or raw.
+    const candidate = (raw as any).data ?? raw;
+    const payload = {
+      nodeCounts: candidate.nodeCounts ?? {},
+      relationshipCounts: candidate.relationshipCounts ?? {},
+      sampleUsers: candidate.sampleUsers ?? [],
+      isEmpty: Boolean(candidate.isEmpty),
     };
 
     return { success: true, data: payload };

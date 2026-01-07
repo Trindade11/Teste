@@ -9,10 +9,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useThemeStore } from "@/store/themeStore"
 import { useAuthStore } from "@/store/authStore"
-import { ArrowLeft, Save, Upload, RotateCcw, Palette, Image as ImageIcon, Database } from "lucide-react"
+import { ArrowLeft, Save, Upload, RotateCcw, Palette, Image as ImageIcon, Database, User, Bot } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { DataIngestion } from "@/components/admin/DataIngestion"
+import { ProfileDataEditor } from "@/components/settings/ProfileDataEditor"
+import { MyAgents } from "@/components/settings/MyAgents"
 
 export default function SettingsPage() {
   const { user } = useAuthStore()
@@ -21,7 +23,7 @@ export default function SettingsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const logoInputRef = useRef<HTMLInputElement>(null)
 
-  const [activeSection, setActiveSection] = useState<'theme' | 'ingest'>('theme')
+  const [activeSection, setActiveSection] = useState<'theme' | 'ingest' | 'profile' | 'agents'>('theme')
 
   const [tempColors, setTempColors] = useState(config.colors)
   const [tempIconColor, setTempIconColor] = useState(config.iconColor)
@@ -149,6 +151,40 @@ export default function SettingsPage() {
                       </div>
                       <div className="text-xs mt-1">
                         Cores, ícones e logo
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSection('profile')}
+                      className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                        activeSection === 'profile'
+                          ? 'bg-muted border-border text-foreground'
+                          : 'bg-background border-transparent text-muted-foreground hover:bg-muted/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        <span className="text-sm font-medium">Dados do Perfil</span>
+                      </div>
+                      <div className="text-xs mt-1">
+                        Editar informações do onboarding
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSection('agents')}
+                      className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                        activeSection === 'agents'
+                          ? 'bg-muted border-border text-foreground'
+                          : 'bg-background border-transparent text-muted-foreground hover:bg-muted/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Bot className="h-4 w-4" />
+                        <span className="text-sm font-medium">Meus Agentes</span>
+                      </div>
+                      <div className="text-xs mt-1">
+                        Gerenciar agentes de IA personalizados
                       </div>
                     </button>
                     <button
@@ -363,6 +399,12 @@ export default function SettingsPage() {
                           </div>
                         </Card>
                       </>
+                    )}
+                    {activeSection === 'profile' && (
+                      <ProfileDataEditor />
+                    )}
+                    {activeSection === 'agents' && (
+                      <MyAgents />
                     )}
                     {activeSection === 'ingest' && (
                       <DataIngestion />

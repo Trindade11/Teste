@@ -152,6 +152,8 @@ flowchart TB
 ### 4. Multi-Agent Brainstorming System 🔴 NOT STARTED
 **Purpose**: Intelligent query resolution through agent collaboration
 
+**Framework**: **Pydantic AI** (type-safe, model-agnostic agent framework)
+
 **Components**:
 - Master orchestrator
 - User proxy agent
@@ -163,6 +165,13 @@ flowchart TB
 - Graph-based communication (not linear)
 - 5-phase cycle: Intenção → Divergência → Cross-pollination → Convergência → Verificação
 - Scoring: impact * novelty * confidence / (cost * time)
+
+**Framework Features**:
+- Type-safe dependency injection via `RunContext`
+- Structured outputs with Pydantic models
+- Model-agnostic (OpenAI, Anthropic, Azure, Ollama)
+- Native MCP support for external tools
+- Observability via Pydantic Logfire
 
 **Gaps** `[?]`:
 - Message format specification

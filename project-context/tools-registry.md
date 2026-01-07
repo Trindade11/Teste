@@ -70,8 +70,9 @@ neo4j = "^5.16.0"
 neo4j-driver = "^5.16.0"
 ```
 
-### AI/ML
+### AI/ML & Agent Framework
 ```toml
+pydantic-ai = "^0.1.0"        # Agent framework (type-safe, model-agnostic)
 openai = "^1.10.0"
 anthropic = "^0.18.0"
 langchain = "^0.1.0"
@@ -360,6 +361,7 @@ chore:    # Maintenance tasks
 | **FastAPI** | Modern, fast, automatic API docs, async support | Flask, Django REST |
 | **React + Next.js** | Component-based, SSR for better SEO, large ecosystem | Vue.js, Svelte |
 | **spaCy** | Fast, production-ready NLP, good entity extraction | NLTK, Hugging Face |
+| **Pydantic AI** | Type-safe agent framework, model-agnostic, built by Pydantic team | Agno, LangChain Agents, CrewAI |
 | **OpenAI** | Best-in-class reasoning, reliable API | Anthropic, local models |
 | **Poetry** | Modern Python dependency management | pip, conda |
 | **Docker** | Standard containerization, reproducible environments | Podman, LXC |

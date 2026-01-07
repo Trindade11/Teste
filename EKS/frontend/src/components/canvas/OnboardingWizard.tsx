@@ -10,6 +10,12 @@ import {
 import { useAuthStore } from "@/store/authStore";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { MermaidDiagram } from '@/components/ui/mermaid-diagram';
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
@@ -21,13 +27,6 @@ import {
   X,
 } from "lucide-react";
 
-const NEED_OPTIONS = [
-  "Mapear conhecimento",
-  "Criar tarefas e planos",
-  "Organizar personas",
-  "RAG / fontes",
-  "Governança (corporate)",
-];
 
 function getStepTitle(stepId: OnboardingStepId) {
   return ONBOARDING_STEPS.find((s) => s.id === stepId)?.title || stepId;
@@ -43,7 +42,6 @@ export function OnboardingWizard() {
     responses,
     start,
     updateResponse,
-    toggleNeed,
     goTo,
     markStepComplete,
     next,
@@ -53,6 +51,9 @@ export function OnboardingWizard() {
   } = useOnboardingStore();
 
   const { user } = useAuthStore();
+
+  const [completeLoading, setCompleteLoading] = useState(false);
+  const [completeError, setCompleteError] = useState<string | null>(null);
 
   const [competencyDraft, setCompetencyDraft] = useState("");
   const [orgChartData, setOrgChartData] = useState<{
@@ -106,18 +107,7 @@ export function OnboardingWizard() {
           name: responses.fullName,
         },
       },
-      {
-        label: "AIProfile",
-        data: {
-          id: `ai_profile:${ownerId}`,
-          ...base,
-          ai_experience_level: responses.aiExperienceLevel,
-          technical_path: responses.technicalPath,
-          preferred_language: responses.preferredLanguage,
-          needs: responses.needs,
-        },
-      },
-      {
+            {
         label: "PersonaVersion",
         data: {
           id: `persona_version:${ownerId}`,
@@ -145,6 +135,42 @@ export function OnboardingWizard() {
       },
     ];
   }, [responses, user?.userId]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!user?.userId) return;
+
+    let cancelled = false;
+
+    const loadDraft = async () => {
+      const result = await api.getOnboardingDraft();
+      if (cancelled) return;
+      if (!result.success || !result.data) return;
+
+      const draft = result.data.draft;
+      if (!draft || typeof draft !== 'object') return;
+
+      if (typeof draft.roleDescription === 'string') updateResponse('roleDescription', draft.roleDescription);
+      if (typeof draft.departmentDescription === 'string') updateResponse('departmentDescription', draft.departmentDescription);
+      if (typeof draft.profileDescription === 'string') updateResponse('profileDescription', draft.profileDescription);
+      if (Array.isArray(draft.competencies)) updateResponse('competencies', draft.competencies);
+      if (typeof draft.primaryObjective === 'string') updateResponse('primaryObjective', draft.primaryObjective);
+      if (typeof draft.topChallenges === 'string') updateResponse('topChallenges', draft.topChallenges);
+      if (typeof draft.orgChartValidated === 'boolean') updateResponse('orgChartValidated', draft.orgChartValidated);
+      if (draft.defaultVisibility === 'corporate' || draft.defaultVisibility === 'personal') {
+        updateResponse('defaultVisibility', draft.defaultVisibility);
+      }
+      if (draft.memoryLevel === 'short' || draft.memoryLevel === 'medium' || draft.memoryLevel === 'long') {
+        updateResponse('memoryLevel', draft.memoryLevel);
+      }
+    };
+
+    void loadDraft();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, user?.userId]);
 
   if (!isOpen) return null;
 
@@ -198,24 +224,59 @@ export function OnboardingWizard() {
   }, [currentStepId, responses.email, user?.email]);
 
   const handleStart = async () => {
-    const prefillResponse = await api.getOnboardingPrefill();
+    const [prefillResponse, draftResponse] = await Promise.all([
+      api.getOnboardingPrefill(),
+      api.getOnboardingDraft(),
+    ]);
 
     const backendPrefill = prefillResponse.success && prefillResponse.data
       ? prefillResponse.data.prefill
       : null;
 
+    const draft = draftResponse.success && draftResponse.data
+      ? draftResponse.data.draft
+      : null;
+
     const prefillData: Partial<OnboardingResponses> = {
-      fullName: responses.fullName || user?.name || backendPrefill?.name || "",
-      email: responses.email || user?.email || backendPrefill?.email || "",
-      company: responses.company || user?.company || backendPrefill?.company || "",
-      department: responses.department || (user as any)?.department || backendPrefill?.department || "",
-      jobRole: responses.jobRole || (user as any)?.jobRole || backendPrefill?.jobTitle || "",
+      fullName: user?.name || backendPrefill?.name || responses.fullName || "",
+      email: user?.email || backendPrefill?.email || responses.email || "",
+      company: user?.company || backendPrefill?.company || responses.company || "",
+      department: (user as any)?.department || backendPrefill?.department || responses.department || "",
+      jobRole: (user as any)?.jobRole || backendPrefill?.jobTitle || responses.jobRole || "",
+
+      roleDescription: typeof (draft as any)?.roleDescription === 'string' ? (draft as any).roleDescription : responses.roleDescription,
+      departmentDescription: typeof (draft as any)?.departmentDescription === 'string' ? (draft as any).departmentDescription : responses.departmentDescription,
+      profileDescription: typeof (draft as any)?.profileDescription === 'string' ? (draft as any).profileDescription : responses.profileDescription,
+      competencies: Array.isArray((draft as any)?.competencies) ? (draft as any).competencies : responses.competencies,
+      primaryObjective: typeof (draft as any)?.primaryObjective === 'string' ? (draft as any).primaryObjective : responses.primaryObjective,
+      topChallenges: typeof (draft as any)?.topChallenges === 'string' ? (draft as any).topChallenges : responses.topChallenges,
+      orgChartValidated: typeof (draft as any)?.orgChartValidated === 'boolean' ? (draft as any).orgChartValidated : responses.orgChartValidated,
     };
 
     start(prefillData);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    setCompleteError(null);
+
+    if (currentStepId !== 'welcome' && currentStepId !== 'done') {
+      try {
+        await api.saveOnboardingDraft({
+          roleDescription: responses.roleDescription,
+          departmentDescription: responses.departmentDescription,
+          profileDescription: responses.profileDescription,
+          competencies: responses.competencies,
+          primaryObjective: responses.primaryObjective,
+          topChallenges: responses.topChallenges,
+          orgChartValidated: responses.orgChartValidated,
+          defaultVisibility: responses.defaultVisibility,
+          memoryLevel: responses.memoryLevel,
+        });
+      } catch (e) {
+        console.error('Failed to autosave onboarding draft', e);
+      }
+    }
+
     markStepComplete(currentStepId);
     next();
   };
@@ -362,10 +423,8 @@ export function OnboardingWizard() {
                       <label className="text-sm font-medium">Nome completo</label>
                       <input
                         value={responses.fullName}
-                        onChange={(e) =>
-                          updateResponse("fullName", e.target.value)
-                        }
-                        className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                        disabled
+                        className="mt-1 w-full rounded-lg border border-input bg-muted px-3 py-2 text-sm cursor-not-allowed"
                         placeholder="Seu nome"
                       />
                     </div>
@@ -373,8 +432,8 @@ export function OnboardingWizard() {
                       <label className="text-sm font-medium">Email</label>
                       <input
                         value={responses.email}
-                        onChange={(e) => updateResponse("email", e.target.value)}
-                        className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                        disabled
+                        className="mt-1 w-full rounded-lg border border-input bg-muted px-3 py-2 text-sm cursor-not-allowed"
                         placeholder="seuemail@empresa.com"
                       />
                     </div>
@@ -382,10 +441,8 @@ export function OnboardingWizard() {
                       <label className="text-sm font-medium">Função</label>
                       <input
                         value={responses.jobRole}
-                        onChange={(e) =>
-                          updateResponse("jobRole", e.target.value)
-                        }
-                        className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                        disabled
+                        className="mt-1 w-full rounded-lg border border-input bg-muted px-3 py-2 text-sm cursor-not-allowed"
                         placeholder="Ex.: Analista de Processos, Gestor de TI, CEO"
                       />
                     </div>
@@ -424,14 +481,12 @@ export function OnboardingWizard() {
                       <label className="text-sm font-medium">Empresa</label>
                       <input
                         value={responses.company}
-                        onChange={(e) =>
-                          updateResponse("company", e.target.value)
-                        }
-                        className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                        disabled
+                        className="mt-1 w-full rounded-lg border border-input bg-muted px-3 py-2 text-sm cursor-not-allowed"
                         placeholder="Nome da empresa"
                       />
                       <p className="text-xs text-muted-foreground mt-1">
-                        Pré-preenchido do seu cadastro. Edite se necessário.
+                        Pré-preenchido do cadastro. Se houver erro, relate ao administrador.
                       </p>
                     </div>
 
@@ -439,14 +494,12 @@ export function OnboardingWizard() {
                       <label className="text-sm font-medium">Departamento</label>
                       <input
                         value={responses.department}
-                        onChange={(e) =>
-                          updateResponse("department", e.target.value)
-                        }
-                        className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                        disabled
+                        className="mt-1 w-full rounded-lg border border-input bg-muted px-3 py-2 text-sm cursor-not-allowed"
                         placeholder="Ex.: Gerência de Processos, TI, RH"
                       />
                       <p className="text-xs text-muted-foreground mt-1">
-                        Pré-preenchido do seu cadastro. Edite se necessário.
+                        Pré-preenchido do cadastro. Se houver erro, relate ao administrador.
                       </p>
                     </div>
                   </div>
@@ -813,70 +866,7 @@ export function OnboardingWizard() {
                 </div>
               )}
 
-              {currentStepId === "ai_profile" && (
-                <div className="max-w-2xl space-y-4">
-                  <h2 className="text-xl font-semibold">AI Profile</h2>
-
-                  <div className="grid grid-cols-1 gap-3">
-                    <div>
-                      <label className="text-sm font-medium">Nível de experiência</label>
-                      <select
-                        value={responses.aiExperienceLevel}
-                        onChange={(e) =>
-                          updateResponse(
-                            "aiExperienceLevel",
-                            e.target.value as
-                              | "iniciante"
-                              | "intermediário"
-                              | "técnico"
-                          )
-                        }
-                        className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                      >
-                        <option value="iniciante">Iniciante</option>
-                        <option value="intermediário">Intermediário</option>
-                        <option value="técnico">Técnico</option>
-                      </select>
-                    </div>
-
-                    <label className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={responses.technicalPath}
-                        onChange={(e) =>
-                          updateResponse("technicalPath", e.target.checked)
-                        }
-                      />
-                      Quero um caminho mais técnico (prompt, dados, integrações)
-                    </label>
-
-                    <div>
-                      <div className="text-sm font-medium mb-2">O que você mais precisa? (clique para selecionar)</div>
-                      <p className="text-xs text-muted-foreground mb-3">Selecione as opções que fazem sentido para você</p>
-                      <div className="flex flex-wrap gap-2">
-                        {NEED_OPTIONS.map((need) => {
-                          const active = responses.needs.includes(need);
-                          return (
-                            <button
-                              key={need}
-                              onClick={() => toggleNeed(need)}
-                              className={cn(
-                                "text-sm px-4 py-2 rounded-lg border-2 transition-all font-medium",
-                                active
-                                  ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                                  : "bg-background text-foreground border-border hover:border-primary/50 hover:bg-muted"
-                              )}
-                            >
-                              {active && "✓ "}{need}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
+              
               {currentStepId === "review" && (
                 <div className="max-w-3xl space-y-6">
                   <div>
@@ -920,16 +910,8 @@ export function OnboardingWizard() {
                     </div>
 
                     <div className="rounded-lg border border-border bg-muted/30 p-4">
-                      <div className="text-sm font-medium mb-2">AI Profile</div>
+                      <div className="text-sm font-medium mb-2">Validações</div>
                       <div className="space-y-2 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Nível:</span>{" "}
-                          {responses.aiExperienceLevel}
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Necessidades:</span>{" "}
-                          {responses.needs.length > 0 ? responses.needs.join(", ") : "—"}
-                        </div>
                         <div>
                           <span className="text-muted-foreground">Organograma:</span>{" "}
                           {responses.orgChartValidated ? "✓ Validado" : "Pendente"}
@@ -961,8 +943,30 @@ export function OnboardingWizard() {
 
                   <div className="flex gap-2">
                     <Button
-                      onClick={() => {
-                        complete();
+                      disabled={completeLoading}
+                      onClick={async () => {
+                        setCompleteLoading(true);
+                        setCompleteError(null);
+
+                        const result = await api.completeOnboarding({
+                          roleDescription: responses.roleDescription,
+                          departmentDescription: responses.departmentDescription,
+                          profileDescription: responses.profileDescription,
+                          competencies: responses.competencies,
+                          primaryObjective: responses.primaryObjective,
+                          topChallenges: responses.topChallenges,
+                          orgChartValidated: responses.orgChartValidated,
+                          defaultVisibility: responses.defaultVisibility,
+                          memoryLevel: responses.memoryLevel,
+                        });
+
+                        if (result.success) {
+                          complete();
+                        } else {
+                          setCompleteError(result.error || 'Falha ao concluir onboarding');
+                        }
+
+                        setCompleteLoading(false);
                       }}
                     >
                       Confirmar e concluir
@@ -971,6 +975,10 @@ export function OnboardingWizard() {
                       Fechar e continuar depois
                     </Button>
                   </div>
+
+                  {completeError && (
+                    <div className="text-sm text-red-600">{completeError}</div>
+                  )}
                 </div>
               )}
 
@@ -1021,17 +1029,17 @@ export function OnboardingWizard() {
                   {/* Diagrama de Arquitetura */}
                   <div className="rounded-lg border border-border bg-card p-4 space-y-3">
                     <h3 className="text-sm font-semibold">Como seu agente funciona</h3>
-                    <div className="bg-muted/30 rounded-lg p-4 font-mono text-xs overflow-x-auto">
-                      <pre className="text-muted-foreground">{`flowchart TD
-  U[Você] -->|Pergunta| A[Agente ${responses.fullName.split(" ")[0]}]
-  A --> R[Router / Orquestrador]
-  R --> P[Perfil (sobre você + competências)]
-  R --> O[Contexto organizacional + organograma]
-  R --> D[Documentos]
-  R --> C[Histórico de conversas]
-  R -->|Resposta| U
-`}</pre>
-                    </div>
+                    <MermaidDiagram 
+                      chart={`flowchart TD
+    U[Você] -->|Pergunta| A[Agente]
+    A --> R[Router / Orquestrador]
+    R --> P[Perfil]
+    R --> O[Contexto]
+    R --> D[Documentos]
+    R --> C[Histórico]
+    R -->|Resposta| U`}
+                      className="bg-muted/30 rounded-lg"
+                    />
                   </div>
 
                   <div className="rounded-lg border border-border bg-muted/20 p-4">
@@ -1053,7 +1061,22 @@ export function OnboardingWizard() {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={close} className="flex-1">
+                    <Button 
+                      onClick={() => {
+                        close();
+
+                        // Iniciar chat após onboarding (evento global)
+                        // O listener na página irá abrir o painel e o ChatbotPanel iniciará a conversa.
+                        window.dispatchEvent(
+                          new CustomEvent('chat:start', {
+                            detail: {
+                              userId: user?.userId ?? null,
+                            },
+                          })
+                        );
+                      }} 
+                      className="flex-1"
+                    >
                       Começar a usar
                     </Button>
                     <Button variant="outline" onClick={reset}>

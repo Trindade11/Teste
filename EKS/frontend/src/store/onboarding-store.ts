@@ -12,7 +12,6 @@ export type OnboardingStepId =
   | "org_chart"
   | "competencies"
   | "goals"
-  | "ai_profile"
   | "review"
   | "done";
 
@@ -40,11 +39,7 @@ export interface OnboardingResponses {
   primaryObjective: string;
   topChallenges: string;
 
-  aiExperienceLevel: AiExperienceLevel;
-  technicalPath: boolean;
-  needs: string[];
-  preferredLanguage: "simples" | "técnica";
-
+  
   defaultVisibility: "corporate" | "personal";
   memoryLevel: "short" | "medium" | "long";
 
@@ -62,7 +57,6 @@ export const ONBOARDING_STEPS: Array<{ id: OnboardingStepId; title: string; }> =
   { id: "org_chart", title: "Seu Organograma" },
   { id: "competencies", title: "Competências" },
   { id: "goals", title: "Objetivos" },
-  { id: "ai_profile", title: "AI Profile" },
   { id: "review", title: "Revisão" },
   { id: "done", title: "Concluído" },
 ];
@@ -87,11 +81,7 @@ const defaultResponses: OnboardingResponses = {
   primaryObjective: "",
   topChallenges: "",
 
-  aiExperienceLevel: "iniciante",
-  technicalPath: false,
-  needs: [],
-  preferredLanguage: "simples",
-
+  
   defaultVisibility: "corporate",
   memoryLevel: "long",
   conversationPhase: "not_started",
@@ -114,7 +104,6 @@ interface OnboardingState {
 
   start: (prefill?: Partial<OnboardingResponses>) => void;
   updateResponse: (key: keyof OnboardingResponses, value: OnboardingResponses[keyof OnboardingResponses]) => void;
-  toggleNeed: (need: string) => void;
   goTo: (stepId: OnboardingStepId) => void;
   markStepComplete: (stepId: OnboardingStepId) => void;
   
@@ -126,6 +115,9 @@ interface OnboardingState {
   prev: () => void;
   complete: () => void;
   reset: () => void;
+  
+  // Sync with backend
+  syncStatus: () => Promise<void>;
 }
 
 export const useOnboardingStore = create<OnboardingState>()(
@@ -162,19 +154,7 @@ export const useOnboardingStore = create<OnboardingState>()(
           },
         })),
 
-      toggleNeed: (need) =>
-        set((state) => {
-          const exists = state.responses.needs.includes(need);
-          return {
-            responses: {
-              ...state.responses,
-              needs: exists
-                ? state.responses.needs.filter((n) => n !== need)
-                : [...state.responses.needs, need],
-            },
-          };
-        }),
-
+      
       goTo: (stepId) => set({ currentStepId: stepId }),
 
       markStepComplete: (stepId) =>
@@ -247,6 +227,35 @@ export const useOnboardingStore = create<OnboardingState>()(
           startedAt: null,
           completedAt: null,
         }),
+
+      syncStatus: async () => {
+        try {
+          const { api } = await import('@/lib/api');
+          const response = await api.getOnboardingStatus();
+          
+          if (response.success && response.data) {
+            const backendStatus = response.data.status as OnboardingStatus;
+            const backendCompletedAt = response.data.completedAt;
+            
+            set((state) => ({
+              status: backendStatus,
+              completedAt: backendCompletedAt,
+              // Se o backend diz que está completed, atualiza o estado local
+              ...(backendStatus === 'completed' && {
+                currentStepId: 'done' as OnboardingStepId,
+                completedStepIds: Array.from(new Set([...state.completedStepIds, ...stepOrder])),
+              }),
+              // Se o backend diz que está in_progress e local está not_started, abre o onboarding
+              ...(backendStatus === 'in_progress' && state.status === 'not_started' && {
+                isOpen: true,
+                currentStepId: 'review' as OnboardingStepId, // Continua da fase de revisão
+              }),
+            }));
+          }
+        } catch (error) {
+          console.error('Failed to sync onboarding status:', error);
+        }
+      },
     }),
     {
       name: "onboarding-store",

@@ -2,7 +2,8 @@
  * Cliente API para comunicação com o backend
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+const AGENTS_URL = process.env.NEXT_PUBLIC_AGENTS_URL || 'http://localhost:8000';
 
 export interface ChatRequest {
   message: string;
@@ -12,6 +13,11 @@ export interface ChatRequest {
 
 export interface ChatResponse {
   response: string;
+  session_id?: string;
+}
+
+export interface ChatWelcomeRequest {
+  user_id: string;
   session_id?: string;
 }
 
@@ -28,7 +34,7 @@ export async function sendChatMessage(
   context?: Record<string, any>
 ): Promise<ChatResponse> {
   try {
-    const response = await fetch(`${API_URL}/api/chat`, {
+    const response = await fetch(`${AGENTS_URL}/api/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -53,12 +59,41 @@ export async function sendChatMessage(
   }
 }
 
+export async function getChatWelcome(
+  userId: string,
+  sessionId?: string
+): Promise<ChatResponse> {
+  try {
+    const response = await fetch(`${AGENTS_URL}/api/chat/welcome`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        session_id: sessionId,
+      } as ChatWelcomeRequest),
+    });
+
+    if (!response.ok) {
+      const error: ApiError = await response.json();
+      throw new Error(error.detail || 'Erro ao gerar boas-vindas');
+    }
+
+    const data: ChatResponse = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Erro na API:', error);
+    throw error;
+  }
+}
+
 /**
  * Verifica se o backend está disponível
  */
 export async function healthCheck(): Promise<boolean> {
   try {
-    const response = await fetch(`${API_URL}/health`);
+    const response = await fetch(`${AGENTS_URL}/health`);
     return response.ok;
   } catch (error) {
     console.error('Backend não disponível:', error);

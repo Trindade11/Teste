@@ -7,9 +7,10 @@ interface UseChatOptions {
   onError?: (error: Error) => void;
   onMessageSent?: (message: Message) => void;
   sessionId?: string;
+  baseContext?: Record<string, any>;
 }
 
-export function useChat({ initialMessages = [], onError, onMessageSent, sessionId }: UseChatOptions = {}) {
+export function useChat({ initialMessages = [], onError, onMessageSent, sessionId, baseContext }: UseChatOptions = {}) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
   const [backendAvailable, setBackendAvailable] = useState(true);
@@ -38,26 +39,28 @@ export function useChat({ initialMessages = [], onError, onMessageSent, sessionI
     const checkBackend = async () => {
       const available = await healthCheck();
       setBackendAvailable(available);
-      if (!available) {
-        console.warn('Backend não disponível. Usando modo offline.');
-      }
     };
     checkBackend();
   }, []);
+
+  // Sincronizar mensagens quando a conversa atual mudar
+  useEffect(() => {
+    setMessages(initialMessages);
+  }, [initialMessages]);
 
   // Função para gerar resposta usando o backend
   const generateBotResponse = useCallback(async (userMessage: string, mentions?: EntityMention[]): Promise<{ answer: string; sources?: string[] }> => {
     // Se backend não estiver disponível, usar resposta de fallback
     if (!backendAvailable) {
       return {
-        answer: '⚠️ Backend não disponível no momento. Por favor, verifique se o servidor está rodando.',
+        answer: 'Olá! Sou seu assistente virtual. No momento estou operando em modo limitado. Para acesso completo com dados do Neo4j, verifique se o serviço de agentes está rodando na porta 8000.',
         sources: ['Sistema Local']
       };
     }
 
     try {
       // Preparar contexto com menções
-      const context: Record<string, any> = {};
+      const context: Record<string, any> = { ...(baseContext || {}) };
       if (mentions && mentions.length > 0) {
         context.mentions = mentions.map(m => ({
           id: m.id,
@@ -77,7 +80,7 @@ export function useChat({ initialMessages = [], onError, onMessageSent, sessionI
       console.error('Erro ao chamar backend:', error);
       throw error;
     }
-  }, [backendAvailable, currentSessionId]);
+  }, [backendAvailable, currentSessionId, baseContext]);
 
   // Função para enviar mensagem
   const sendMessage = useCallback(async (content: string) => {

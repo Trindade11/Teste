@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeStore } from '@/store/themeStore';
 
 export default function LoginPage() {
   const router = useRouter();
   const { login, isLoading, error, isAuthenticated, clearError } = useAuthStore();
+  const { config: theme } = useThemeStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,11 +32,29 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div 
+      className="min-h-screen flex items-center justify-center"
+      style={{ 
+        background: `linear-gradient(135deg, ${theme.colors.background} 0%, ${theme.colors.secondary} 100%)` 
+      }}
+    >
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Enterprise Hub</h1>
+          {theme.logo ? (
+            <img 
+              src={theme.logo} 
+              alt="Logo" 
+              className="h-16 mx-auto mb-4"
+            />
+          ) : (
+            <h1 
+              className="text-3xl font-bold mb-2"
+              style={{ color: theme.colors.primary }}
+            >
+              Enterprise Hub
+            </h1>
+          )}
           <p className="text-gray-600 mt-2">Login to continue</p>
         </div>
 
@@ -57,7 +77,8 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition"
+              style={{ borderColor: theme.colors.primary }}
               placeholder="admin@company.com"
               disabled={isLoading}
             />
@@ -73,7 +94,8 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition"
+              style={{ borderColor: theme.colors.primary }}
               placeholder="••••••••"
               disabled={isLoading}
             />
@@ -82,7 +104,8 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ backgroundColor: theme.colors.primary }}
           >
             {isLoading ? 'Signing in...' : 'Sign in'}
           </button>

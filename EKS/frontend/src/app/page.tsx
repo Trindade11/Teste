@@ -31,6 +31,17 @@ export default function Home() {
     localStorage.setItem(CHAT_STATE_KEY, String(newState))
   }
 
+  // Abrir chat quando onboarding finalizar
+  useEffect(() => {
+    const onChatStart = () => {
+      setChatOpen(true)
+      localStorage.setItem(CHAT_STATE_KEY, 'true')
+    }
+
+    window.addEventListener('chat:start', onChatStart as EventListener)
+    return () => window.removeEventListener('chat:start', onChatStart as EventListener)
+  }, [])
+
   return (
     <ProtectedRoute>
       <div className="flex flex-col h-screen w-screen overflow-hidden bg-background">

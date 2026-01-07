@@ -1,14 +1,14 @@
 # EKS Agents - Python Multi-Agent System
 
-Multi-agent orchestration system built with Agno Framework.
+Multi-agent orchestration system built with **Pydantic AI** Framework.
 
 ## Stack
 
 - **Python**: 3.11+
-- **Framework**: Agno (multi-agent orchestration)
+- **Framework**: Pydantic AI (type-safe agent framework)
 - **API**: FastAPI + Uvicorn
 - **Database**: Neo4j (graph)
-- **AI**: Azure OpenAI GPT-4o
+- **AI**: Azure OpenAI GPT-4o (model-agnostic support)
 
 ## Setup
 

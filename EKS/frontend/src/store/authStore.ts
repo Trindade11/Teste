@@ -15,7 +15,7 @@ interface AuthState {
   clearError: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
   isLoading: false,
@@ -42,6 +42,12 @@ export const useAuthStore = create<AuthState>((set) => ({
           isLoading: false,
           error: null,
         });
+        
+        // Sync onboarding status after successful login
+        const { useOnboardingStore } = await import('@/store/onboarding-store');
+        const { syncStatus } = useOnboardingStore.getState();
+        await syncStatus();
+        
         return true;
       } else {
         set({ error: 'Failed to load user profile', isLoading: false });

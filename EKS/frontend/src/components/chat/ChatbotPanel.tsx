@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip } from "@/components/ui/tooltip"
@@ -24,6 +24,8 @@ import {
 } from "lucide-react"
 import { useChat } from "@/hooks/use-chat"
 import { useConversations } from "@/hooks/use-conversations"
+import { useAuthStore } from "@/store/authStore"
+import { getChatWelcome } from "@/services/api"
 import { MarkdownRenderer } from "./MarkdownRenderer"
 import { ConversationHistory } from "./ConversationHistory"
 import { EntityMention } from "./EntityMention"
@@ -49,6 +51,11 @@ export function ChatbotPanel({
 }: ChatbotPanelProps) {
   // No modo mobile, sempre expandido
   const isExpanded = isMobile ? true : (isExpandedProp ?? false)
+
+  const { user } = useAuthStore()
+  const sessionIdRef = useRef<string>(`session-${Date.now()}`)
+  const welcomeInFlightRef = useRef(false)
+  const [isStartingChat, setIsStartingChat] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
   const [inputValue, setInputValue] = useState("")
   const [panelWidth, setPanelWidth] = useState(DEFAULT_WIDTH)
@@ -79,6 +86,8 @@ export function ChatbotPanel({
   // Chat hook integrado com conversas
   const { messages, isLoading, sendMessage, resetMessages } = useChat({
     initialMessages: currentConversation?.messages || [],
+    sessionId: sessionIdRef.current,
+    baseContext: user?.userId ? { user_id: user.userId } : undefined,
     onMessageSent: (message) => {
       if (currentConversationId) {
         addMessage(currentConversationId, message)
@@ -92,7 +101,6 @@ export function ChatbotPanel({
       ...prev,
       [messageId]: prev[messageId] === feedback ? null : feedback
     }))
-    console.log(`Feedback para mensagem ${messageId}: ${feedback}`)
   }
 
   useEffect(() => {
@@ -100,6 +108,67 @@ export function ChatbotPanel({
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight
     }
   }, [messages])
+
+  const startChatWithWelcome = useCallback(async (userId: string) => {
+    if (welcomeInFlightRef.current) return
+    welcomeInFlightRef.current = true
+    setIsStartingChat(true)
+
+    try {
+      const sessionId = sessionIdRef.current
+      const welcome = await getChatWelcome(userId, sessionId)
+
+      const initialMessage = {
+        id: Date.now().toString(),
+        type: 'bot' as const,
+        content: welcome.response,
+        timestamp: new Date(),
+        sources: ['Agente Pessoal'],
+      }
+
+      createConversation(initialMessage)
+      resetMessages(initialMessage.content)
+    } catch {
+      const fallbackMessage = {
+        id: Date.now().toString(),
+        type: 'bot' as const,
+        content: 'Não consegui iniciar o chat agora. Tente enviar uma mensagem para começar.',
+        timestamp: new Date(),
+        sources: ['Sistema'],
+      }
+
+      createConversation(fallbackMessage)
+      resetMessages(fallbackMessage.content)
+    } finally {
+      setIsStartingChat(false)
+      welcomeInFlightRef.current = false
+    }
+  }, [createConversation, resetMessages])
+
+  useEffect(() => {
+    if (!isExpanded) return
+    if (!user?.userId) return
+    if (!currentConversationId) {
+      void startChatWithWelcome(user.userId)
+      return
+    }
+
+    if ((currentConversation?.messages || []).length === 0) {
+      void startChatWithWelcome(user.userId)
+    }
+  }, [isExpanded, user?.userId, currentConversationId, currentConversation?.messages, startChatWithWelcome])
+
+  useEffect(() => {
+    const onChatStart = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { userId?: string | null } | undefined
+      const userId = detail?.userId || user?.userId
+      if (!userId) return
+      void startChatWithWelcome(userId)
+    }
+
+    window.addEventListener('chat:start', onChatStart as EventListener)
+    return () => window.removeEventListener('chat:start', onChatStart as EventListener)
+  }, [user?.userId, startChatWithWelcome])
 
   // Gerenciar redimensionamento
   useEffect(() => {
@@ -137,21 +206,11 @@ export function ChatbotPanel({
   }
 
   const handleSendMessage = async (content: string) => {
-    if (!content.trim()) return
-    
-    // Substituir nomes de entidades pelo formato interno
-    let messageToSend = content
-    Object.entries(selectedEntities).forEach(([name, internalFormat]) => {
-      messageToSend = messageToSend.replace(new RegExp(`\\b${name}\\b`, 'g'), internalFormat)
-    })
-    
-    await sendMessage(messageToSend)
+    await sendMessage(content)
     setInputValue("")
-    setSelectedEntities({})
   }
 
   const handleAudioRecorded = async (audioBlob: Blob) => {
-    console.log('Áudio gravado:', audioBlob)
     const simulatedTranscription = '[Áudio gravado - transcrição pendente]'
     await sendMessage(simulatedTranscription)
   }
@@ -295,7 +354,7 @@ export function ChatbotPanel({
                 </div>
               ))}
 
-              {isLoading && (
+              {(isLoading || isStartingChat) && (
                 <div className="flex gap-2 justify-start">
                   <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
                     <Bot className="h-3 w-3 text-primary" />
@@ -328,7 +387,7 @@ export function ChatbotPanel({
                 }}
                 className="flex-1 min-h-[40px] max-h-[120px] px-3 py-2 rounded-lg border border-input bg-background text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
                 rows={1}
-                disabled={isLoading}
+                disabled={isLoading || isStartingChat}
               />
               <AudioRecorder 
                 onAudioRecorded={handleAudioRecorded}
@@ -337,7 +396,7 @@ export function ChatbotPanel({
               <Button
                 onClick={() => handleSendMessage(inputValue)}
                 size="sm"
-                disabled={!inputValue.trim() || isLoading}
+                disabled={!inputValue.trim() || isLoading || isStartingChat}
                 className="h-9 w-9 p-0 flex-shrink-0"
               >
                 <Send className="h-4 w-4" />
@@ -351,7 +410,7 @@ export function ChatbotPanel({
 
   // Render Desktop - embutido na coluna do layout
   return (
-    <div className="h-full w-full relative">
+    <div className="h-full w-full relative" data-chat-panel>
       {/* Sidebar de Histórico - OVERLAY sobre o canvas */}
       {isExpanded && showHistory && (
         <>
@@ -384,6 +443,7 @@ export function ChatbotPanel({
           size="sm" 
           onClick={onToggle} 
           className="absolute top-2 left-2 z-50 h-8 w-8 p-0 bg-card border border-border hover:bg-accent"
+          data-chat-expand
         >
           {isExpanded ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </Button>
@@ -583,18 +643,16 @@ export function ChatbotPanel({
                       }
                     }}
                     className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                    disabled={isLoading}
+                    disabled={isLoading || isStartingChat}
                     rows={1}
                     style={{
                       minHeight: '36px',
-                      maxHeight: '150px',
-                      height: 'auto',
-                      overflowY: 'hidden',
+                      maxHeight: '120px'
                     }}
                     onInput={(e) => {
                       const target = e.target as HTMLTextAreaElement;
                       target.style.height = 'auto';
-                      const newHeight = Math.min(150, Math.max(36, target.scrollHeight));
+                      const newHeight = Math.min(120, Math.max(36, target.scrollHeight));
                       target.style.height = `${newHeight}px`;
 
                       if (target.scrollHeight > 150) {
@@ -638,7 +696,7 @@ export function ChatbotPanel({
                 <Button
                   size="sm"
                   onClick={() => handleSendMessage(inputValue)}
-                  disabled={isLoading || !inputValue.trim()}
+                  disabled={isLoading || isStartingChat || !inputValue.trim()}
                   className="h-9 w-9 p-0 flex-shrink-0"
                 >
                   <Send className="h-4 w-4" />

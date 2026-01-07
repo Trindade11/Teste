@@ -295,6 +295,84 @@ export const mockApi = {
   },
 
   /**
+   * Mock Get Profile Data (Neo4j)
+   */
+  async getUserProfileData(): Promise<ApiResponse<{
+    user: {
+      userId: string;
+      email: string;
+      name: string;
+      role: string;
+      company: string;
+      organizationType: string | null;
+      jobTitle: string | null;
+      relationshipType: string | null;
+      accessTypes: string[];
+      status: string | null;
+      createdAt: string;
+      updatedAt: string;
+    };
+    onboardingResponse: {
+      roleDescription?: string;
+      departmentDescription?: string;
+      profileDescription?: string;
+      competencies?: string[];
+      primaryObjective?: string;
+      topChallenges?: string;
+      orgChartValidated?: boolean;
+      createdAt?: string;
+      updatedAt?: string;
+      defaultVisibility?: string;
+      memoryLevel?: string;
+    } | null;
+    department: string | null;
+    organization: string | null;
+    location: string | null;
+  }>> {
+    await delay(500);
+    
+    const storedUserId = typeof window !== 'undefined' ? localStorage.getItem('mockUserId') : null;
+    const userId = storedUserId || '327e6c71-99d8-4604-a02e-042b0a86c88c';
+    
+    // Dados mock baseados no usuário real (para dev)
+    return {
+      success: true,
+      data: {
+        user: {
+          userId,
+          email: 'rodrigo.trindade@alocc.com.br',
+          name: 'Rodrigo Trindade',
+          role: 'Administrador',
+          company: 'Alocc Gestão Patrimonial',
+          organizationType: 'client',
+          jobTitle: 'Analista de Processos',
+          relationshipType: 'Colaborador',
+          accessTypes: ['Operacional', 'Financeiro'],
+          status: 'Ativo',
+          createdAt: '2025-12-29T21:15:00.560000000+00:00',
+          updatedAt: '2026-01-05T21:25:35.131000000+00:00',
+        },
+        onboardingResponse: {
+          profileDescription: 'Sou analítico, prefiro de respostas estruturadas em tópicos, sou multifunção aqui na empresa. sou criados de sistemas de agentes de IA. Gosto de usar IA generativa para tudo.',
+          departmentDescription: 'Minha área tem como função dar suporte a empresa e aos usuários em novas demandas e projetos. Somos o canal entre as áreas de negócios e os fornecedores de tecnologia, principalmente o fornecedor Ability, que tem como objetivo ser o CRM da empresa.',
+          competencies: ['Agentes de IA', 'Gestão de Processos', 'Grafos de Conhecimentos', 'Ontologias', 'Microsoft Azure'],
+          primaryObjective: 'Recuperar conhecimento de forma facilitada.',
+          topChallenges: 'Gestão de informação.',
+          roleDescription: 'Sou responsável por manter os processos da empresa alinhados. Confecciono o relatório de patrimônio, e trabalho sobre demanda com melhorias de processos e novos projetos.',
+          orgChartValidated: true,
+          defaultVisibility: 'corporate',
+          memoryLevel: 'long',
+          createdAt: '2026-01-06T17:04:29.591Z',
+          updatedAt: '2026-01-06T17:04:29.591Z',
+        },
+        department: 'Sistemas',
+        organization: 'Alocc Gestão Patrimonial',
+        location: 'Alocc Serviços',
+      }
+    };
+  },
+
+  /**
    * Mock Get Profile Data (para pré-preenchimento no onboarding)
    */
   async getProfileData(userId: string): Promise<ApiResponse<ProfileData | null>> {

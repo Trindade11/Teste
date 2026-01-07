@@ -7,7 +7,6 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { Sidebar } from '@/components/layout/Sidebar';
-import { ChatPanel } from '@/components/chat/ChatPanel';
 import { Button } from '@/components/ui/button';
 import { OrgChartManager } from '@/components/admin/OrgChartManager';
 
@@ -672,11 +671,6 @@ export default function AdminPage() {
               <OrgChartManager onRefresh={() => void loadUsers()} />
             )}
           </main>
-        </div>
-
-        {/* Mantém ChatPanel para futuro, mas oculto aqui por enquanto */}
-        <div className="hidden md:flex h-full border-l border-border bg-card w-0">
-          <ChatPanel />
         </div>
       </div>
     </ProtectedRoute>

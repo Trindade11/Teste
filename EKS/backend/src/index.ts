@@ -9,6 +9,7 @@ import adminRoutes from './routes/admin.routes';
 import ingestRoutes from './routes/ingest.routes';
 import onboardingRoutes from './routes/onboarding.routes';
 import orgchartRoutes from './routes/orgchart.routes';
+import userRoutes from './routes/user.routes';
 
 const app = express();
 
@@ -65,6 +66,7 @@ app.use('/admin', adminRoutes);
 app.use('/admin/ingest', ingestRoutes);
 app.use('/onboarding', onboardingRoutes);
 app.use('/orgchart', orgchartRoutes);
+app.use('/user', userRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
