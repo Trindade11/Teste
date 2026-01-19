@@ -1,7 +1,9 @@
 # Folder Structure - EKS Project
 
+> ✅ **OPERACIONAL** - Este arquivo permanece ativo
+
 **Created**: 2024-12-13  
-**Last Updated**: 2024-12-13
+**Last Updated**: 2025-01-19
 
 ---
 

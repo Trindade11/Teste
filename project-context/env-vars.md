@@ -1,9 +1,10 @@
 # Environment Variables - EKS Project
 
-> Configuration variables for the EKS Enterprise Knowledge System
+> Configuration variables for the EKS Enterprise Knowledge System  
+> ✅ **OPERACIONAL** - Este arquivo permanece ativo
 
 **Created**: 2024-12-13  
-**Last Updated**: 2024-12-13
+**Last Updated**: 2025-01-19
 
 ---
 

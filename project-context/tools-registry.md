@@ -3,7 +3,7 @@
 > Complete inventory of tools, frameworks, and MCPs used in the project
 
 **Created**: 2024-12-13  
-**Last Updated**: 2024-12-13
+**Last Updated**: 2025-01-19
 
 ---
 
@@ -73,9 +73,10 @@ neo4j-driver = "^5.16.0"
 ### AI/ML & Agent Framework
 ```toml
 pydantic-ai = "^0.1.0"        # Agent framework (type-safe, model-agnostic)
+agno = "^1.0.0"               # Multi-agent orchestration (Teams)
 openai = "^1.10.0"
 anthropic = "^0.18.0"
-langchain = "^0.1.0"
+langchain = "^0.1.0"          # Optional - for RAG utilities
 langchain-community = "^0.0.20"
 langchain-openai = "^0.0.5"
 spacy = "^3.7.2"
@@ -361,7 +362,8 @@ chore:    # Maintenance tasks
 | **FastAPI** | Modern, fast, automatic API docs, async support | Flask, Django REST |
 | **React + Next.js** | Component-based, SSR for better SEO, large ecosystem | Vue.js, Svelte |
 | **spaCy** | Fast, production-ready NLP, good entity extraction | NLTK, Hugging Face |
-| **Pydantic AI** | Type-safe agent framework, model-agnostic, built by Pydantic team | Agno, LangChain Agents, CrewAI |
+| **Pydantic AI** | Type-safe agent framework, model-agnostic, built by Pydantic team | LangChain Agents, CrewAI |
+| **Agno** | Multi-agent orchestration with Teams, hierarchical agents | AutoGen, CrewAI |
 | **OpenAI** | Best-in-class reasoning, reliable API | Anthropic, local models |
 | **Poetry** | Modern Python dependency management | pip, conda |
 | **Docker** | Standard containerization, reproducible environments | Podman, LXC |

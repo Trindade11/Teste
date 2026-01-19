@@ -529,6 +529,205 @@ These 6 questions take <2 minutes and provide enough to start. Everything else i
 
 ---
 
+## Nível 2: Aprofundamento Estratégico (Novo)
+
+O onboarding inicial (Nível 1) captura o básico: quem é o usuário, seu papel, literacia em IA. O **Nível 2** é o aprofundamento guiado por um curador humano que mapeia a visão estratégica da organização.
+
+### Transição Nível 1 → Nível 2
+
+```mermaid
+flowchart LR
+    subgraph Level1["🎯 Nível 1: First-Run Onboarding"]
+        QuickQuestions[6 perguntas rápidas]
+        BasicProfile[Perfil básico]
+        PersonalAgent[Agente Pessoal criado]
+    end
+
+    subgraph Level2["🏛️ Nível 2: Aprofundamento Estratégico"]
+        StrategicDialog[Diálogo estratégico]
+        OntologyMapping[Mapeamento ontológico]
+        CuratorValidation[Validação do curador]
+    end
+
+    QuickQuestions --> BasicProfile
+    BasicProfile --> PersonalAgent
+    PersonalAgent -->|Conversa guiada| StrategicDialog
+    StrategicDialog --> OntologyMapping
+    OntologyMapping --> CuratorValidation
+```
+
+### O Tripé Ontológico do Nível 2
+
+O Nível 2 mapeia três domínios ontológicos fundamentais:
+
+#### 1. Ontologia Estratégica
+
+> **Consolidação Ontológica** (ver spec 015): Os nodes abaixo alinham-se com BIG (spec 040). `:Objective` é o label canônico (`:StrategicObjective` é sinônimo). `:Purpose` é definido aqui e usado em BIG para missão/visão organizacional.
+
+```cypher
+// Propósito e direção da organização
+(:Purpose {
+  id: string,
+  statement: string,        // "Ajudar empresas a inovar com IA"
+  why: string,              // O "por quê" profundo
+  created_at: datetime
+})
+
+// Objetivo estratégico (sinônimo de :Objective em BIG)
+(:Objective {  // Label canônico - pode adicionar :StrategicObjective como segundo label
+  id: string,
+  title: string,            // "Expandir para 100 clientes em 2025"
+  description: string,
+  status: string,           // "active" | "achieved" | "archived"
+  target_date: date,
+  owner_id: string
+})
+
+(:ValueProposition {
+  id: string,
+  segment: string,          // "Médias empresas B2B"
+  value_offered: string,
+  differentiator: string
+})
+
+// Relacionamentos
+(:Organization)-[:HAS_PURPOSE]->(:Purpose)
+(:Organization)-[:HAS_OBJECTIVE]->(:StrategicObjective)
+(:Organization)-[:OFFERS]->(:ValueProposition)
+(:Person)-[:PERCEIVES {confidence: 0.8, coherence: 0.9}]->(:Purpose)
+```
+
+#### 2. Ontologia de Processo
+
+> **Consolidação Ontológica** (ver spec 015): `:Process` é o label genérico para processos. `:MacroProcess` e `:ValueStream` são especializações para mapeamento organizacional. A memória procedural (spec 017) também usa `:Process` com `memory_class: "procedural"`.
+
+```cypher
+// Fluxo de valor e operações
+(:ValueStream {
+  id: string,
+  name: string,             // "Aquisição de Clientes"
+  description: string,
+  owner_id: string
+})
+
+// MacroProcess é uma especialização de Process
+(:Process:MacroProcess {
+  id: string,
+  name: string,             // "Vendas Consultivas"
+  value_stream_id: string,
+  description: string
+})
+
+(:DecisionPoint {
+  id: string,
+  name: string,             // "Aprovação de Proposta"
+  process_id: string,
+  decision_type: string,    // "approval" | "routing" | "escalation"
+  authority_level: string   // "operational" | "tactical" | "strategic"
+})
+
+// Relacionamentos
+(:ValueStream)-[:CONTAINS]->(:MacroProcess)
+(:MacroProcess)-[:HAS_DECISION_POINT]->(:DecisionPoint)
+(:Department)-[:EXECUTES]->(:MacroProcess)
+(:User)-[:OWNS]->(:DecisionPoint)
+```
+
+#### 3. Ontologia de Decisão
+
+```cypher
+// Tipos de decisão e autoridade
+(:DecisionType {
+  id: string,
+  name: string,             // "Investimento", "Contratação", "Técnica"
+  category: string,         // "financial" | "operational" | "strategic"
+  typical_impact: string    // "local" | "departmental" | "organizational"
+})
+
+(:DecisionAuthority {
+  id: string,
+  role: string,             // "Diretor Financeiro"
+  decision_type_id: string,
+  max_amount: float,        // Para decisões financeiras
+  scope: string             // "department" | "organization"
+})
+
+// Relacionamentos
+(:DecisionType)-[:EXERCISED_BY]->(:DecisionAuthority)
+(:User)-[:HAS_AUTHORITY]->(:DecisionAuthority)
+(:Decision)-[:IS_TYPE]->(:DecisionType)
+```
+
+### Usuário como Sensor Semântico
+
+No Nível 2, cada usuário contribui com sua **percepção** da organização, tornando-se um sensor semântico.
+
+```cypher
+// Usuário percebe elementos estratégicos
+(:Person)-[:PERCEIVES {
+  confidence: float,        // Quão certo está
+  coherence: float,         // Consistência com outras percepções
+  perspective: string,      // "execução" | "gestão" | "estratégico"
+  observed_at: datetime
+}]->(:Purpose|:StrategicObjective|:ValueProposition)
+
+// Múltiplas percepções sobre mesmo elemento
+// Sistema detecta alinhamento ou divergência
+```
+
+### Requisitos do Nível 2
+
+- **REQ-L2-001**: Nível 2 DEVE ser iniciado após Nível 1 completo e convite do curador
+- **REQ-L2-002**: Diálogo estratégico DEVE mapear: Purpose, StrategicObjectives, ValuePropositions
+- **REQ-L2-003**: Cada mapeamento DEVE ter `confidence` e `coherence` do usuário
+- **REQ-L2-004**: Sistema DEVE detectar divergências entre percepções de diferentes usuários
+- **REQ-L2-005**: Curador DEVE validar ontologia estratégica antes de promover ao grafo principal
+- **REQ-L2-006**: Ontologia de Processo DEVE ser mapeada incrementalmente via gamificação (spec 020)
+- **REQ-L2-007**: Pesos nas relações (confidence, coherence, recency) DEVEM seguir spec 015
+
+---
+
+## Pesos nos Relacionamentos (Integração com 015)
+
+As percepções e mapeamentos do Nível 2 usam o sistema de pesos definido em spec 015:
+
+| Propriedade | Aplicação no Nível 2 |
+|-------------|---------------------|
+| `confidence` | Quão certo o usuário está da informação |
+| `coherence` | Consistência com outras percepções no grafo |
+| `recency` | Quão recente é a percepção (decai com tempo) |
+| `influence_scope` | Se a percepção afeta local ou sistemicamente |
+
+### Exemplo de Uso
+
+```cypher
+// Usuário mapeia sua percepção do propósito da empresa
+MATCH (u:User {id: $userId}), (p:Purpose)
+CREATE (u)-[:PERCEIVES {
+  confidence: 0.85,
+  coherence: 0.9,
+  recency: 1.0,
+  perspective: "gestão",
+  observed_at: datetime()
+}]->(p)
+```
+
+---
+
+## Integração com Context Depth Controller
+
+O Nível 2 enriquece o contexto disponível para o CDC (spec 051):
+
+| Nível CDC | Dados do Nível 2 Utilizados |
+|-----------|----------------------------|
+| D0 | Nenhum |
+| D1 | Objetivos atuais do usuário |
+| D2 | Propósito, ValuePropositions, MacroProcesses |
+| D3 | DecisionPoints, Percepções conflitantes |
+| D4 | Ontologia estratégica completa como nova âncora |
+
+---
+
 ## Related Specs
 
 - **016 – Main Interface Layout**: Canvas como área principal de renderização adaptativa.
@@ -536,7 +735,10 @@ These 6 questions take <2 minutes and provide enough to start. Everything else i
 - **019 – Multi-Agent Orchestration**: FeedbackAgent propõe melhorias, Personal Agent usa persona.
 - **020 – Gamification & User KPIs**: Dashboard pode integrar métricas de evolução de literacia.
 - **021 – Notification Center**: Notificações de propostas de melhoria de persona.
-- **009 – User Memory Decision**: Decisão corporativa vs pessoal pode influenciar onboarding (ex: admin de CVC tem perfil técnico por padrão).
+- **009 – User Memory Decision**: Decisão corporativa vs pessoal pode influenciar onboarding.
+- **015 – Neo4j Graph Model**: Pesos nos relacionamentos para percepções.
+- **050 – Meta-Graph Schema**: Query Profiles que utilizam ontologia estratégica.
+- **051 – Context Depth Controller**: Usa Nível 2 para enriquecer contexto.
 
 ---
 

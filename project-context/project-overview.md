@@ -1,11 +1,17 @@
 # Project Overview - EKS (Enterprise Knowledge System)
 
+> ⚠️ **DEPRECATED** - Este arquivo está desatualizado (2024-12-13).  
+> **USE**: [`eks-architecture.md`](./eks-architecture.md) como fonte canônica da arquitetura.
+
+---
+
 > 📊 **DASHBOARD ARTIFACT** - Macro view of the project, functional blocks, status, and gaps.
 
 **Project**: EKS - Enterprise Knowledge System  
 **Vision**: Create an AI-native enterprise framework that transforms organizational knowledge into a living, queryable, multi-agent ecosystem  
 **Created**: 2024-12-13  
-**Last Updated**: 2024-12-13
+**Last Updated**: 2024-12-13  
+**Status**: ⚠️ DEPRECATED - Veja `eks-architecture.md`
 
 ---
 

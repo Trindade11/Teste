@@ -1,11 +1,16 @@
 # Project Workplan - EKS (Enterprise Knowledge System)
 
+> ⚠️ **DEPRECATED** - Este arquivo está desatualizado (2024-12-13).  
+> **USE**: [`EKS/specs/_ROADMAP.md`](../EKS/specs/_ROADMAP.md) - Roadmap oficial com sprints
+
+---
+
 > 🎯 **ORCHESTRATION ARTIFACT** - This document guides the project lifecycle and tells AI agents which phase we're in and what to do next.
 
 **Project**: EKS - Enterprise Knowledge System  
 **Created**: 2024-12-13  
 **Last Updated**: 2024-12-13  
-**Current Phase**: 🟡 PLAN - Context Initialization
+**Current Phase**: ⚠️ DEPRECATED - Veja `EKS/specs/_ROADMAP.md`
 
 ---
 

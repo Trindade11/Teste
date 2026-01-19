@@ -283,6 +283,157 @@ Apoiado em `database-schema.md` e spec 015.
 
 ---
 
+## Integração com Query Profiles (Meta-Grafo)
+
+O Retrieval Orchestrator agora usa **Query Profiles** do Meta-Grafo (spec 050) em vez de estratégias genéricas hardcoded.
+
+### Query Profiles Disponíveis
+
+| Profile | Intenção | Anchors | Max Hops |
+|---------|----------|---------|----------|
+| `org_context` | Estrutura organizacional | User, Department, Organization | 3 |
+| `document_evidence` | Evidência documental | Document, Chunk, DocSummary | 2 |
+| `process_state` | Estado de processos | Process, Task, DecisionPoint | 4 |
+| `strategy_alignment` | Alinhamento estratégico | Purpose, StrategicObjective, OKR | 3 |
+
+### Seleção de Profile
+
+```python
+def select_query_profile(intent: str, context: dict) -> QueryProfile:
+    # Mapear intenção classificada para profile
+    profile_map = {
+        "factual": "document_evidence",
+        "organizational": "org_context",
+        "procedural": "process_state",
+        "strategic": "strategy_alignment",
+        "orientation": "strategy_alignment"  # fallback
+    }
+    
+    profile_name = profile_map.get(intent, "org_context")
+    
+    # Carregar profile do meta-grafo
+    return load_profile_from_metagraph(profile_name)
+```
+
+### Requisitos de Integração
+
+- **REQ-RETR-021**: Retrieval Orchestrator DEVE carregar Query Profiles do Meta-Grafo (spec 050)
+- **REQ-RETR-022**: Seleção de profile DEVE ser baseada em `retrieval_intent` classificado
+- **REQ-RETR-023**: Profiles DEVEM especificar: anchors, rels permitidos, max_hops, políticas
+- **REQ-RETR-024**: Se profile tem `require_rbac: true`, DEVE aplicar filtro de acesso
+- **REQ-RETR-025**: Se profile tem `require_validity: true`, DEVE aplicar filtro temporal
+
+---
+
+## Integração com Context Depth Controller (CDC)
+
+O Retrieval Orchestrator é acionado pelo CDC (spec 051) com um **Retrieval Plan** específico por nível de profundidade.
+
+### Fluxo CDC → Retrieval
+
+```mermaid
+flowchart LR
+    CDC[Context Depth Controller] -->|Retrieval Plan| RO[Retrieval Orchestrator]
+    RO -->|Seleciona Profile| MG[Meta-Grafo]
+    MG -->|Query Profile| RO
+    RO -->|Executa queries| Neo4j
+    RO -->|Context Pack| CDC
+    CDC -->|Monta prompt| LLM
+```
+
+### Retrieval Plan por Nível CDC
+
+| Nível | Fontes | Profile Sugerido | Tokens Max |
+|-------|--------|------------------|------------|
+| D0 | Working Set only | null | 500 |
+| D1 | + Episodic | org_context | 1500 |
+| D2 | + Semantic | document_evidence | 3000 |
+| D3 | + Claims | document_evidence | 4000 |
+| D4 | Reset + new anchor | strategy_alignment | 2500 |
+
+### Context Pack Estruturado
+
+O Retrieval Orchestrator agora produz um **Context Pack** estruturado para o CDC:
+
+```typescript
+interface ContextBundle {
+  // Existente
+  context_items: ContextItem[];
+  retrieval_summary: string;
+  strategies_used: string[];
+  depth_used: number;
+  tokens_estimated: number;
+  
+  // Novo: Organizado por classe de memória
+  by_memory_class: {
+    working_set: ContextItem[];
+    episodic?: ContextItem[];
+    semantic?: ContextItem[];
+    procedural?: ContextItem[];
+    claims?: ClaimItem[];
+  };
+  
+  // Novo: Metadados do CDC
+  cdc_metadata: {
+    depth_level: 'D0' | 'D1' | 'D2' | 'D3' | 'D4';
+    query_profile_used: string;
+    filters_applied: string[];
+  };
+  
+  // Novo: Instruções para LLM
+  llm_instructions: string[];
+}
+```
+
+### Requisitos de Integração CDC
+
+- **REQ-RETR-026**: Retrieval DEVE aceitar Retrieval Plan do CDC especificando fontes e limites
+- **REQ-RETR-027**: Context Pack DEVE ser organizado por classe de memória quando CDC solicita
+- **REQ-RETR-028**: Retrieval DEVE incluir `cdc_metadata` no ContextBundle
+- **REQ-RETR-029**: Retrieval DEVE respeitar `max_tokens` especificado pelo CDC
+- **REQ-RETR-030**: Se CDC solicita Claims (D3), Retrieval DEVE buscar em `:Claim` nodes
+
+---
+
+## Retrieval por Semântica (não por hops genéricos)
+
+Em vez de usar `max_hops` genérico, o retrieval agora é guiado por **semântica**:
+
+### Princípios
+
+1. **Anchors Específicos**: Query sempre começa por anchor relevante ao intent
+2. **Rels Permitidos**: Só traversa relacionamentos autorizados pelo profile
+3. **Filtros Obrigatórios**: RBAC + validade aplicados automaticamente
+4. **Limite por Profile**: Cada profile tem seu próprio max_hops
+
+### Exemplo de Query Semântica
+
+```cypher
+// Profile: document_evidence
+// Intent: "Buscar documentos sobre LGPD"
+
+// Passo 1: Anchor em Document
+MATCH (d:Document)
+WHERE d.updated_at >= datetime() - duration({days: 30})
+  AND (d.expires_at IS NULL OR d.expires_at > datetime())
+
+// Passo 2: Traversar rels permitidos (HAS_CHUNK, HAS_SUMMARY)
+OPTIONAL MATCH (d)-[:HAS_SUMMARY]->(s:DocSummary)
+OPTIONAL MATCH (d)-[:HAS_CHUNK]->(c:Chunk)
+WHERE c.text CONTAINS "LGPD" OR s.text CONTAINS "LGPD"
+
+// Passo 3: Aplicar RBAC
+MATCH (u:User {id: $userId})-[:HAS_ROLE]->(r:Role)-[g:GRANTS]->(p:Permission)
+WHERE (d)-[:OWNED_BY|:VISIBLE_TO*0..2]->(scope)
+  AND (p)-[:ON_SCOPE]->(scope)
+
+RETURN d, s, collect(c) AS chunks
+ORDER BY d.updated_at DESC
+LIMIT $limit
+```
+
+---
+
 ## Related Specs
 
 - **001-knowledge-pipeline** – geração de embeddings e ingestão de conteúdos.  
@@ -292,11 +443,13 @@ Apoiado em `database-schema.md` e spec 015.
 - **010-data-filtration** – Real vs Passageiro (impacta persistência e relevância).  
 - **012-graph-curation-ecosystem** – garante qualidade dos dados no grafo.  
 - **014-provenance-system** – garante metadados de origem em todas as respostas.  
-- **015-neo4j-graph-model** – modelo global de nodes/relacionamentos.  
-- **017-memory-ecosystem** – memória multinível e contexto recente.  
+- **015-neo4j-graph-model** – modelo global de nodes/relacionamentos + pesos.  
+- **017-memory-ecosystem** – memória multinível, classes de memória e Claims.  
 - **018-observability-dashboard** – monitora métricas de retrieval.  
 - **019-multi-agent-orchestration** – coordena agentes que usam Retrieval.  
 - **022-onboarding-ai-profile** – AI Profile/Persona usada para priorização de conteúdos.
+- **050-meta-graph-schema** – Query Profiles e Meta-Grafo.
+- **051-context-depth-controller** – CDC que dirige o retrieval por nível.
 
 ---
 

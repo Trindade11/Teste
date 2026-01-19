@@ -1,10 +1,16 @@
 # Agent Framework - EKS Project
 
+> ⚠️ **DEPRECATED** - Este arquivo está desatualizado (2024-12-13).  
+> **USE**: [`eks-architecture.md`](./eks-architecture.md) - Seção "CAMADA 4: AGENTES"  
+> **USE**: [`EKS/specs/019-multi-agent-orchestration`](../EKS/specs/019-multi-agent-orchestration/spec.md) - Spec canônica
+
+---
+
 > Architecture and specification for the multi-agent ecosystem
 
 **Created**: 2024-12-13  
 **Last Updated**: 2024-12-13  
-**Status**: 🔴 Design Phase
+**Status**: ⚠️ DEPRECATED
 
 ---
 

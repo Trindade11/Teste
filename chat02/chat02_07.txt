@@ -1,0 +1,861 @@
+**Minha Pergunta:**
+Estava aqui pensando sobre como estruturar, baseado em gráficos, dentro do meu folder, como estruturar a memória recuperável durante a interação de um chat. Como que essa estrutura deveria acontecer? Algo me diz que criar pessoas mônicas, a conversa muitas das vezes, tudo bem que isso aumenta a latência. Então eu vou falar, se eu não gostaria de passar todo o conteúdo, para mim isso soa uma perda de tempo. E ao mesmo tempo, por exemplo, quando o modelo, eu vejo isso, por exemplo, usando o ChatGPT, ele não sabe que errou ou então qual é o aprendizado do erro, isso pode acontecer também. Então, algo me diz que criar uma memória, um resumo do que foi falado anteriormente com o aprendizado e passar para o modelo aqui para ele tomar a decisão se ele vai consultar ou não. Eu acho que tem uma riqueza aí para pensar. Se você estiver conversando com alguém, aquela pessoa tem que recordar da conversa. Você está pedindo um assunto novo, ou não um assunto novo, um complemento, porque a resposta foi errada, ou então, ou a resposta foi errada ou um complemento para aprofundar mais no conhecimento, muitas das vezes. É isso que acontece, basicamente é isso que acontece. Pelo menos na minha percepção. Agora, como transformar, como criar uma arquitetura aonde essa recuperação dessa memória de contexto do chat atual acontecendo seja otimizada do que simplesmente passar todo o conteúdo, não é? Até de forma desnecessária muitas das vezes, se a conversa for longa, né? Até para a próxima conversa, assim, na verdade, no próximo chat, como que o modelo já sabe que aquele ponto que já foi tratado anteriormente já está resolvido. É uma informação interessante, se já houve uma conclusão, a gente não usa, né? No ChatGPT eu não costumo usar o gostei e não gostei. O que é um... Isso pode ser melhor até utilizado, corporativamente falando, né? Isso eu estou falando dentro de um EKS, um Enterprise Knowledge System. Eu gostaria de começar essa conversa aqui. Eu já tenho conteúdo baseado nisso, já. Eu tenho alguns conteúdos baseados nisso na minha especificação, mas eu queria colocar mais uma perspectiva aqui.
+
+**Resposta IA:**
+A forma mais eficiente de “memória recuperável” em chat não é “passar tudo” nem “não passar nada”; é **compilar** a conversa em artefatos menores, versionados e consultáveis, e só então **selecionar** o subconjunto mínimo necessário para cada resposta. Em grafo isso fica particularmente poderoso porque você separa: (i) *o que foi dito* (eventos), (ii) *o que foi concluído* (estado), (iii) *o que é verdade operacional* (memórias validadas), e (iv) *o que está em disputa/erro* (memórias refutadas).
+
+Abaixo vai um desenho de arquitetura “sem overengineering”, mas já com a perspectiva que você trouxe: **o modelo precisa lembrar, aprender com erro e saber quando um assunto está “encerrado”.**
+
+---
+
+## 1) Princípio central: Event Log + Estado Compilado (não “histórico bruto”)
+
+**Event Log (imutável)**: cada turno, tool call, fonte consultada, correção do usuário, avaliação automática, tudo entra como evento.
+**Estado Compilado (mutável/versão)**: uma visão “curada” e *menor* da conversa: fatos aceitos, decisões, pendências, preferências, definições, conclusões.
+
+No grafo, isso vira dois subgrafos:
+
+* **Conversation/Event Graph** (alta granularidade, append-only)
+* **Memory/State Graph** (baixo volume, alta utilidade, versionado)
+
+Assim você não precisa reenviar todo o chat, e também não perde auditabilidade.
+
+---
+
+## 2) Modelo de memória em 4 camadas (com semântica operacional)
+
+### A) Working Set (janela curta)
+
+* Últimos N turnos + “thread local” do assunto atual.
+* Mantém coerência imediata sem precisar buscar nada.
+
+### B) Episodic Memory (o que aconteceu)
+
+* Resumos por *segmentos* (capítulos) + marcos (“checkpoints”) da conversa.
+* Mantém “narrativa” e intenção histórica.
+
+### C) Semantic Memory (o que é verdade no contexto)
+
+* Fatos, preferências, definições, entidades e relações consolidadas.
+* É aqui que você quer “assunto encerrado”: **estado resolvido** e **versões**.
+
+### D) Procedural Memory (como fazer / playbooks)
+
+* “Como responder X”, “Como executar o fluxo Y”, “Políticas de governança”, “Query profiles”.
+* Isso reduz repetição e drift operacional.
+
+No EKS, o ganho vem de tratar **correções e conclusões como primeira classe**, não como texto perdido no histórico.
+
+---
+
+## 3) Esquema mínimo de grafo (nodes/edges que realmente mudam o jogo)
+
+### Nós (tipos)
+
+* `Session`, `Turn`, `Message`
+* `Span` (trecho relevante do texto, com offset)
+* `Entity` (Pessoa, Projeto, Sistema, Conceito…)
+* `Claim` (uma afirmação: “X é Y”, “A causa B”)
+* `Decision` (decisão tomada)
+* `Task` (pendência)
+* `MemoryItem` (unidade de memória compilada)
+* `Evaluation` (sinal de qualidade: erro, acerto, incerteza, confiança)
+* `Outcome` (resultado verificado: “funcionou/não funcionou”)
+
+### Relações (edges)
+
+* `(:Turn)-[:HAS_MESSAGE]->(:Message)`
+* `(:Message)-[:MENTIONS]->(:Entity)`
+* `(:Message)-[:ASSERTS]->(:Claim)`
+* `(:Claim)-[:SUPPORTED_BY]->(:Span|:Evidence)` *(evidence pode ser doc interno ou tool result)*
+* `(:Claim)-[:CONTRADICTS]->(:Claim)`
+* `(:Claim)-[:RESOLVED_BY]->(:Decision|:Outcome)`
+* `(:MemoryItem)-[:DERIVED_FROM]->(:Claim|:Decision|:Outcome)`
+* `(:MemoryItem)-[:SUPERSEDES]->(:MemoryItem)` *(versão nova substitui a antiga)*
+* `(:MemoryItem)-[:APPLIES_TO]->(:Entity|:Scope)` *(escopo: usuário, time, empresa, projeto)*
+
+### Propriedades essenciais (para não virar overengineering)
+
+Em `MemoryItem`:
+
+* `type`: semantic|episodic|procedural
+* `status`: proposed|validated|disputed|deprecated
+* `salience`: score numérico (utilidade)
+* `ttl` ou `decay`: política de expiração (opcional)
+* `scope`: user/team/org/project
+* `last_used_at`, `created_at`, `version`
+
+**O truque:** *status + versioning + supercedes* resolvem exatamente seu ponto: “o modelo sabe que já foi concluído e não precisa reabrir”.
+
+---
+
+## 4) Como “aprender com erro” vira algo concreto no grafo
+
+Quando o modelo erra, o que falta normalmente é **registrar o erro como estrutura**, não como conversa.
+
+Fluxo mínimo:
+
+1. O usuário sinaliza erro (explícito) **ou** um avaliador automático detecta (heurística/LLM-judge interno).
+2. Cria `Evaluation {label:"incorrect", reason, severity}` ligado ao `Claim` ou ao `Turn`.
+3. Quando vem a correção:
+
+   * cria novo `Claim` (correto)
+   * liga `(:Claim_correct)-[:CONTRADICTS]->(:Claim_wrong)`
+   * promove um `Outcome/Decision` que marca resolução
+4. Atualiza `MemoryItem`:
+
+   * antigo vira `deprecated`
+   * novo vira `validated`
+   * ligação `SUPERSEDES`
+
+Resultado: na próxima interação, a recuperação traz **o item validado**, e ainda pode trazer o “antipadrão” (o que não fazer) se for útil.
+
+---
+
+## 5) Recuperação otimizada: “seleção por intenção” + “compilação” (em vez de dump)
+
+Você descreveu bem: passar tudo é perda de tempo; mas não passar nada quebra continuidade. A solução prática:
+
+### Passo 1 — Classificar intenção do turno (router)
+
+Exemplos de classes úteis:
+
+* `NEW_TOPIC`
+* `FOLLOW_UP` (continuação direta)
+* `ERROR_CORRECTION` (usuário contestando/resolvendo)
+* `DEEPENING` (aprofundar)
+* `DECISION_MAKING` (precisa fechar algo)
+* `EXECUTION` (procedimento/como fazer)
+
+### Passo 2 — Montar “Context Pack” com budget fixo
+
+Em vez de “histórico inteiro”, você compõe um pacote com blocos, cada um com limite de tokens:
+
+1. **Working Set**: últimos N turnos (curto)
+2. **Relevant MemoryItems**: top-K por:
+
+   * intenção (match de tipo)
+   * salience
+   * recency/last_used_at
+   * entidades mencionadas
+   * status (prioriza validated; include disputed só se o usuário estiver contestando)
+3. **Episodic checkpoint**: 1 parágrafo do capítulo atual
+4. **Procedural snippet**: se intenção pede (ex.: playbook)
+
+Isso reduz latência porque a busca é em objetos menores e indexáveis (IDs + embeddings + grafo).
+
+---
+
+## 6) “Resumo com aprendizado” sem virar um resumo inútil
+
+Resumos comuns falham porque são narrativos demais. O que funciona é **resumo estruturado** (compilação), separado em:
+
+* **Fatos/Definições validadas**
+* **Decisões tomadas**
+* **Pendências**
+* **Erros corrigidos / antipadrões**
+* **Preferências do usuário**
+* **Glossário local (termos + significado no contexto)**
+
+Cada item vira `MemoryItem`. O “resumo” vira apenas uma visão humana do mesmo conjunto, não a fonte de verdade.
+
+---
+
+## 7) O “assunto está resolvido”: como o sistema sabe
+
+Você precisa de uma semântica explícita para “fechamento”. Três opções (compatíveis entre si):
+
+1. **Decision/Outcome node**: “Concluído em dd/mm; resposta final é X”
+2. **Task closed**: pendência associada foi fechada
+3. **MemoryItem status**: o item virou `validated` e marcou `supersedes` versões anteriores
+
+Quando a intenção for `FOLLOW_UP` ou `DEEPENING`, você traz o item validado.
+Quando for `NEW_TOPIC`, você não traz itens “encerrados” a menos que o assunto reative as mesmas entidades.
+
+---
+
+## 8) Query Profiles (a peça que evita recuperar “qualquer coisa”)
+
+Em vez de “uma estratégia de busca”, você define **perfis** de recuperação por intenção (isso é procedural memory do próprio sistema).
+
+Exemplos:
+
+* `PROFILE:ERROR_CORRECTION`
+
+  * incluir: itens `disputed` + `deprecated` + últimos turns
+  * objetivo: detectar contradição e atualizar estado
+
+* `PROFILE:DECISION_MAKING`
+
+  * incluir: decisões anteriores, critérios, constraints, itens `validated` ligados ao projeto
+  * objetivo: consistência e rastreabilidade
+
+* `PROFILE:NEW_TOPIC`
+
+  * incluir: preferências globais do usuário + contexto organizacional mínimo
+  * evitar: histórico longo
+
+Isso é simples e dá governança: você controla latência e relevância por design.
+
+---
+
+## 9) O que isso vira no “prompt” (sem passar tudo)
+
+O modelo recebe algo como:
+
+* **System/Policy** (fixo)
+* **Context Pack** (dinâmico, pequeno):
+
+  * `Working window`: 5–12 mensagens
+  * `MemoryItems`: 10–30 bullets estruturados (não texto corrido)
+  * `Open tasks`: lista curta
+  * `Known corrections`: 3–10 bullets (antierros)
+  * `Glossary`: termos locais se houver
+
+E o grafo fica como *fonte consultável*, não como texto despejado.
+
+---
+
+Se você quiser que eu “trave” isso num **modelo mínimo de subgrafo** (com labels e propriedades no estilo Neo4j) ou num **esquema de versionamento** (como representar versões/derivações e fazer merge), eu descrevo em formato bem operacional (tipo contrato de schema + regras de atualização).
+
+
+**Minha Pergunta:**
+E para pensar uma coisa interessante também, você falou, já no início da sua fala, você já falou um negócio interessante, saber raciocinar em cima do contexto, não simplesmente passar tudo, mas sim ter a primeira série, a segunda série, enfim, algo nesse sentido para se aprofundar no conhecimento que já foi passado, né? Acho que interessante, baseado na pergunta, né? Tem vários indicativos aí que podem gerar insumo para isso.
+
+**Resposta IA:**
+Perfeito. O ponto-chave aqui é **transformar “contexto” em algo *navegável e progressivo***, e não em um bloco estático de texto. O que você está descrevendo, mesmo sem nomear, é um **mecanismo de raciocínio por *camadas de contexto***, acionado por sinais da própria pergunta.
+
+Vou estruturar isso de forma direta, técnica e acionável.
+
+---
+
+## 1) O erro clássico: contexto como payload, não como espaço de decisão
+
+A maioria dos chats faz isso:
+
+> **Contexto = tudo o que aconteceu antes**
+
+Isso força dois problemas:
+
+* latência (token bloat)
+* cegueira semântica (o modelo não sabe *por que* algo está ali)
+
+O que você está propondo implicitamente é diferente:
+
+> **Contexto = espaço de decisão incremental**
+
+Ou seja:
+o modelo **não recebe tudo**, ele **decide até onde ir**.
+
+---
+
+## 2) “Séries” de aprofundamento = níveis de ativação cognitiva
+
+Você pode pensar essas “séries” como **níveis de ativação do grafo**, não como histórico.
+
+### Série 0 — Contexto mínimo (default)
+
+Ativado sempre.
+
+Contém:
+
+* objetivo implícito da conversa
+* persona / papel do usuário
+* estado global: o que já está *resolvido*
+* definições canônicas relevantes
+
+👉 Serve para responder **sem reabrir nada**.
+
+---
+
+### Série 1 — Continuidade local
+
+Ativada quando a pergunta indica:
+
+* continuação (“como você disse antes…”)
+* refinamento
+* dúvida leve
+
+Sinais típicos:
+
+* anáforas: *isso, aquilo, esse ponto*
+* perguntas incompletas
+* baixa novidade semântica
+
+Aqui entram:
+
+* último checkpoint episódico
+* decisões recentes
+* claims ativos (não resolvidos)
+
+---
+
+### Série 2 — Profundidade conceitual
+
+Ativada quando a pergunta indica:
+
+* “por quê”
+* “qual a relação entre”
+* “me explica melhor”
+* tentativa de generalização
+
+Sinais:
+
+* conectores causais
+* aumento de abstração
+* perguntas meta (“como isso se relaciona com…”)
+
+Aqui você traz:
+
+* **subgrafo conceitual**
+* relações entre conceitos
+* histórico de correções relevantes (aprendizado)
+
+---
+
+### Série 3 — Revisão / Contestação
+
+Ativada quando:
+
+* o usuário questiona a resposta
+* aponta erro
+* pede correção ou alternativa
+
+Sinais:
+
+* “acho que não”
+* “isso está errado”
+* “mas antes você disse…”
+
+Aqui entram explicitamente:
+
+* claims contraditos
+* erros anteriores
+* decisões superadas
+* *antipadrões* registrados
+
+👉 Essa série é onde o sistema **aprende**.
+
+---
+
+### Série 4 — Exploração ou mudança de frame
+
+Ativada quando:
+
+* novo domínio
+* analogia
+* extrapolação estratégica
+
+Aqui **não** se carrega histórico pesado.
+Só:
+
+* identidade do usuário
+* princípios estáveis
+* preferências cognitivas
+
+---
+
+## 3) Isso não é prompt engineering — é controle epistemológico
+
+O ponto importante:
+**quem decide a série não é o prompt fixo, é o sistema.**
+
+No EKS, isso vira uma função explícita:
+
+```text
+infer_context_depth(question, active_state, memory_graph) -> depth_level
+```
+
+Essa função usa:
+
+* análise semântica da pergunta
+* distância no grafo entre entidades mencionadas
+* status dos MemoryItems (validated / disputed)
+* presença de decisões encerradas
+
+---
+
+## 4) Grafo como “mapa de aprofundamento”, não só memória
+
+Aqui está o salto conceitual.
+
+O grafo não serve apenas para **recuperar** memória.
+Ele serve para **medir distância cognitiva**.
+
+Exemplos:
+
+* Pergunta menciona entidade já resolvida → não reabrir
+* Pergunta conecta duas entidades sem edge direto → subir série
+* Pergunta toca em claim deprecated → ir direto para série 3
+
+Isso permite algo raro:
+
+> **o sistema sabe quando NÃO aprofundar**
+
+---
+
+## 5) O modelo não “raciocina melhor” — ele recebe *melhor campo de jogo*
+
+Importante deixar claro:
+
+* o LLM não vira mais inteligente
+* o que muda é o **espaço de contexto entregue**
+
+Você está, na prática, criando:
+
+* uma **memória estratificada**
+* um **controle de carga cognitiva**
+* um **mecanismo de progressão epistemológica**
+
+Isso é muito próximo de como humanos funcionam:
+
+> primeiro lembram *o suficiente*
+> depois decidem se precisam lembrar *mais*
+
+---
+
+## 6) Onde mora o verdadeiro valor corporativo
+
+No ChatGPT público, isso não existe porque:
+
+* não há noção de “assunto encerrado”
+* não há memória validada vs refutada
+* não há custo organizacional do erro
+
+No EKS:
+
+* erro tem impacto
+* repetição tem custo
+* reabrir decisão é governança
+
+Essa arquitetura permite:
+
+* **menos latência**
+* **menos drift**
+* **mais confiança**
+* **aprendizado institucional real**
+
+---
+
+## 7) Frase-síntese (boa para você guardar)
+
+> **Contexto não é histórico.
+> Contexto é profundidade controlada de conhecimento relevante.**
+
+Se você quiser, no próximo passo posso:
+
+* formalizar isso como um **Context Depth Controller**
+* desenhar o **subgrafo mínimo** que permite decidir a série
+* ou ligar isso diretamente ao seu conceito de *agente epistemológico* dentro do EKS
+
+Você está exatamente no ponto certo da abstração.
+
+
+**Minha Pergunta:**
+Muito interessante: Contexto é profundidade controlada de conhecimento relevante.
+
+Em uma conversa não precisamos ter tudo na 'ponta da lingua'. Saber lidar com o que esta sendo proposto e se 'lebrar' ( recuperar memória ) é  algo que creio ser o caminho mais viavel. 
+
+Claro, temos que considerar aqui como os modelos de IA funcionam na geração de texto. O raciocinio ou estímulos para criar massa  critica para recuperar memória e responder
+
+
+
+
+**Resposta IA:**
+Exato. E o ponto mais importante aqui é **alinhar essa intuição humana com a mecânica real de geração de texto dos LLMs**, sem romantizar “raciocínio interno”.
+
+Vou direto ao núcleo.
+
+---
+
+## 1) O modelo não “lembra” — ele **responde condicionado a estímulos**
+
+Um LLM não decide *o que lembrar*.
+Ele **gera texto maximizando probabilidade** dado um campo de contexto.
+
+Portanto, quando falamos em:
+
+> “recuperar memória para responder”
+
+na prática estamos falando de:
+
+> **injetar estímulos corretos para moldar a distribuição de próxima palavra**
+
+Isso muda completamente o desenho da arquitetura.
+
+---
+
+## 2) “Massa crítica” ≠ quantidade de texto
+
+É **densidade informacional + alinhamento semântico**
+
+Passar tudo não cria massa crítica.
+Cria **ruído estatístico**.
+
+Massa crítica real é:
+
+* conceitos certos
+* no nível certo de abstração
+* no momento certo da conversa
+
+Em termos práticos:
+
+* 10 bullets bem curados > 5 mil tokens de histórico
+* 1 decisão validada > 20 mensagens discutindo
+* 1 antipadrão explícito > dezenas de correções implícitas
+
+---
+
+## 3) Estímulos cognitivos que realmente afetam a geração
+
+Você pode pensar que o modelo “raciocina”, mas o que ele faz é **responder a gradientes de contexto**. Alguns estímulos têm peso desproporcional:
+
+### a) **Conclusões explícitas**
+
+> “Isso já foi resolvido e a resposta correta é X”
+
+Isso **colapsa o espaço de resposta**.
+O modelo não explora alternativas desnecessárias.
+
+---
+
+### b) **Contrastes (erro vs correto)**
+
+> “Antes foi assumido A (incorreto). Correção validada: B.”
+
+Isso cria **ancoragem negativa** — extremamente poderosa.
+
+---
+
+### c) **Estrutura semântica**
+
+Listas, decisões, fatos numerados, definições canônicas.
+
+O modelo responde melhor a **estruturas** do que a narrativa solta.
+
+---
+
+### d) **Escopo declarado**
+
+> “No contexto deste projeto / desta empresa / desta conversa”
+
+Escopo reduz ambiguidade → reduz deriva.
+
+---
+
+## 4) Profundidade controlada = controle do espaço de probabilidade
+
+Essa é a tradução técnica da sua frase.
+
+Quando você controla a profundidade:
+
+* você **não está dando mais informação**
+* você está **estreitando o espaço de geração**
+
+Cada “série” de contexto:
+
+* reduz graus de liberdade
+* aumenta precisão
+* diminui necessidade de explicação redundante
+
+Por isso:
+
+* Série 0 → respostas rápidas
+* Série 2 → respostas densas
+* Série 3 → respostas cirúrgicas (correção)
+
+---
+
+## 5) O erro comum: tentar “ensinar” o modelo durante a resposta
+
+O aprendizado **não acontece no momento da geração**.
+Ele acontece **entre interações**, no sistema.
+
+O papel do chat é:
+
+* consumir memória
+* produzir output
+
+O papel do EKS é:
+
+* **compilar** aprendizado
+* **validar** estado
+* **atualizar** o que será estímulo futuro
+
+Se você mistura isso, o modelo:
+
+* parece “inteligente”
+* mas não melhora estruturalmente
+
+---
+
+## 6) Como isso se traduz em arquitetura (sem buzzword)
+
+Você precisa de três coisas — só três:
+
+### 1️⃣ Um **classificador de intenção + profundidade**
+
+Decide:
+
+> “Quanto de contexto é necessário para responder bem?”
+
+---
+
+### 2️⃣ Um **compilador de memória**
+
+Transforma conversa em:
+
+* fatos
+* decisões
+* correções
+* pendências
+
+Não em texto longo, mas em **unidades semânticas**.
+
+---
+
+### 3️⃣ Um **montador de estímulo**
+
+Constrói o contexto do modelo como:
+
+* campo de forças
+* não como histórico
+
+Esse montador é onde mora o valor do EKS.
+
+---
+
+## 7) Analogia correta (e perigosa de boa)
+
+Um bom sistema de chat **não tenta simular memória humana**.
+
+Ele simula algo mais específico:
+
+> **atenção humana bem treinada**
+
+* você não lembra tudo
+* você lembra o que importa
+* e só aprofunda se a conversa exigir
+
+---
+
+## 8) Frase de fechamento (nível EKS)
+
+> **O LLM não precisa de memória.
+> Ele precisa de estímulos certos, no nível certo, no momento certo.
+> A memória é do sistema.**
+
+Você está pensando isso no nível correto:
+não “como passar contexto”, mas **como governar profundidade cognitiva**.
+
+Quando quiser, o próximo passo natural é:
+
+* formalizar isso como um *Context Depth Controller*
+* ou desenhar o *compilador de memória* como componente explícito do EKS
+
+Aqui já não estamos mais falando de chat.
+Estamos falando de **infraestrutura epistemológica**.
+
+
+**Minha Pergunta:**
+Faça isso: Context Depth Controller
+
+E o que é epistemológica ( infraestrutura epistemológica )
+
+**Resposta IA:**
+## Context Depth Controller (CDC)
+
+Um **Context Depth Controller** é o componente que decide **quanta memória/contexto** deve entrar no “context pack” do LLM em cada turno, e **de quais tipos** (estado, decisões, correções, procedimentos, histórico local). Ele existe para controlar três coisas ao mesmo tempo:
+
+* **Custo** (tokens/latência)
+* **Risco de erro/drift**
+* **Qualidade** (densidade informacional e alinhamento semântico)
+
+### 1) Entradas e saídas
+
+**Entradas (mínimo viável)**
+
+* `question` (texto atual)
+* `working_window` (últimos N turnos)
+* `active_state` (memórias/decisões atuais do “Memory/State Graph”)
+* `signals` (features extraídas: anáforas, “você errou”, “aprofundar”, novidade semântica, entidades citadas, etc.)
+* `budgets` (limites de tokens/itens por tipo)
+
+**Saída**
+
+* `depth_level` (0..4)
+* `retrieval_plan` (o que buscar e quanto: top-k por tipo, filtros por status, escopos)
+* `context_pack` (conjunto final entregue ao LLM)
+
+---
+
+### 2) Níveis de profundidade (contrato operacional)
+
+Você pode fixar 5 níveis. Eles são simples e já resolvem 90%:
+
+**D0 — Resposta direta (mínimo)**
+
+* Working window curta
+* 0–3 MemoryItems (preferências + definições globais)
+* Evita histórico e evita “abrir grafo”
+
+**D1 — Continuidade**
+
+* Working window + último checkpoint episódico
+* MemoryItems ligados às entidades citadas (validated)
+* Pendências abertas relacionadas
+
+**D2 — Profundidade conceitual**
+
+* Subgrafo conceitual (definições + relações)
+* Procedural snippets relevantes (playbooks)
+* Correções passadas relevantes (antierros)
+
+**D3 — Contestação/correção**
+
+* Itens `disputed`/`deprecated` + cadeia de contradição
+* Evidências/justificativas do estado atual
+* Objetivo: **reparar estado** (não só responder)
+
+**D4 — Exploração / mudança de frame**
+
+* Mínimo de identidade + princípios estáveis
+* Baixa dependência do passado
+* Útil para brainstorm, analogias, expansão
+
+---
+
+### 3) Como o CDC decide o nível (heurísticas + sinais)
+
+O CDC não precisa ser “ML pesado”. Dá para começar com regras + scores.
+
+#### Sinais fortes (disparam nível)
+
+* **Correção explícita**: “isso está errado”, “tem certeza?” → **D3**
+* **Retomada**: “voltando ao ponto X”, “como falamos” → **D1/D2**
+* **Aprofundamento**: “explique melhor”, “por que”, “qual relação” → **D2**
+* **Novo tópico**: mudança de entidades/domínio → **D0/D4**
+* **Decisão**: “qual escolhemos”, “trade-off”, “arquitetura final” → **D2** (ou D3 se houver disputa)
+
+#### Sinais contínuos (pontuam)
+
+* **Novidade semântica**: distância entre embeddings da pergunta e do tópico atual
+* **Entidades citadas**: quantidade e centralidade no grafo
+* **Ambiguidade**: anáforas (“isso”, “aquele”), elipse
+* **Risco**: tema com alta penalidade de erro (jurídico/financeiro) puxa profundidade e evidência
+* **Histórico com contradições**: se o tópico tem `deprecated/disputed`, puxa D3
+
+Um score simples:
+
+* `need_continuity` (0..1)
+* `need_depth` (0..1)
+* `need_repair` (0..1)
+* `need_exploration` (0..1)
+
+Mapeamento:
+
+* `need_repair` alto → D3
+* `need_depth` alto → D2
+* `need_continuity` alto → D1
+* `need_exploration` alto + novidade alta → D4
+* caso contrário → D0
+
+---
+
+### 4) Retrieval Plan (o que buscar em cada nível)
+
+O CDC não “busca”; ele **especifica**.
+
+Exemplo de plano por nível:
+
+**D0**
+
+* `MemoryItem(type in {semantic}, status=validated, scope=user/org)` top 3 por salience
+* sem subgrafo, sem disputed
+
+**D1**
+
+* `EpisodicCheckpoint` do capítulo atual (1)
+* `MemoryItem(entities intersect question.entities, status=validated)` top 10
+* `OpenTask(related)` top 5
+
+**D2**
+
+* `ConceptSubgraph(entities, radius=1..2 hops)` com poda por salience
+* `ProceduralMemory(relevant)` top 5
+* `KnownCorrections(entities)` top 5
+
+**D3**
+
+* `Claims(disputed/deprecated, related)` + `CONTRADICTS` chain
+* `Evidence` (spans/doc refs) top 5
+* `LatestValidatedMemory` (para substituir as antigas)
+
+**D4**
+
+* `Principles` + `UserPreferences` top 5
+* `No heavy episodic`
+
+---
+
+### 5) Montagem do Context Pack (o que entra no prompt)
+
+O CDC monta blocos **estruturados**, não narrativa.
+
+Estrutura recomendada (sempre igual, variando conteúdo):
+
+1. **Goal/Intent** (1–3 linhas)
+2. **Active Definitions** (bullets)
+3. **Validated State** (bullets)
+4. **Open Loops** (tasks/disputes)
+5. **Corrections / Antipatterns** (se D2/D3)
+6. **Episodic Checkpoint** (se D1+)
+7. **Procedures** (se D2+)
+
+Isso melhora geração porque o LLM lê isso como “campo de restrições”.
+
+---
+
+### 6) Saída dupla do CDC (importante no EKS)
+
+O CDC deveria produzir dois outputs:
+
+* **`context_pack`** (para o LLM responder)
+* **`memory_update_request`** (para o compilador de memória atualizar depois)
+
+Exemplo:
+
+* “Se a resposta foi uma correção, crie Claim novo e SUPERSEDES o antigo”
+* “Se foi decisão, criar Decision e fechar Task”
+
+Ou seja: CDC direciona tanto a **atenção** quanto a **governança**.
+
+---
+
+## O que é “epistemológica” e “infraestrutura epistemológica”
+
+**Epistemologia** é o campo que estuda **como o conhecimento é produzido, validado e justificado**:
+
+* o que conta como “conhecimento”
+* o que é “crença”, “opinião”, “hipótese”
+* como lidar com incerteza, evidência e contradição
+* como decidir que algo está “resolvido”
+
+No seu contexto (EKS), “infraestrutura epistemológica” é um nome técnico para:
+
+> o conjunto de mecanismos que controlam **qual conhecimento entra**, **com que status**, **com que evidência**, **como evolui**, e **como evita regressão/deriva**.
+
+Em componentes práticos, isso inclui:
+
+* **modelos de status**: proposed/validated/disputed/deprecated
+* **versionamento**: SUPERSEDES, histórico de mudanças
+* **proveniência**: de onde veio (turno, doc, pessoa, ferramenta)
+* **regras de fechamento**: quando uma decisão está encerrada
+* **gestão de contradição**: CONTRADICTS + resolução
+* **políticas de recuperação**: (ex.: seu CDC)
+
+Por isso é “infraestrutura”: não é só “memória”. É **governança do conhecimento**.
+
+Se você quiser, eu descrevo o CDC como um contrato formal (interfaces + estrutura de dados) do jeito que você usa em spec-driven: input/output JSON, níveis, budgets e regras de fallback.
+
+

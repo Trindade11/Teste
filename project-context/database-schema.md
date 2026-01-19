@@ -1,11 +1,17 @@
 # Database Schema - EKS Project
 
+> ⚠️ **DEPRECATED** - Este arquivo está desatualizado (2024-12-13).  
+> **USE**: [`EKS/specs/015-neo4j-graph-model`](../EKS/specs/015-neo4j-graph-model/spec.md) - Modelo canônico  
+> **USE**: [`EKS/specs/050-meta-graph-schema`](../EKS/specs/050-meta-graph-schema/spec.md) - Meta-Grafo
+
+---
+
 > Neo4j graph database schema for Enterprise Knowledge System
 
 **Created**: 2024-12-13  
 **Last Updated**: 2024-12-13  
 **Database**: Neo4j 5.x  
-**Status**: 🔴 Design Phase
+**Status**: ⚠️ DEPRECATED
 
 ---
 

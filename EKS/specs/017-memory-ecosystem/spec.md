@@ -121,7 +121,7 @@ memory_level & expires_at"]
 
 ```mermaid
 flowchart TD
-    Knowledge[Knowledge Ingestion] --> Classifier[Memory Class Classifier Agent]
+    Knowledge[Knowledge Ingestion] --> Classifier[BIG_Agent<br/>(Memory Classifier)]
     
     Classifier --> Semantic{Semantic Memory?<br/>Facts, Concepts}
     Classifier --> Episodic{Episodic Memory?<br/>Events, Timeline}
@@ -347,7 +347,7 @@ Sistema mantém visão ampla de conversas longas sem explodir o contexto da LLM,
 ### Memory Class Classification
 
 - **REQ-MEM-020**: Every knowledge node MUST have `memory_class` property: `semantic` | `episodic` | `procedural` | `evaluative`
-- **REQ-MEM-021**: Memory Class Classifier Agent MUST run on every knowledge ingestion
+- **REQ-MEM-021**: Memory Class Classifier Agent (implementado pelo BIG_Agent, ver spec 040) MUST run on every knowledge ingestion
 - **REQ-MEM-022**: Classifier MUST use LLM analysis to determine memory class with confidence ≥ 0.7
 - **REQ-MEM-023**: If confidence <0.7, Classifier MUST flag for human review
 - **REQ-MEM-024**: Semantic memory nodes MUST link to (:Concept) via [:DEFINES]
@@ -442,6 +442,221 @@ Aproveitando `database-schema.md`:
 
 ---
 
+## MemoryItem como Node Explícito (Novo)
+
+Além das 4 classes de memória, introduzimos o conceito de **MemoryItem** como uma **especialização de Knowledge** com ciclo de vida explícito.
+
+### Relação com :Knowledge
+
+> **Consolidação Ontológica** (ver spec 015): `:MemoryItem` é uma especialização de `:Knowledge`. Na prática, use `:Knowledge` como label canônico para compatibilidade. Adicione `:MemoryItem` como segundo label quando precisar do ciclo de vida explícito.
+
+```cypher
+// Node com ambos labels para máxima compatibilidade
+CREATE (m:Knowledge:MemoryItem {
+  id: $id,
+  content: $content,
+  memory_class: "semantic",
+  status: "proposed",
+  ...
+})
+```
+
+### Conceito
+
+O **MemoryItem** representa uma unidade de conhecimento com estado de validação explícito, permitindo:
+
+- **Rastreamento de proveniência**: De onde veio esta memória?
+- **Ciclo de validação**: Foi proposto, validado ou contestado?
+- **Versionamento**: Qual versão supercede a anterior?
+- **Relevância temporal**: Quanto tempo permanece ativo?
+
+### Estrutura do MemoryItem
+
+```cypher
+(:MemoryItem {
+  id: string,
+  content: string,
+  memory_class: string,      // "semantic" | "episodic" | "procedural" | "evaluative"
+  status: string,            // "proposed" | "validated" | "disputed" | "deprecated"
+  
+  // Relevância e prioridade
+  salience: float,           // 0.0-1.0 - quão importante/urgente
+  ttl: integer,              // Time-to-live em dias (null = não expira)
+  scope: string,             // "session" | "user" | "project" | "org"
+  
+  // Proveniência
+  source_type: string,       // "chat" | "document" | "agent" | "human"
+  source_ref: string,
+  
+  // Temporais
+  valid_from: datetime,
+  valid_to: datetime,
+  recorded_at: datetime,
+  updated_at: datetime,
+  
+  // Métricas
+  confidence: float,
+  access_count: integer,
+  last_accessed_at: datetime
+})
+```
+
+### Status do MemoryItem
+
+| Status | Descrição | Comportamento |
+|--------|-----------|---------------|
+| `proposed` | Recém-criado, aguarda validação | Incluído em retrieval com flag |
+| `validated` | Confirmado por uso ou curador | Priorizado em retrieval |
+| `disputed` | Contestado mas não resolvido | Incluído com aviso de disputa |
+| `deprecated` | Substituído ou invalidado | Excluído de retrieval normal |
+
+### Versionamento com SUPERSEDES
+
+```cypher
+// Quando uma memória é atualizada, criamos nova versão
+(:MemoryItem {id: "new_v2", status: "validated"})
+  -[:SUPERSEDES {reason: "correction", superseded_at: datetime()}]->
+(:MemoryItem {id: "old_v1", status: "deprecated"})
+
+// Query: buscar versão atual
+MATCH (m:MemoryItem)
+WHERE NOT (m)<-[:SUPERSEDES]-()
+  AND m.status IN ["proposed", "validated"]
+RETURN m
+```
+
+---
+
+## Claims, Decisions e Outcomes (Novo)
+
+Para suportar o **Context Depth Controller** em nível D3 (contestação), introduzimos nodes explícitos para afirmações, decisões e resultados.
+
+### Modelo de Claims
+
+```cypher
+// Claim - Afirmação feita em uma conversa
+(:Claim {
+  id: string,
+  content: string,           // "O prazo é dia 15"
+  claim_type: string,        // "fact" | "opinion" | "prediction" | "commitment"
+  confidence: float,
+  source_message_id: string,
+  asserted_by: string,       // "user" | "agent"
+  asserted_at: datetime,
+  status: string             // "active" | "retracted" | "superseded"
+})
+
+// Relacionamentos de Claim
+(:Message)-[:ASSERTS]->(:Claim)
+(:Claim)-[:ABOUT]->(:Entity)  // Sobre qual entidade é a afirmação
+(:Claim)-[:CONTRADICTS]->(:Claim)  // Conflito explícito
+(:Claim)-[:SUPPORTS]->(:Claim)  // Suporte/evidência
+(:Claim)-[:RESOLVED_BY]->(:Decision|:Outcome)
+```
+
+### Modelo de Decision
+
+```cypher
+// Decision - Decisão tomada que resolve claims ou define rumo
+(:Decision {
+  id: string,
+  content: string,           // "Decidimos mudar o prazo para dia 20"
+  decision_type: string,     // "resolution" | "commitment" | "policy"
+  decided_by: string,
+  decided_at: datetime,
+  rationale: string,         // Por que esta decisão foi tomada
+  status: string             // "active" | "revoked"
+})
+
+(:Message)-[:MADE_DECISION]->(:Decision)
+(:Decision)-[:RESOLVES]->(:Claim)
+(:Decision)-[:BASED_ON]->(:MemoryItem|:Document)
+```
+
+### Modelo de Outcome
+
+```cypher
+// Outcome - Resultado observado de uma decisão ou claim
+(:Outcome {
+  id: string,
+  content: string,           // "O prazo foi cumprido"
+  outcome_type: string,      // "success" | "failure" | "partial" | "unknown"
+  observed_at: datetime,
+  observer: string
+})
+
+(:Decision)-[:LED_TO]->(:Outcome)
+(:Claim)-[:VERIFIED_BY]->(:Outcome)
+(:Outcome)-[:CREATES]->(:MemoryItem)  // Outcome vira aprendizado
+```
+
+### Fluxo de Contestação (D3)
+
+```mermaid
+flowchart TD
+    UserClaim[Usuário contesta: "Não, prazo é dia 20"]
+    DetectD3[CDC detecta D3]
+    FindClaim[Buscar claim original]
+    CheckEvidence[Verificar evidências]
+    CreateContradiction[Criar relação CONTRADICTS]
+    ResolveOrAsk[Resolver ou perguntar]
+    
+    UserClaim --> DetectD3
+    DetectD3 --> FindClaim
+    FindClaim --> CheckEvidence
+    CheckEvidence --> CreateContradiction
+    CreateContradiction --> ResolveOrAsk
+```
+
+---
+
+## Integração com Context Depth Controller (Novo)
+
+O Memory Ecosystem é a fonte primária de dados para o CDC (spec 051).
+
+### Mapeamento Classes de Memória → Níveis CDC
+
+| Nível CDC | Classes de Memória Usadas |
+|-----------|---------------------------|
+| D0 | Working Set (cache de sessão) |
+| D1 | Working Set + Episodic recente |
+| D2 | + Semantic + Procedural |
+| D3 | + Claims + Contradictions |
+| D4 | Reset + Semantic (nova âncora) |
+
+### API do Memory Service para CDC
+
+```typescript
+interface MemoryServiceForCDC {
+  // D0-D1: Working Set
+  getWorkingSet(sessionId: string, limit: number): MemoryItem[];
+  
+  // D1: Episodic
+  getRecentEpisodic(userId: string, days: number): MemoryItem[];
+  getConversationSummaries(conversationId: string): ConversationSummary[];
+  
+  // D2: Semantic + Procedural
+  getSemanticMemory(concepts: string[]): MemoryItem[];
+  getProceduralMemory(processName: string): MemoryItem[];
+  
+  // D3: Claims
+  getSessionClaims(sessionId: string): Claim[];
+  getContradictions(claimId: string): Contradiction[];
+  
+  // D4: Fresh anchor
+  getSemanticAnchor(topic: string): MemoryItem[];
+}
+```
+
+### Requisitos de Integração
+
+- **REQ-MEM-035**: Memory Service DEVE expor API para CDC obter memória por classe
+- **REQ-MEM-036**: Memory Service DEVE suportar query de Claims por sessão
+- **REQ-MEM-037**: Memory Service DEVE retornar MemoryItems com status para CDC filtrar
+- **REQ-MEM-038**: Memory Service DEVE atualizar `last_accessed_at` em cada acesso via CDC
+
+---
+
 ## Related Specs
 
 - **001-knowledge-pipeline** – entrada de conhecimento.  
@@ -453,6 +668,8 @@ Aproveitando `database-schema.md`:
 - **018-observability-dashboard** – exibe métricas de memória (distribuição por `memory_level`, jobs de decay) para admins/curadores.
 - **019-multi-agent-orchestration** – FeedbackAgent processa insights de padrões de uso para propor melhorias de persona.
 - **022-onboarding-ai-profile** – Persona do usuário e AI Profile são alvos de melhoria contínua via padrões detectados pelo Memory Decay Agent.
+- **050-meta-graph-schema** – Query Profiles que usam classes de memória.
+- **051-context-depth-controller** – CDC que consome memória por classe e nível.
 
 ---
 

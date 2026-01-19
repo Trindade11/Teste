@@ -186,11 +186,223 @@ ORDER BY total DESC;
 
 ---
 
+## Entropia Operacional (Novo)
+
+A **Entropia Operacional** mede o nível de "desordem informacional" no grafo, ajudando a priorizar curadoria, detectar drift e disparar insights proativos.
+
+### Conceito
+
+> *"Entropia é uma medida do estado das coisas. Alta entropia = muita desordem/incerteza. No EKS, queremos monitorar a entropia do conhecimento corporativo."*
+
+### Componentes da Entropia
+
+| Componente | Métrica | Descrição |
+|------------|---------|-----------|
+| **Staleness** | `staleness_score` | Quão desatualizado está o conhecimento |
+| **Contradição** | `conflict_score` | Existência de claims conflitantes |
+| **Lacuna de Evidência** | `evidence_score` | Conhecimento sem fonte/proveniência |
+| **Dispersão** | `dispersion_score` | Conhecimento órfão (sem links) |
+
+### Cálculo de Entropia por Entidade
+
+```cypher
+// Calcular entropia de um node de conhecimento
+MATCH (k:Knowledge)
+WITH k,
+  // Staleness: dias desde última atualização (normalizado)
+  CASE 
+    WHEN k.updated_at IS NULL THEN 1.0
+    ELSE min(1.0, duration.inDays(k.updated_at, datetime()) / 365.0)
+  END AS staleness,
+  
+  // Conflict: tem claims contraditórios?
+  EXISTS {
+    MATCH (k)-[:ASSERTS]->(:Claim)-[:CONTRADICTS]->(:Claim)
+  } AS has_conflict,
+  
+  // Evidence: tem proveniência?
+  EXISTS {
+    MATCH (k)-[:DERIVED_FROM]->(:Document|:Chunk)
+  } AS has_evidence,
+  
+  // Dispersion: está conectado ao grafo?
+  size((k)-[]-()) AS connection_count
+
+RETURN k.id,
+  staleness AS staleness_score,
+  CASE WHEN has_conflict THEN 0.8 ELSE 0.0 END AS conflict_score,
+  CASE WHEN has_evidence THEN 0.0 ELSE 0.5 END AS evidence_gap_score,
+  CASE WHEN connection_count < 2 THEN 0.3 ELSE 0.0 END AS dispersion_score,
+  // Entropia total (média ponderada)
+  (staleness * 0.3 + 
+   CASE WHEN has_conflict THEN 0.8 ELSE 0 END * 0.3 +
+   CASE WHEN NOT has_evidence THEN 0.5 ELSE 0 END * 0.2 +
+   CASE WHEN connection_count < 2 THEN 0.3 ELSE 0 END * 0.2
+  ) AS total_entropy
+```
+
+### Dashboard de Entropia
+
+```mermaid
+flowchart TD
+    subgraph EntropyDash["🌡️ Entropia Operacional"]
+        GlobalEntropy["Score Global: 0.32"]
+        ByArea["Por Área/Departamento"]
+        ByType["Por Tipo de Conhecimento"]
+        Hotspots["🔥 Hotspots de Entropia"]
+    end
+    
+    Hotspots --> Action1["Curadoria Prioritária"]
+    Hotspots --> Action2["Alertas Proativos"]
+    Hotspots --> Action3["Trigger de Insights"]
+```
+
+### Requisitos de Entropia
+
+- **REQ-OBS-013**: Dashboard DEVE exibir score de entropia global do grafo
+- **REQ-OBS-014**: Dashboard DEVE permitir drill-down de entropia por área/departamento
+- **REQ-OBS-015**: Sistema DEVE identificar "hotspots" de alta entropia para curadoria prioritária
+- **REQ-OBS-016**: Quando entropia de uma área ultrapassa threshold, sistema DEVE disparar alerta
+- **REQ-OBS-017**: Score de entropia DEVE ser recalculado diariamente pelo Memory Decay Agent
+
+---
+
+## 3 Classes de Agentes de Monitoramento (Novo)
+
+O EKS utiliza três classes de agentes de monitoramento para gerar insights proativos:
+
+### 1. Agentes de Observabilidade (Sinais)
+
+Detectam **sinais operacionais** no fluxo de trabalho:
+
+- Taxa de ingestão, erros, latência
+- Uso de agentes e roteamento
+- Acesso a conhecimento
+- Métricas de memória
+
+```cypher
+// Exemplo: Detectar queda de uso de conhecimento
+MATCH (k:Knowledge)
+WHERE k.access_count > 10
+  AND k.last_accessed_at < datetime() - duration({days: 30})
+RETURN k.id, k.content, k.access_count
+```
+
+### 2. Agentes de Coerência (Norma vs Execução)
+
+Detectam **desvios entre o declarado e o executado**:
+
+- Processos definidos vs processos executados
+- Valores declarados vs comportamento observado
+- OKRs definidos vs progresso real
+- Políticas vs práticas
+
+```cypher
+// Exemplo: Verificar se processos declarados estão sendo seguidos
+MATCH (p:Process)-[:HAS_STEP]->(s:Step)
+WHERE NOT EXISTS {
+  MATCH (:Task)-[:FOLLOWS]->(s)
+  WHERE (:Task).created_at > datetime() - duration({days: 30})
+}
+RETURN p.name AS process, collect(s.name) AS unused_steps
+```
+
+### 3. Agentes de Insight (Hipótese + Evidência)
+
+Geram **hipóteses e buscam evidências** para insights estratégicos:
+
+- Correlações entre eventos
+- Padrões emergentes
+- Riscos identificados
+- Oportunidades detectadas
+
+```cypher
+// Exemplo: Detectar padrão de demanda
+MATCH (c:Customer)-[:REQUESTED]->(d:Demand)
+WHERE d.created_at > datetime() - duration({days: 90})
+WITH c.segment AS segment, count(d) AS demand_count
+WHERE demand_count > 10
+RETURN segment, demand_count,
+  "Aumento de demanda no segmento " + segment AS insight
+```
+
+### Estrutura de Insight Proativo
+
+```cypher
+(:ProactiveInsight {
+  id: string,
+  title: string,
+  description: string,
+  insight_type: string,     // "observation" | "coherence" | "strategic"
+  confidence: float,
+  evidence_refs: [string],  // IDs dos nodes que suportam
+  generated_by: string,     // Agent ID
+  generated_at: datetime,
+  status: string,           // "new" | "reviewed" | "actioned" | "dismissed"
+  priority: string          // "low" | "medium" | "high" | "critical"
+})
+
+(:ProactiveInsight)-[:BASED_ON]->(:Knowledge|:Document|:Metric)
+(:ProactiveInsight)-[:NOTIFIES]->(:User)
+```
+
+### Requisitos dos Agentes de Monitoramento
+
+- **REQ-OBS-018**: Sistema DEVE ter agentes de observabilidade monitorando sinais operacionais
+- **REQ-OBS-019**: Sistema DEVE ter agentes de coerência verificando norma vs execução
+- **REQ-OBS-020**: Sistema DEVE ter agentes de insight gerando hipóteses com evidência
+- **REQ-OBS-021**: Insights proativos DEVEM ser armazenados como nodes `:ProactiveInsight`
+- **REQ-OBS-022**: Insights DEVEM ser notificados aos usuários relevantes via Notification Center
+- **REQ-OBS-023**: Dashboard DEVE exibir feed de insights proativos com filtros por tipo e prioridade
+
+---
+
+## Integração com CDC e Retrieval
+
+O dashboard de observabilidade também monitora o Context Depth Controller:
+
+### Métricas do CDC
+
+| Métrica | Descrição |
+|---------|-----------|
+| `depth_distribution` | Distribuição de níveis D0-D4 usados |
+| `profile_usage` | Query Profiles mais utilizados |
+| `tokens_by_depth` | Média de tokens por nível de profundidade |
+| `cdc_latency` | Latência da classificação de profundidade |
+
+```cypher
+// Distribuição de profundidade usada
+MATCH (d:CDCDecision)
+WHERE d.created_at > datetime() - duration({days: 7})
+RETURN d.depth_level AS depth, count(*) AS usage
+ORDER BY depth
+```
+
+---
+
+---
+
+## Consolidação com Labels Canônicos
+
+O dashboard de observabilidade consulta nodes de múltiplas specs. Usar sempre labels canônicos:
+
+| Métrica | Label Usado | Spec de Referência |
+|---------|-------------|-------------------|
+| Conhecimento por nível | `:Knowledge` | 015 |
+| Claims e contradições | `:Claim`, `[:CONTRADICTS]` | 017 |
+| Decisões do CDC | `:CDCDecision` | 051 |
+| Insights proativos | `:ProactiveInsight` | 018 (este) |
+| Departamentos | `:Department` (não :Area) | 015, 050 |
+
+---
+
 ## Related Specs
 
 - 005, 011 – Roteamento & Validation Agent (fonte de métricas de agente).  
 - 012 – Curation Ecosystem.  
 - 013 – Ingestion Ecosystem.  
-- 017 – Memory Ecosystem.  
+- 015 – Neo4j Graph Model (labels canônicos).
+- 017 – Memory Ecosystem (MemoryItem, Claims).  
 - 019 – Multi-Agent Orchestration – usa métricas de roteamento/feedback para melhoria de Teams e persona.  
-- 015 – Neo4j Graph Model (ontologia dos logs).
+- **050 – Meta-Graph Schema** – Query Profiles monitorados.
+- **051 – Context Depth Controller** – Métricas de CDC.

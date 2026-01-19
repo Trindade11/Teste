@@ -585,7 +585,7 @@ export function ChatbotPanel({
                   </div>
                 ))}
 
-                {isLoading && (
+                {(isLoading || isStartingChat) && (
                   <div className="flex gap-2 justify-start">
                     <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
                       <Bot className="h-3 w-3 text-primary" />
@@ -609,7 +609,7 @@ export function ChatbotPanel({
                     variant="ghost"
                     size="icon"
                     className="h-9 w-9 flex-shrink-0"
-                    disabled={isLoading}
+                    disabled={isLoading || isStartingChat}
                   >
                     <Paperclip className="h-4 w-4 text-muted-foreground" />
                   </Button>

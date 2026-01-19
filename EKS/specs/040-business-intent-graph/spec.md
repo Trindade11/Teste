@@ -1,6 +1,6 @@
 # Feature Specification: Business Intent Graph (BIG)
 
-**Feature Branch**: `030-business-intent-graph`  
+**Feature Branch**: `040-business-intent-graph`  
 **Created**: 2025-12-29  
 **Status**: Draft  
 **Priority**: P0 (Foundation)  
@@ -365,6 +365,43 @@ All knowledge nodes inherit base properties from `database-schema.md` plus:
 
 ---
 
+## Consolidação Ontológica
+
+BIG define os conceitos estratégicos que são referenciados em outras specs:
+
+### Labels Definidos Aqui (Canônicos)
+
+| Label | Descrição | Usado em |
+|-------|-----------|----------|
+| `:Objective` | Objetivo estratégico | 022 (como StrategicObjective), 050 |
+| `:OKR` | Key Result mensurável | 050 |
+| `:Metric` | Métrica de acompanhamento | 050 |
+
+### Labels Compartilhados
+
+| Label | Definido em | Usado aqui para |
+|-------|-------------|-----------------|
+| `:Purpose` | BIG + 022 | Missão/visão organizacional |
+| `:Knowledge` | 015 | Base para todas as classes de memória |
+| `:Concept`, `:TimePoint`, `:Process`, `:Insight` | 017 | Âncoras das 4 classes de memória |
+
+### Relacionamento [:SUPPORTS]
+
+O relacionamento `[:SUPPORTS]` entre Knowledge e Objective é central para BIG:
+
+```cypher
+(:Knowledge)-[:SUPPORTS {
+  relevance_score: float,    // 0.0-1.0 (quão relevante para o objetivo)
+  assigned_by: string,       // "agent" | "human"
+  assigned_at: datetime,
+  confidence: float          // 0.0-1.0 (certeza da atribuição)
+}]->(:Objective)
+```
+
+> **Nota**: `[:SUPPORTS]` também existe entre Claims (spec 017), mas com semântica diferente (evidência para afirmação).
+
+---
+
 ## Notes
 
 - BIG is inspired by cognitive science (4 memory types) and organizational theory (objectives-driven)
@@ -372,4 +409,5 @@ All knowledge nodes inherit base properties from `database-schema.md` plus:
 - PROV-O is W3C standard for provenance: https://www.w3.org/TR/prov-o/
 - OWL-Time is W3C standard for temporal representation: https://www.w3.org/TR/owl-time/
 - Memory classes align with cognitive psychology: semantic (facts), episodic (events), procedural (how-to), evaluative (wisdom)
+- **Use canonical labels** as defined in specs 015 and 050
 
