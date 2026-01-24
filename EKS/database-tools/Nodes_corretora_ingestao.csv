@@ -1,0 +1,14 @@
+name;company;jobTitle;department;access;relationshipType;accessTypes;email;status;role;managerEmail
+Carlos Silva;Aurora Corretora;CEO;Diretoria;"Diretoria;Compliance;Financeiro";Interno;"Estrategico;Confidencial";carlos.silva@aurora.com;Ativo;admin;
+Mariana Costa;Aurora Corretora;Diretora Financeira;Financeiro;"Financeiro;Diretoria;Compliance";Interno;"Estrategico;Confidencial";mariana.costa@aurora.com;Ativo;user;carlos.silva@aurora.com
+Ricardo Nogueira;Aurora Corretora;Diretor de Operacoes;Operacoes;"Operacoes;Diretoria;Backoffice";Interno;"Estrategico;Confidencial";ricardo.nogueira@aurora.com;Ativo;user;carlos.silva@aurora.com
+Paula Mendes;Aurora Corretora;Gerente de Trading;Trading;"Trading;Risco;Operacoes";Interno;"Estrategico;Operacional";paula.mendes@aurora.com;Ativo;user;ricardo.nogueira@aurora.com
+Fernando Lima;Aurora Corretora;Gerente de Compliance;Compliance;"Compliance;Diretoria;Financeiro";Interno;"Estrategico;Confidencial";fernando.lima@aurora.com;Ativo;user;carlos.silva@aurora.com
+Ana Ribeiro;Aurora Corretora;Trader Senior;Trading;"Trading;Risco";Interno;"Operacional;Confidencial";ana.ribeiro@aurora.com;Ativo;user;paula.mendes@aurora.com
+Bruno Azevedo;Aurora Corretora;Trader Junior;Trading;Trading;Interno;Operacional;bruno.azevedo@aurora.com;Ativo;user;paula.mendes@aurora.com
+Juliana Pires;Aurora Corretora;Analista de Risco;Risco;"Risco;Trading";Interno;"Operacional;Confidencial";juliana.pires@aurora.com;Ativo;user;paula.mendes@aurora.com
+Diego Fonseca;Aurora Corretora;Analista Financeiro;Financeiro;"Financeiro;Backoffice";Interno;Operacional;diego.fonseca@aurora.com;Ativo;user;mariana.costa@aurora.com
+Renata Barros;Aurora Corretora;Coordenadora de Backoffice;Backoffice;"Backoffice;Operacoes";Interno;Operacional;renata.barros@aurora.com;Ativo;user;ricardo.nogueira@aurora.com
+Lucas Teixeira;Aurora Corretora;Analista de Backoffice;Backoffice;Backoffice;Interno;Operacional;lucas.teixeira@aurora.com;Ativo;user;renata.barros@aurora.com
+Patricia Rocha;Aurora Corretora;Analista de Compliance;Compliance;Compliance;Interno;Confidencial;patricia.rocha@aurora.com;Ativo;user;fernando.lima@aurora.com
+Eduardo Matos;Aurora Corretora;Administrador de Sistemas;TI;"TI;Diretoria;Operacoes";Interno;"Estrategico;Confidencial";eduardo.matos@aurora.com;Ativo;admin;carlos.silva@aurora.com

@@ -4,7 +4,7 @@
 - **Título de trabalho**: O que é EKS e por que você vai ouvir muito sobre isso em 2026
 - **Pilar**: [x] Conceitual [ ] Técnico [ ] Organizacional [ ] Tendência [ ] Case
 - **Data planejada**: 22/01/2026
-- **Status**: [x] Rascunho [ ] Revisão [ ] Pronto [ ] Publicado
+- **Status**: [x] Rascunho [ ] Revisão [x] Pronto [x] Publicado
 
 ---
 
@@ -67,7 +67,7 @@ Não é RAG.
 Não é chatbot corporativo.
 Não é repositório de documentos.
 
-É uma 𝗶𝗻𝗳𝗿𝗮𝗲𝘀𝘁𝗿𝘂𝘁𝘂𝗿𝗮 𝗰𝗼𝗴𝗻𝗶𝘁𝗶𝘃𝗮 𝗱𝗮 𝗲𝗺𝗽𝗿𝗲𝘀𝗮.
+É uma 𝗼𝗻𝘁𝗼𝗹𝗼𝗴𝗶𝗮 𝗰𝗼𝗿𝗽𝗼𝗿𝗮𝘁𝗶𝘃𝗮 𝗲𝗺 𝗮çã𝗼.
 
 ### Lista/Estrutura
 
@@ -191,7 +191,7 @@ Não é RAG.
 Não é chatbot corporativo.
 Não é repositório de documentos.
 
-É uma 𝗶𝗻𝗳𝗿𝗮𝗲𝘀𝘁𝗿𝘂𝘁𝘂𝗿𝗮 𝗰𝗼𝗴𝗻𝗶𝘁𝗶𝘃𝗮 𝗱𝗮 𝗲𝗺𝗽𝗿𝗲𝘀𝗮.
+É uma 𝗼𝗻𝘁𝗼𝗹𝗼𝗴𝗶𝗮 𝗰𝗼𝗿𝗽𝗼𝗿𝗮𝘁𝗶𝘃𝗮 𝗲𝗺 𝗮çã𝗼.
 
 O que um EKS de verdade tem:
 

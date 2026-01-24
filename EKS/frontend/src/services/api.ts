@@ -14,6 +14,9 @@ export interface ChatRequest {
 export interface ChatResponse {
   response: string;
   session_id?: string;
+  gmail_prompt?: string;
+  requires_gmail_auth?: boolean;
+  prompt_type?: 'welcome' | 'session' | 'continuation';
 }
 
 export interface ChatWelcomeRequest {
@@ -159,6 +162,197 @@ export async function createEntity(
     return await response.json();
   } catch (error) {
     console.error('Erro ao criar entidade:', error);
+    throw error;
+  }
+}
+
+/**
+ * Welcome Status Types
+ */
+export interface WelcomeStatus {
+  hasCompletedOnboarding: boolean;
+  hasReceivedWelcome: boolean;
+  gmailConnected: boolean;
+  gmailSkipped: boolean;
+  inauguralConversationId: string | null;
+  requiresWelcome: boolean;
+  requiresGmailAuth: boolean;
+}
+
+/**
+ * Obtém o status de welcome do usuário
+ */
+export async function getWelcomeStatus(token: string): Promise<WelcomeStatus> {
+  try {
+    const response = await fetch(`${API_URL}/api/onboarding/welcome-status`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const error: ApiError = await response.json();
+      throw new Error(error.detail || 'Erro ao obter status de welcome');
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error('Erro ao obter status de welcome:', error);
+    throw error;
+  }
+}
+
+/**
+ * Marca que o usuário recebeu a welcome message
+ */
+export async function markWelcomeReceived(token: string): Promise<void> {
+  try {
+    const response = await fetch(`${API_URL}/api/onboarding/welcome-received`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const error: ApiError = await response.json();
+      throw new Error(error.detail || 'Erro ao marcar welcome como recebido');
+    }
+  } catch (error) {
+    console.error('Erro ao marcar welcome:', error);
+    throw error;
+  }
+}
+
+/**
+ * Pula a conexão com Gmail
+ */
+export async function skipGmailAuth(token: string): Promise<void> {
+  try {
+    const response = await fetch(`${API_URL}/api/onboarding/gmail-skip`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const error: ApiError = await response.json();
+      throw new Error(error.detail || 'Erro ao pular Gmail');
+    }
+  } catch (error) {
+    console.error('Erro ao pular Gmail:', error);
+    throw error;
+  }
+}
+
+/**
+ * Inicia o fluxo de OAuth do Gmail
+ */
+export async function initiateGmailAuth(token: string): Promise<{ authUrl: string }> {
+  try {
+    const response = await fetch(`${API_URL}/api/auth/gmail/initiate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const error: ApiError = await response.json();
+      throw new Error(error.detail || 'Erro ao iniciar OAuth Gmail');
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error('Erro ao iniciar Gmail OAuth:', error);
+    throw error;
+  }
+}
+
+/**
+ * Obtém o perfil da empresa
+ */
+export async function getCompanyProfile(): Promise<{ success: boolean; data: any }> {
+  try {
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/company/profile`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const error: ApiError = await response.json();
+      throw new Error(error.detail || 'Erro ao obter perfil da empresa');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Erro ao obter perfil da empresa:', error);
+    throw error;
+  }
+}
+
+/**
+ * Salva o perfil da empresa
+ */
+export async function saveCompanyProfile(profile: any): Promise<{ success: boolean; data: any }> {
+  try {
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/company/profile`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(profile),
+    });
+
+    if (!response.ok) {
+      const error: ApiError = await response.json();
+      throw new Error(error.detail || 'Erro ao salvar perfil da empresa');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Erro ao salvar perfil da empresa:', error);
+    throw error;
+  }
+}
+
+/**
+ * Altera a senha do usuário
+ */
+export async function changePassword(data: { currentPassword: string; newPassword: string }): Promise<{ success: boolean; message: string }> {
+  try {
+    const token = localStorage.getItem('accessToken');
+    const response = await fetch(`${API_URL}/auth/change-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || error.error || 'Erro ao alterar senha');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Erro ao alterar senha:', error);
     throw error;
   }
 }

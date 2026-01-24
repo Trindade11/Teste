@@ -12,6 +12,8 @@ export interface ThemeConfig {
   colors: ThemeColors
   logo: string | null // base64 or URL
   iconColor: string
+  institutionName?: string
+  institutionShortName?: string
 }
 
 interface ThemeState {
@@ -19,6 +21,8 @@ interface ThemeState {
   setColors: (colors: Partial<ThemeColors>) => void
   setLogo: (logo: string | null) => void
   setIconColor: (color: string) => void
+  setInstitutionName: (name: string) => void
+  setInstitutionShortName: (name: string) => void
   resetTheme: () => void
 }
 
@@ -54,6 +58,16 @@ export const useThemeStore = create<ThemeState>()(
       setIconColor: (color) =>
         set((state) => ({
           config: { ...state.config, iconColor: color },
+        })),
+      
+      setInstitutionName: (name) =>
+        set((state) => ({
+          config: { ...state.config, institutionName: name },
+        })),
+      
+      setInstitutionShortName: (name) =>
+        set((state) => ({
+          config: { ...state.config, institutionShortName: name },
         })),
       
       resetTheme: () => set({ config: defaultTheme }),

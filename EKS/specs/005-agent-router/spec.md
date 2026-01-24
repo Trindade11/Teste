@@ -591,6 +591,37 @@ Usuário está em conversa com Task Agent. Envia mensagem ambígua "E depois?". 
 - **REQ-PLA-030**: PLA MUST integrate with Hierarchical Agents (spec 035): activate multi-level conversations when needed
 - **REQ-PLA-031**: PLA MUST integrate with Trust Score (spec 033): prefer agents with higher trust scores for critical tasks
 
+### Prompt Differentiation (Welcome vs Session vs Continuation)
+
+- **REQ-PLA-032**: PLA DEVE detectar se é primeira interação do usuário via query:
+  ```cypher
+  MATCH (u:User {id: $userId}) 
+  WHERE u.has_completed_onboarding = true AND u.has_received_welcome = false
+  RETURN true AS is_first_interaction
+  ```
+- **REQ-PLA-033**: Se primeira interação (pós-onboarding), PLA DEVE:
+  1. Carregar Welcome Prompt Template apropriado ao `AIProfile.level`.
+  2. Injetar dados do AIProfile e PersonaVersion.
+  3. Enviar Welcome Message ANTES do usuário digitar.
+  4. Marcar `:User` com `has_received_welcome: true`.
+- **REQ-PLA-034**: Welcome Message DEVE ser enviada UMA ÚNICA VEZ por usuário (idempotente).
+- **REQ-PLA-035**: Para novas conversas (não primeira vez), PLA DEVE usar Session Start Prompt:
+  - Contextual, baseado em objetivos atuais do BIG.
+  - Última atividade, insights recentes do grafo.
+  - NÃO repetir boas-vindas explicativas.
+- **REQ-PLA-036**: Para mensagens em conversa existente, PLA DEVE usar Continuation Prompt:
+  - Baseado no histórico da conversa.
+  - Contexto do grafo relevante à query.
+  - Memória episódica recente.
+
+### Prompt Types Summary
+
+| Tipo | Trigger | Frequência |
+|------|---------|------------|
+| **Welcome Prompt** | `has_received_welcome = false` | 1x por usuário |
+| **Session Start Prompt** | Nova `:Conversation` criada | Toda nova conversa |
+| **Continuation Prompt** | Mensagem em conversa existente | Toda mensagem |
+
 ---
 
 ## Technical Constraints

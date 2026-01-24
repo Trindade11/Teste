@@ -9,25 +9,28 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useThemeStore } from "@/store/themeStore"
 import { useAuthStore } from "@/store/authStore"
-import { ArrowLeft, Save, Upload, RotateCcw, Palette, Image as ImageIcon, Database, User, Bot } from "lucide-react"
+import { ArrowLeft, Save, Upload, RotateCcw, Palette, Image as ImageIcon, Database, User, Bot, Building2 } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { DataIngestion } from "@/components/admin/DataIngestion"
 import { ProfileDataEditor } from "@/components/settings/ProfileDataEditor"
 import { MyAgents } from "@/components/settings/MyAgents"
+import { CompanyDescription } from "@/components/settings/CompanyDescription"
 
 export default function SettingsPage() {
   const { user } = useAuthStore()
-  const { config, setColors, setLogo, setIconColor, resetTheme } = useThemeStore()
+  const { config, setColors, setLogo, setIconColor, setInstitutionName, setInstitutionShortName, resetTheme } = useThemeStore()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const logoInputRef = useRef<HTMLInputElement>(null)
 
-  const [activeSection, setActiveSection] = useState<'theme' | 'ingest' | 'profile' | 'agents'>('theme')
+  const [activeSection, setActiveSection] = useState<'theme' | 'ingest' | 'profile' | 'agents' | 'company'>('theme')
 
   const [tempColors, setTempColors] = useState(config.colors)
   const [tempIconColor, setTempIconColor] = useState(config.iconColor)
   const [tempLogo, setTempLogo] = useState<string | null>(config.logo)
+  const [tempInstitutionName, setTempInstitutionName] = useState(config.institutionName || '')
+  const [tempInstitutionShortName, setTempInstitutionShortName] = useState(config.institutionShortName || '')
   const [isSaving, setIsSaving] = useState(false)
 
   const toHexForColorInput = (value: string) => {
@@ -56,6 +59,8 @@ export default function SettingsPage() {
       setColors(tempColors)
       setIconColor(tempIconColor)
       setLogo(tempLogo)
+      setInstitutionName(tempInstitutionName)
+      setInstitutionShortName(tempInstitutionShortName)
     } finally {
       setIsSaving(false)
     }
@@ -66,6 +71,8 @@ export default function SettingsPage() {
     setTempColors(config.colors)
     setTempIconColor(config.iconColor)
     setTempLogo(config.logo)
+    setTempInstitutionName(config.institutionName || '')
+    setTempInstitutionShortName(config.institutionShortName || '')
   }
 
   // Check if user is admin
@@ -155,6 +162,40 @@ export default function SettingsPage() {
                     </button>
                     <button
                       type="button"
+                      onClick={() => setActiveSection('ingest')}
+                      className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                        activeSection === 'ingest'
+                          ? 'bg-muted border-border text-foreground'
+                          : 'bg-background border-transparent text-muted-foreground hover:bg-muted/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Database className="h-4 w-4" />
+                        <span className="text-sm font-medium">Ingestão de Dados</span>
+                      </div>
+                      <div className="text-xs mt-1">
+                        Importar organograma via CSV
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSection('company')}
+                      className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                        activeSection === 'company'
+                          ? 'bg-muted border-border text-foreground'
+                          : 'bg-background border-transparent text-muted-foreground hover:bg-muted/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-4 w-4" />
+                        <span className="text-sm font-medium">Descrição da Empresa</span>
+                      </div>
+                      <div className="text-xs mt-1">
+                        Informações básicas da organização
+                      </div>
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => setActiveSection('profile')}
                       className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
                         activeSection === 'profile'
@@ -185,23 +226,6 @@ export default function SettingsPage() {
                       </div>
                       <div className="text-xs mt-1">
                         Gerenciar agentes de IA personalizados
-                      </div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setActiveSection('ingest')}
-                      className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
-                        activeSection === 'ingest'
-                          ? 'bg-muted border-border text-foreground'
-                          : 'bg-background border-transparent text-muted-foreground hover:bg-muted/50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Database className="h-4 w-4" />
-                        <span className="text-sm font-medium">Ingestão de Dados</span>
-                      </div>
-                      <div className="text-xs mt-1">
-                        Importar organograma via CSV
                       </div>
                     </button>
                   </div>
@@ -272,6 +296,44 @@ export default function SettingsPage() {
                             <p className="text-sm text-muted-foreground">
                               Recomendado: PNG ou SVG, tamanho máximo 2MB
                             </p>
+                          </div>
+                        </Card>
+
+                        {/* Institution Naming */}
+                        <Card className="p-6">
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                              <User className="h-5 w-5 text-primary" />
+                              <h3 className="text-xl font-semibold">Nome da Instituição</h3>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              {/* Institution Name */}
+                              <div className="space-y-2">
+                                <Label htmlFor="institutionName">Nome Completo</Label>
+                                <Input
+                                  id="institutionName"
+                                  value={tempInstitutionName}
+                                  onChange={(e) => setTempInstitutionName(e.target.value)}
+                                  placeholder="Alocc Gestão Patrimonial"
+                                  className="flex-1"
+                                />
+                                <p className="text-xs text-muted-foreground">Nome completo da instituição</p>
+                              </div>
+
+                              {/* Institution Short Name */}
+                              <div className="space-y-2">
+                                <Label htmlFor="institutionShortName">Nome Abreviado</Label>
+                                <Input
+                                  id="institutionShortName"
+                                  value={tempInstitutionShortName}
+                                  onChange={(e) => setTempInstitutionShortName(e.target.value)}
+                                  placeholder="Alocc"
+                                  className="flex-1"
+                                />
+                                <p className="text-xs text-muted-foreground">Nome curto para exibição em espaços reduzidos</p>
+                              </div>
+                            </div>
                           </div>
                         </Card>
 
@@ -399,6 +461,9 @@ export default function SettingsPage() {
                           </div>
                         </Card>
                       </>
+                    )}
+                    {activeSection === 'company' && (
+                      <CompanyDescription />
                     )}
                     {activeSection === 'profile' && (
                       <ProfileDataEditor />

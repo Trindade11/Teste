@@ -36,6 +36,19 @@ class UserContext:
     competencies: Optional[List[str]] = None
     primary_objective: Optional[str] = None
     top_challenges: Optional[str] = None
+    # New fields for prompt differentiation
+    has_completed_onboarding: bool = False
+    has_received_welcome: bool = False
+    gmail_connected: bool = False
+    gmail_skipped: bool = False
+    ai_profile_level: Optional[str] = None  # 'iniciante' | 'intermediário' | 'técnico'
+
+
+class PromptType:
+    """Enum-like class for prompt types"""
+    WELCOME = "welcome"           # First time after onboarding (1x per user)
+    SESSION_START = "session"     # New conversation start
+    CONTINUATION = "continuation" # Message in existing conversation
 
 
 async def load_user_context(user_id: str) -> Optional[UserContext]:
@@ -44,6 +57,7 @@ async def load_user_context(user_id: str) -> Optional[UserContext]:
     MATCH (u:User {id: $userId})
     OPTIONAL MATCH (u)-[:HAS_ONBOARDING_RESPONSE]->(o:OnboardingResponse)
     OPTIONAL MATCH (u)-[:MEMBER_OF]->(d:Department)
+    OPTIONAL MATCH (u)-[:HAS_AI_PROFILE]->(ap:AIProfile)
     RETURN
         u.id AS userId,
         u.name AS name,
@@ -55,7 +69,12 @@ async def load_user_context(user_id: str) -> Optional[UserContext]:
         o.profileDescription AS profileDescription,
         o.competencies AS competencies,
         o.primaryObjective AS primaryObjective,
-        o.topChallenges AS topChallenges
+        o.topChallenges AS topChallenges,
+        u.hasCompletedOnboarding AS hasCompletedOnboarding,
+        u.hasReceivedWelcome AS hasReceivedWelcome,
+        u.gmailConnected AS gmailConnected,
+        u.gmailSkipped AS gmailSkipped,
+        ap.level AS aiProfileLevel
     """
     
     try:
@@ -79,10 +98,38 @@ async def load_user_context(user_id: str) -> Optional[UserContext]:
             competencies=record.get("competencies"),
             primary_objective=record.get("primaryObjective"),
             top_challenges=record.get("topChallenges"),
+            has_completed_onboarding=record.get("hasCompletedOnboarding", False),
+            has_received_welcome=record.get("hasReceivedWelcome", False),
+            gmail_connected=record.get("gmailConnected", False),
+            gmail_skipped=record.get("gmailSkipped", False),
+            ai_profile_level=record.get("aiProfileLevel"),
         )
     except Exception as e:
         logger.error(f"Error loading user context: {e}")
         return None
+
+
+def determine_prompt_type(user_context: UserContext, is_new_conversation: bool = False) -> str:
+    """
+    Determine which prompt type to use based on user state
+    
+    Args:
+        user_context: User context from Neo4j
+        is_new_conversation: Whether this is the start of a new conversation
+        
+    Returns:
+        PromptType constant
+    """
+    # Welcome prompt: first time after onboarding, never received welcome
+    if user_context.has_completed_onboarding and not user_context.has_received_welcome:
+        return PromptType.WELCOME
+    
+    # Session start prompt: new conversation but already received welcome
+    if is_new_conversation:
+        return PromptType.SESSION_START
+    
+    # Continuation prompt: ongoing conversation
+    return PromptType.CONTINUATION
 
 
 class PersonalAgent:
@@ -198,24 +245,120 @@ class PersonalAgent:
             logger.error(f"Error in chat: {e}")
             return f"Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente."
     
-    async def get_welcome_message(self, user_context: UserContext) -> str:
+    async def get_welcome_message(self, user_context: UserContext, include_gmail_prompt: bool = True) -> dict:
         """
-        Generate a personalized welcome message for the user
+        Generate a personalized welcome message for the user (1x after onboarding)
+        
+        Args:
+            user_context: User context data from Neo4j
+            include_gmail_prompt: Whether to include Gmail connection prompt
+            
+        Returns:
+            Dict with welcome message and Gmail prompt flag
+        """
+        # Determine user level for personalization
+        level = user_context.ai_profile_level or "iniciante"
+        
+        if level == "técnico":
+            welcome_prompt = (
+                "O usuário é técnico e acabou de completar o onboarding. "
+                "Dê uma mensagem de boas-vindas concisa e direta, mencionando: "
+                "1) Que a configuração inicial foi concluída, "
+                "2) As capacidades técnicas disponíveis (APIs, integrações, análise de dados), "
+                "3) Comandos úteis como /task create e /knowledge. "
+                "Seja breve (máximo 3 linhas de texto) e objetivo."
+            )
+        else:
+            welcome_prompt = (
+                "O usuário acabou de completar o onboarding e está acessando o sistema pela primeira vez. "
+                "Dê uma mensagem de boas-vindas acolhedora e personalizada: "
+                "1) Use o nome do usuário, "
+                "2) Mencione 2-3 coisas que você pode ajudar baseado no perfil dele, "
+                "3) Explique de forma simples como interagir. "
+                "Seja breve (2-3 parágrafos curtos) e termine perguntando qual é a prioridade dele hoje."
+            )
+        
+        welcome_text = await self.chat(user_context, welcome_prompt)
+        
+        # Add Gmail prompt if needed
+        gmail_prompt = None
+        if include_gmail_prompt and not user_context.gmail_connected and not user_context.gmail_skipped:
+            gmail_prompt = (
+                "\n\n📬 **Uma coisa rápida**: para te conhecer ainda melhor, "
+                "posso analisar padrões do seu Gmail (reuniões, projetos, contatos frequentes).\n\n"
+                "Isso me ajuda a entender suas prioridades e sugerir ações mais relevantes."
+            )
+        
+        return {
+            "message": welcome_text,
+            "gmail_prompt": gmail_prompt,
+            "requires_gmail_auth": include_gmail_prompt and not user_context.gmail_connected and not user_context.gmail_skipped,
+            "prompt_type": PromptType.WELCOME,
+        }
+    
+    async def get_session_start_message(self, user_context: UserContext) -> dict:
+        """
+        Generate a session start message for new conversations (not first time)
         
         Args:
             user_context: User context data from Neo4j
             
         Returns:
-            Personalized welcome message
+            Dict with session start message
         """
-        welcome_prompt = (
-            "O usuário acabou de completar o onboarding e está acessando o sistema pela primeira vez. "
-            "Dê uma mensagem de boas-vindas personalizada, mencionando que você conhece o perfil dele "
-            "e está pronto para ajudar. Seja breve (2-3 parágrafos) e termine com uma pergunta "
-            "sobre como pode ajudá-lo hoje."
+        session_prompt = (
+            "O usuário está iniciando uma nova conversa (não é a primeira vez). "
+            "Dê uma saudação breve e contextual, sem repetir boas-vindas extensas. "
+            "Pergunte em que pode ajudar hoje. Máximo 2 linhas."
         )
         
-        return await self.chat(user_context, welcome_prompt)
+        message = await self.chat(user_context, session_prompt)
+        
+        return {
+            "message": message,
+            "gmail_prompt": None,
+            "requires_gmail_auth": False,
+            "prompt_type": PromptType.SESSION_START,
+        }
+    
+    async def chat_with_prompt_type(
+        self,
+        user_context: UserContext,
+        message: str,
+        conversation_history: Optional[List[dict]] = None,
+        is_new_conversation: bool = False
+    ) -> dict:
+        """
+        Process a chat message with automatic prompt type detection
+        
+        Args:
+            user_context: User context data from Neo4j
+            message: The user's message (empty for auto-generated messages)
+            conversation_history: Previous messages in the conversation
+            is_new_conversation: Whether this is a new conversation
+            
+        Returns:
+            Dict with response and metadata
+        """
+        prompt_type = determine_prompt_type(user_context, is_new_conversation)
+        
+        # Welcome message (first time after onboarding)
+        if prompt_type == PromptType.WELCOME and not message:
+            return await self.get_welcome_message(user_context)
+        
+        # Session start (new conversation, not first time)
+        if prompt_type == PromptType.SESSION_START and not message:
+            return await self.get_session_start_message(user_context)
+        
+        # Normal chat (continuation or with user message)
+        response = await self.chat(user_context, message, conversation_history)
+        
+        return {
+            "message": response,
+            "gmail_prompt": None,
+            "requires_gmail_auth": False,
+            "prompt_type": prompt_type,
+        }
 
 
 # Global instance

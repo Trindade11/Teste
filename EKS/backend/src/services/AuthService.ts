@@ -16,12 +16,31 @@ export class AuthService {
     const session = neo4jConnection.getSession();
     
     try {
+      const email = credentials.email.trim().toLowerCase();
+
+      // Bootstrap admin (local, no Neo4j)
+      if (
+        env.BOOTSTRAP_ADMIN_ENABLED &&
+        email === env.BOOTSTRAP_ADMIN_EMAIL.trim().toLowerCase() &&
+        credentials.password === env.BOOTSTRAP_ADMIN_PASSWORD
+      ) {
+        const tokens = this.generateTokens({
+          userId: 'bootstrap-admin',
+          email,
+          role: 'admin',
+          organizationType: env.BOOTSTRAP_ADMIN_ORGANIZATION_TYPE,
+        });
+
+        logger.info(`Bootstrap admin logged in: ${email}`);
+        return tokens;
+      }
+
       // Find user by email
       const result = await session.run(
         `MATCH (u:User {email: $email})
          RETURN u.id as id, u.email as email, u.passwordHash as passwordHash, 
                 u.role as role, u.organizationType as organizationType`,
-        { email: credentials.email }
+        { email }
       );
 
       if (result.records.length === 0) {
@@ -29,6 +48,12 @@ export class AuthService {
       }
 
       const user = result.records[0].toObject();
+
+      // Check if user has password
+      if (!user.passwordHash) {
+        logger.error(`User ${user.email} has no password hash`);
+        throw new Error('User account not properly configured. Please contact administrator.');
+      }
 
       // Verify password
       const isValidPassword = await bcrypt.compare(
@@ -48,7 +73,7 @@ export class AuthService {
         organizationType: user.organizationType,
       });
 
-      logger.info(`User logged in: ${user.email}`);
+      logger.info(`User logged in: ${email}`);
 
       return tokens;
     } catch (error) {
@@ -162,7 +187,7 @@ export class AuthService {
    */
   verifyToken(token: string): JWTPayload {
     try {
-      const payload = jwt.verify(token, env.JWT_SECRET) as JWTPayload;
+      const payload = jwt.verify(token, env.JWT_SECRET as jwt.Secret) as JWTPayload;
       return payload;
     } catch (error) {
       logger.error('Token verification error:', error);
@@ -174,13 +199,13 @@ export class AuthService {
    * Generate access and refresh tokens
    */
   private generateTokens(payload: JWTPayload): AuthTokens {
-    const accessToken = jwt.sign(payload, env.JWT_SECRET, {
+    const accessToken = jwt.sign(payload, env.JWT_SECRET as jwt.Secret, {
       expiresIn: env.JWT_EXPIRES_IN,
-    });
+    } as jwt.SignOptions);
 
-    const refreshToken = jwt.sign(payload, env.JWT_SECRET, {
+    const refreshToken = jwt.sign(payload, env.JWT_SECRET as jwt.Secret, {
       expiresIn: env.JWT_REFRESH_EXPIRES_IN,
-    });
+    } as jwt.SignOptions);
 
     return {
       accessToken,

@@ -1,20 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { Sidebar, ViewType } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { ChatbotPanel } from "@/components/chat/ChatbotPanel";
 import { Canvas } from "@/components/canvas/Canvas";
+import { ProcessesView } from "@/components/canvas/ProcessesView";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { useOnboardingStore } from "@/store/onboarding-store";
 import { Menu } from "lucide-react";
 
 const CHAT_STATE_KEY = 'chat_expanded_state'
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [chatOpen, setChatOpen] = useState(false); // Colapsado por padrão
-  const [mobileView, setMobileView] = useState<"menu" | "canvas" | "chat">("canvas");
+  const [chatOpen, setChatOpen] = useState(false);
+  const { status: onboardingStatus, open: openOnboarding, close: closeOnboarding } = useOnboardingStore();
+  const [currentView, setCurrentView] = useState<ViewType>("processes");
+  const [mobileView, setMobileView] = useState<"menu" | "processes" | "chat">("processes");
 
   // Carregar estado do localStorage
   useEffect(() => {
@@ -23,6 +27,19 @@ export default function Home() {
       setChatOpen(savedState === 'true')
     }
   }, [])
+
+  // Gating: enquanto onboarding não estiver concluído, entra direto no onboarding
+  useEffect(() => {
+    if (onboardingStatus !== 'completed') {
+      setCurrentView('onboarding');
+      openOnboarding();
+      return;
+    }
+
+    // Ao completar onboarding, fecha wizard e libera processos
+    closeOnboarding();
+    setCurrentView('processes');
+  }, [onboardingStatus, openOnboarding, closeOnboarding]);
 
   // Salvar estado no localStorage
   const handleToggleChat = () => {
@@ -55,10 +72,14 @@ export default function Home() {
                 sidebarOpen ? "w-64" : "w-0"
               } overflow-hidden`}
             >
-              <Sidebar onClose={() => setSidebarOpen(false)} />
+              <Sidebar 
+                onClose={() => setSidebarOpen(false)} 
+                currentView={currentView}
+                onViewChange={setCurrentView}
+              />
             </div>
 
-            {/* Canvas - área central */}
+            {/* Main Content - área central */}
             <div className="flex-1 h-full overflow-hidden relative">
               {/* Toggle buttons */}
               <div className="absolute top-4 left-4 z-10 flex gap-2">
@@ -71,7 +92,12 @@ export default function Home() {
                   </button>
                 )}
               </div>
-              <Canvas />
+              {/* Render view based on currentView */}
+              {currentView === "processes" ? (
+                <ProcessesView onClose={() => setCurrentView("processes")} />
+              ) : (
+                <Canvas />
+              )}
             </div>
 
             {/* Chat coluna à direita */}
@@ -88,12 +114,12 @@ export default function Home() {
           <div className="flex md:hidden flex-col h-full w-full">
             {/* Mobile Content */}
             <div className="flex-1 overflow-hidden">
-              {mobileView === "menu" && <Sidebar onClose={() => setMobileView("canvas")} />}
-              {mobileView === "canvas" && <Canvas />}
+              {mobileView === "menu" && <Sidebar onClose={() => setMobileView("processes")} />}
+              {mobileView === "processes" && (currentView === 'onboarding' ? <Canvas /> : <ProcessesView onClose={() => setMobileView("processes")} />)}
               {mobileView === "chat" && (
                 <ChatbotPanel 
                   isExpanded={true} 
-                  onToggle={() => setMobileView("canvas")} 
+                  onToggle={() => setMobileView("processes")} 
                   isMobile={true} 
                 />
               )}

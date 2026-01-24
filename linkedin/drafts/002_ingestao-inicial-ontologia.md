@@ -3,7 +3,7 @@
 ## Metadados
 - **Título de trabalho**: Ingestão Inicial - O Esqueleto do Grafo Corporativo
 - **Pilar**: [x] Técnico [ ] Conceitual [ ] Organizacional [ ] Tendência [ ] Case
-- **Data planejada**: 24/01/2026 (antes do post de EKS)
+- **Data planejada**: 22/01/2026 (sequência do Post 001 - O que é EKS)
 - **Status**: [x] Rascunho [ ] Revisão [ ] Pronto [ ] Publicado
 - **Imagem**: Screenshot do DataIngestion mostrando estado do banco
 
@@ -49,7 +49,9 @@ Ele vai trabalhar, mas vai errar. Muito.
 Eu chamo essa primeira etapa de 𝗜𝗻𝗴𝗲𝘀𝘁ã𝗼 𝗜𝗻𝗶𝗰𝗶𝗮𝗹.
 
 É o esqueleto do grafo corporativo.
-A ontologia base que permite tudo funcionar.
+A ontologia base (estrutura organizacional + permissões) que permite tudo funcionar.
+
+É o começo de um GraphRAG corporativo com controle de acesso.
 
 ### Lista/Estrutura
 
@@ -59,9 +61,15 @@ O que entra nessa carga inicial:
 • 𝗗𝗲𝗽𝗮𝗿𝘁𝗮𝗺𝗲𝗻𝘁𝗼𝘀: estrutura organizacional
 • 𝗢𝗿𝗴𝗮𝗻𝗶𝘇𝗮çõ𝗲𝘀: empresa, unidades de negócio
 • 𝗟𝗼𝗰𝗮𝗹𝗶𝘇𝗮çõ𝗲𝘀: onde as pessoas trabalham
-• 𝗥𝗲𝗹𝗮𝗰𝗶𝗼𝗻𝗮𝗺𝗲𝗻𝘁𝗼𝘀: quem reporta para quem, quem tem acesso a quê
+• 𝗥𝗲𝗹𝗮𝗰𝗶𝗼𝗻𝗮𝗺𝗲𝗻𝘁𝗼𝘀 (o “esqueleto” do grafo):
+  - `MEMBER_OF` (Usuário → Departamento)
+  - `BELONGS_TO` (Usuário → Organização)
+  - `WORKS_AT` (Usuário → Localização)
+  - `HAS_ACCESS_TO` (Usuário → Departamento/Área que ele pode acessar)
+  - `REPORTS_TO` (Usuário → Gestor) quando existe essa informação
 
 É simples? Sim.
+
 Mas é o que permite:
 • Contexto organizacional para cada usuário
 • Permissões baseadas em estrutura
@@ -70,9 +78,11 @@ Mas é o que permite:
 
 ### Benefício/Consequência
 
-Na imagem mostro a interface de ingestão.
+Na imagem mostro a tela **Configurações → Ingestão de Dados**.
 Um CSV simples, bem estruturado.
 E o grafo já nasce com a ontologia básica da empresa.
+
+Detalhe importante: **os dados existentes são atualizados, não deletados**.
 
 Depois disso, cada colaborador completa seu perfil.
 E o grafo cresce de forma orgânica.
@@ -89,10 +99,20 @@ Mas sem esse esqueleto inicial, não tem como começar.
 - [ ] Pedido de compartilhamento
 - [x] Convite para grupo/comunidade
 
-> Sua empresa tem essa estrutura organizacional mapeada de forma que a IA consiga entender?
->
-> 🔗 Quer participar de conversas sobre EKS e IA corporativa?
-> Entre no grupo: https://chat.whatsapp.com/Fyp7W6h2PXS99z5l1MX5Kc
+> Se você fosse começar amanhã, quais 3 campos do seu “CSV organizacional” seriam obrigatórios?
+> 
+> Se fizer sentido, eu deixo o link do grupo no WhatsApp no 1º comentário.
+
+---
+
+## Comentário 1 (fixado) - copiar e colar
+
+```
+ Eu e quase 100 profissionais de ponta conversamos sobre EKS, ontologia corporativa e IA corporativa (grupo):
+https://chat.whatsapp.com/Fyp7W6h2PXS99z5l1MX5Kc
+ 
+Se você trabalha com processos, gestão do conhecimento ou arquitetura, entra lá. Eu compartilho bastidores e padrões práticos.
+```
 
 ---
 
@@ -115,11 +135,8 @@ Mas sem esse esqueleto inicial, não tem como começar.
 ### Pessoas/Empresas para mencionar
 - (nenhuma específica neste post)
 
-### Hashtags (máx 4)
-1. #EnterpriseKnowledgeSystem
-2. #GrafosDeConhecimento
-3. #IAparaNegócios
-4. #DataIngestion
+### Hashtags (regra: não usar hashtags, apenas termos no texto)
+- (sem hashtags - termos já incorporados no texto naturalmente)
 
 ---
 
@@ -132,7 +149,7 @@ Mas sem esse esqueleto inicial, não tem como começar.
 - [x] Destaque Unicode para conceitos-chave
 - [x] Parágrafos curtos (máx 3 linhas)
 - [x] CTA claro
-- [x] Hashtags relevantes (2-4)
+- [x] Hashtags relevantes (regra: não usar hashtags)
 - [ ] Imagem preparada (screenshot do DataIngestion)
 - [ ] Revisão de erros de digitação
 - [ ] Melhor horário: 8h-9h ou 17h-18h
@@ -163,15 +180,22 @@ Ele vai trabalhar, mas vai errar. Muito.
 Eu chamo essa primeira etapa de 𝗜𝗻𝗴𝗲𝘀𝘁ã𝗼 𝗜𝗻𝗶𝗰𝗶𝗮𝗹.
 
 É o esqueleto do grafo corporativo.
-A ontologia base que permite tudo funcionar.
+A ontologia base (estrutura organizacional + permissões) que permite tudo funcionar.
 
-O que entra nessa carga inicial:
+É o começo de um GraphRAG corporativo com controle de acesso.
+
+O que entra nessa carga inicial (checklist rápido):
 
 • 𝗨𝘀𝘂á𝗿𝗶𝗼𝘀: nome, email, cargo, status
 • 𝗗𝗲𝗽𝗮𝗿𝘁𝗮𝗺𝗲𝗻𝘁𝗼𝘀: estrutura organizacional
 • 𝗢𝗿𝗴𝗮𝗻𝗶𝘇𝗮çõ𝗲𝘀: empresa, unidades de negócio
 • 𝗟𝗼𝗰𝗮𝗹𝗶𝘇𝗮çõ𝗲𝘀: onde as pessoas trabalham
-• 𝗥𝗲𝗹𝗮𝗰𝗶𝗼𝗻𝗮𝗺𝗲𝗻𝘁𝗼𝘀: quem reporta para quem, quem acessa o quê
+• 𝗥𝗲𝗹𝗮𝗰𝗶𝗼𝗻𝗮𝗺𝗲𝗻𝘁𝗼𝘀 (o “esqueleto” do grafo):
+  - `MEMBER_OF` (Usuário → Departamento)
+  - `BELONGS_TO` (Usuário → Organização)
+  - `WORKS_AT` (Usuário → Localização)
+  - `HAS_ACCESS_TO` (Usuário → Departamento/Área que ele pode acessar)
+  - `REPORTS_TO` (Usuário → Gestor) quando existe essa informação
 
 É simples? Sim.
 
@@ -181,21 +205,31 @@ Mas é o que permite:
 • Routing inteligente de perguntas
 • Onboarding automático
 
-Na imagem mostro a interface de ingestão.
+Na imagem (print) eu mostro a tela **Configurações → Ingestão de Dados**.
 Um CSV simples, bem estruturado.
 E o grafo já nasce com a ontologia básica da empresa.
+
+Detalhe importante: **os dados existentes são atualizados, não deletados**.
 
 Depois disso, cada colaborador completa seu perfil.
 E o grafo cresce de forma orgânica.
 
 Mas sem esse esqueleto inicial, não tem como começar.
 
-Sua empresa tem essa estrutura organizacional mapeada de forma que a IA consiga entender?
+Se você fosse começar amanhã, quais 3 campos do seu “CSV organizacional” seriam obrigatórios?
 
-🔗 Quer participar de conversas sobre EKS e IA corporativa?
-Entre no grupo: https://chat.whatsapp.com/Fyp7W6h2PXS99z5l1MX5Kc
+Se fizer sentido, eu deixo o link do grupo no WhatsApp no 1º comentário.
+```
 
-#EnterpriseKnowledgeSystem #GrafosDeConhecimento #IAparaNegócios #DataIngestion
+---
+
+## Comentário 1 (fixado) - copiar e colar
+
+```
+🔗 Eu e quase 100 profissionais de ponta conversamos sobre EKS, ontologia corporativa e IA corporativa (grupo):
+https://chat.whatsapp.com/Fyp7W6h2PXS99z5l1MX5Kc
+ 
+Se você trabalha com processos, gestão do conhecimento ou arquitetura, entra lá. Eu compartilho bastidores e padrões práticos.
 ```
 
 ---

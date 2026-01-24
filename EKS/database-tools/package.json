@@ -1,0 +1,20 @@
+{
+  "name": "database-tools",
+  "version": "1.0.0",
+  "description": "Esta pasta contém ferramentas para gerenciamento da base Neo4j do projeto EKS.",
+  "main": "create_user.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.2.3",
+    "form-data": "^4.0.5",
+    "neo4j-driver": "^6.0.1",
+    "node-fetch": "^2.7.0"
+  }
+}

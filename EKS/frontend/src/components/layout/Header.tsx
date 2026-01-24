@@ -6,12 +6,14 @@ import { Bell, User, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { useInstitutionConfig } from "@/hooks/useInstitutionConfig";
 
 export function Header() {
   const { user, logout } = useAuthStore();
   const router = useRouter();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const { institutionName } = useInstitutionConfig();
 
   // Mock notifications
   const notifications = [
@@ -34,7 +36,7 @@ export function Header() {
         {/* Left side - could add breadcrumbs or page title here */}
         <div className="flex items-center gap-2">
           <div className="text-sm font-medium text-muted-foreground">
-            {user.company}
+            {institutionName}
           </div>
         </div>
 

@@ -9,6 +9,10 @@ export interface TenantConfig {
   shortName: string; // ex: "AIH", "TCP" (usado em logo/favicon)
   tagline: string; // ex: "Corporate Innovation Platform"
   
+  // Institution Naming
+  institutionName: string; // ex: "Alocc Gestão Patrimonial"
+  institutionShortName: string; // ex: "Alocc"
+  
   // Visual
   logo?: {
     url: string;
@@ -39,6 +43,8 @@ export const DEFAULT_TENANT_CONFIG: TenantConfig = {
   name: "Enterprise Innovation Hub",
   shortName: "EIH",
   tagline: "AI-Powered Knowledge Management",
+  institutionName: "Alocc Gestão Patrimonial",
+  institutionShortName: "Alocc",
   supportEmail: "support@innovationhub.ai",
   features: {
     showPublicRegistration: false,

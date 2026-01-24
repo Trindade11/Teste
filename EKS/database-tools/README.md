@@ -1,34 +1,53 @@
-# Database Tools - Neo4j Management
+# 📊 Ferramentas de Ingestão CSV - EKS Project
 
-Esta pasta contém ferramentas para gerenciamento da base Neo4j do projeto EKS.
+Este conjunto de ferramentas resolve problemas de encoding e caracteres especiais na ingestão de dados CSV para o Neo4j.
+
+## 🔧 Problemas Resolvidos
+
+- ✅ **Encoding Detection**: Detecta automaticamente UTF-8, Latin-1, CP1252
+- ✅ **Character Correction**: Corrige caracteres especiais corrompidos
+- ✅ **CSV Parsing**: Trata aspas e separadores corretamente
+- ✅ **Error Handling**: Continua processamento mesmo com erros individuais
+- ✅ **Relationship Creation**: Cria relacionamentos hierárquicos automaticamente
 
 ## 📁 Arquivos Disponíveis
 
-### 🔐 Autenticação e Usuários
+### 🚀 Scripts Principais (Robustos)
+- **`robust_csv_ingestion.js`** - **Script principal** para ingestão robusta com encoding fix
+- **`fix_csv_encoding.js`** - Corrige encoding de arquivos existentes
+- **`create_user_aurora.js`** - Cria usuário admin Aurora (usuario040@aurora.example)
+
+### 🔐 Scripts Legados
 - **`create_user_proper.js`** - Cria usuário admin com hash de senha válido
 - **`create_user.js`** - Versão simplificada (sem hash bcrypt)
-
-### 📤 Upload de Dados
-- **`upload_with_auth.js`** - Upload CSV com autenticação completa (recomendado)
+- **`upload_with_auth.js`** - Upload CSV com autenticação completa
 - **`upload_csv.js`** - Upload CSV direto (sem autenticação)
 
 ## 🚀 Como Usar
 
-### 1. Criar Usuário Admin (se necessário)
+### 1. Ingestão Robusta (Recomendado)
+```bash
+node robust_csv_ingestion.js [arquivo.csv]
+```
+
+### 2. Corrigir Encoding Apenas
+```bash
+node fix_csv_encoding.js
+```
+
+### 3. Criar Usuário Admin Aurora
+```bash
+node create_user_aurora.js
+```
+- **Email**: `usuario040@aurora.example`
+- **Senha**: `aurora123`
+
+### 4. Scripts Legados (se necessário)
 ```bash
 node create_user_proper.js
 ```
 - Cria/restaura usuário: `rodrigo.trindade@alocc.com.br`
 - Senha temporária: `temp123`
-- Role: `admin`
-
-### 2. Fazer Upload do CSV
-```bash
-node upload_with_auth.js
-```
-- Faz login automático
-- Upload do arquivo `Nodes_VF.csv`
-- Processa todos os usuários e relacionamentos
 
 ## 📋 Pré-requisitos
 
@@ -44,10 +63,55 @@ npm run dev
 npm install neo4j-driver bcrypt node-fetch form-data
 ```
 
-### Arquivo CSV
-O arquivo `Nodes_VF.csv` deve estar na raiz do projeto EKS com as colunas:
-- name, company, jobTitle, department, access
-- relationshipType, accessTypes, location, email, status, role, managerEmail
+## 📋 Caracteres Corrigidos
+
+| Probleático | Corrigido |
+|-------------|-----------|
+| Execuo | Execução |
+| Finanas | Finanças |
+| Portiflio | Portfólio |
+| Jurdico | Jurídico |
+| Alocao | Alocação |
+| Estratgico | Estratégico |
+| Governana | Governança |
+| Operao | Operação |
+| Frum | Fórum |
+| Direo | Direção |
+
+## 🔍 Detecção de Encoding
+
+O script tenta detectar automaticamente o encoding:
+1. **UTF-8** - Padrão moderno
+2. **Latin-1** - Comum em Windows
+3. **CP1252** - Windows ANSI
+
+Fallback para Latin-1 se nenhum funcionar.
+
+## 📊 Estrutura do CSV
+
+O script espera CSV com as seguintes colunas:
+- `name` - Nome da pessoa
+- `company` - Empresa
+- `jobTitle` - Cargo
+- `department` - Departamento
+- `access` - Nível de acesso
+- `relationshipType` - Tipo de relacionamento
+- `accessTypes` - Tipos de acesso
+- `location` - Localização
+- `email` - Email (único)
+- `status` - Status (Ativo/Inativo)
+- `role` - Função (user/admin)
+- `managerEmail` - Email do gerente
+
+## 🔄 Fluxo de Processamento
+
+1. **Detect Encoding** - Analisa o arquivo
+2. **Fix Characters** - Aplica correções
+3. **Save Fixed Version** - Cria versão corrigida
+4. **Parse CSV** - Interpreta campos corretamente
+5. **Create Nodes** - Insere nós Person
+6. **Create Relationships** - Cria REPORTS_TO
+7. **Report Results** - Estatísticas finais
 
 ## 🔧 Configuração
 

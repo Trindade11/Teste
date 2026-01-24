@@ -12,6 +12,7 @@ import {
   getSubordinates,
   orgChartNodes,
 } from './orgChartData';
+import { getTenantConfig } from './tenant-config';
 
 // Simular latência de rede
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -105,7 +106,7 @@ const mockUsers: UserProfile[] = [
     email: 'rodrigo.trindade@alocc.com.br',
     name: 'Rodrigo Trindade',
     role: 'user',
-    company: 'Alocc',
+    company: getTenantConfig().institutionShortName || 'Alocc',
     department: 'Gerência de Processos',
     jobRole: 'Gerente de Processos'
   },
@@ -122,7 +123,7 @@ const mockUsers: UserProfile[] = [
     email: 'ana.silva@alocc.com.br',
     name: 'Ana Silva',
     role: 'user',
-    company: 'Alocc',
+    company: getTenantConfig().institutionShortName || 'Alocc',
     department: 'RH',
     jobRole: 'Analista de RH'
   },
@@ -131,7 +132,7 @@ const mockUsers: UserProfile[] = [
     email: 'carlos.oliveira@alocc.com.br',
     name: 'Carlos Oliveira',
     role: 'user',
-    company: 'Alocc',
+    company: getTenantConfig().institutionShortName || 'Alocc',
     department: 'Risco',
     jobRole: 'Diretor de Risco'
   }
@@ -176,7 +177,7 @@ const mockCEO: UserProfile = {
   email: 'ceo@alocc.com.br',
   name: 'Paulo Andrade',
   role: 'user',
-  company: 'Alocc',
+  company: getTenantConfig().institutionShortName || 'Alocc',
   department: 'CEO',
   jobRole: 'CEO'
 };
@@ -186,7 +187,7 @@ const mockDiretor: UserProfile = {
   email: 'diretor.ti@alocc.com.br',
   name: 'Mariana Costa',
   role: 'user',
-  company: 'Alocc',
+  company: getTenantConfig().institutionShortName || 'Alocc',
   department: 'TI',
   jobRole: 'Diretora de TI'
 };
@@ -335,6 +336,7 @@ export const mockApi = {
     const userId = storedUserId || '327e6c71-99d8-4604-a02e-042b0a86c88c';
     
     // Dados mock baseados no usuário real (para dev)
+    const tenantConfig = getTenantConfig();
     return {
       success: true,
       data: {
@@ -343,7 +345,7 @@ export const mockApi = {
           email: 'rodrigo.trindade@alocc.com.br',
           name: 'Rodrigo Trindade',
           role: 'Administrador',
-          company: 'Alocc Gestão Patrimonial',
+          company: tenantConfig.institutionName || 'Alocc Gestão Patrimonial',
           organizationType: 'client',
           jobTitle: 'Analista de Processos',
           relationshipType: 'Colaborador',
@@ -366,7 +368,7 @@ export const mockApi = {
           updatedAt: '2026-01-06T17:04:29.591Z',
         },
         department: 'Sistemas',
-        organization: 'Alocc Gestão Patrimonial',
+        organization: tenantConfig.institutionName || 'Alocc Gestão Patrimonial',
         location: 'Alocc Serviços',
       }
     };

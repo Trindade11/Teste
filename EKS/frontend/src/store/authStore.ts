@@ -105,6 +105,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           isLoading: false,
           error: null,
         });
+
+        // Sync onboarding status after restoring session (token already present)
+        try {
+          const { useOnboardingStore } = await import('@/store/onboarding-store');
+          const { syncStatus } = useOnboardingStore.getState();
+          await syncStatus();
+        } catch (syncError) {
+          console.error('Failed to sync onboarding status after loadUser:', syncError);
+        }
       } else {
         // Token invalid or expired
         localStorage.removeItem('accessToken');

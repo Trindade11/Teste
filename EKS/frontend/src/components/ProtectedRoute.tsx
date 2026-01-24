@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
+import { PasswordChangeGuard } from '@/components/auth/PasswordChangeGuard';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -48,5 +49,10 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
     return null;
   }
 
-  return <>{children}</>;
+  // Wrap children with PasswordChangeGuard
+  return (
+    <PasswordChangeGuard user={user || undefined}>
+      {children}
+    </PasswordChangeGuard>
+  );
 }

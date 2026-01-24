@@ -944,32 +944,14 @@ export function OnboardingWizard() {
                   <div className="flex gap-2">
                     <Button
                       disabled={completeLoading}
-                      onClick={async () => {
-                        setCompleteLoading(true);
+                      onClick={() => {
                         setCompleteError(null);
-
-                        const result = await api.completeOnboarding({
-                          roleDescription: responses.roleDescription,
-                          departmentDescription: responses.departmentDescription,
-                          profileDescription: responses.profileDescription,
-                          competencies: responses.competencies,
-                          primaryObjective: responses.primaryObjective,
-                          topChallenges: responses.topChallenges,
-                          orgChartValidated: responses.orgChartValidated,
-                          defaultVisibility: responses.defaultVisibility,
-                          memoryLevel: responses.memoryLevel,
-                        });
-
-                        if (result.success) {
-                          complete();
-                        } else {
-                          setCompleteError(result.error || 'Falha ao concluir onboarding');
-                        }
-
-                        setCompleteLoading(false);
+                        markStepComplete("review");
+                        next();
                       }}
+                      className="whitespace-nowrap"
                     >
-                      Confirmar e concluir
+                      Confirmar e ir para finalização
                     </Button>
                     <Button variant="outline" onClick={close}>
                       Fechar e continuar depois
@@ -1043,7 +1025,7 @@ export function OnboardingWizard() {
                   </div>
 
                   <div className="rounded-lg border border-border bg-muted/20 p-4">
-                    <h3 className="text-sm font-semibold mb-2">Próximos passos</h3>
+                    <h3 className="text-sm font-semibold mb-2">Primeiros passos</h3>
                     <div className="space-y-2 text-sm text-muted-foreground">
                       <div className="flex items-start gap-2">
                         <span className="text-primary">1.</span>
@@ -1051,29 +1033,48 @@ export function OnboardingWizard() {
                       </div>
                       <div className="flex items-start gap-2">
                         <span className="text-primary">2.</span>
-                        <span>Crie nodes de conhecimento para alimentar o grafo</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="text-primary">3.</span>
-                        <span>Explore recursos de automação e scraping</span>
+                        <span>Comece a mapear processos e criar conhecimento corporativo</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="flex gap-2">
                     <Button 
-                      onClick={() => {
-                        close();
+                      disabled={completeLoading}
+                      onClick={async () => {
+                        setCompleteLoading(true);
+                        setCompleteError(null);
 
-                        // Iniciar chat após onboarding (evento global)
-                        // O listener na página irá abrir o painel e o ChatbotPanel iniciará a conversa.
-                        window.dispatchEvent(
-                          new CustomEvent('chat:start', {
-                            detail: {
-                              userId: user?.userId ?? null,
-                            },
-                          })
-                        );
+                        const result = await api.completeOnboarding({
+                          roleDescription: responses.roleDescription,
+                          departmentDescription: responses.departmentDescription,
+                          profileDescription: responses.profileDescription,
+                          competencies: responses.competencies,
+                          primaryObjective: responses.primaryObjective,
+                          topChallenges: responses.topChallenges,
+                          orgChartValidated: responses.orgChartValidated,
+                          defaultVisibility: responses.defaultVisibility,
+                          memoryLevel: responses.memoryLevel,
+                        });
+
+                        if (result.success) {
+                          complete();
+                          close();
+
+                          // Iniciar chat após onboarding (evento global)
+                          // O listener na página irá abrir o painel e o ChatbotPanel iniciará a conversa.
+                          window.dispatchEvent(
+                            new CustomEvent('chat:start', {
+                              detail: {
+                                userId: user?.userId ?? null,
+                              },
+                            })
+                          );
+                        } else {
+                          setCompleteError(result.error || 'Falha ao concluir onboarding');
+                        }
+
+                        setCompleteLoading(false);
                       }} 
                       className="flex-1"
                     >
@@ -1083,6 +1084,10 @@ export function OnboardingWizard() {
                       Refazer onboarding
                     </Button>
                   </div>
+
+                  {completeError && (
+                    <div className="text-sm text-red-600">{completeError}</div>
+                  )}
                 </div>
               )}
             </div>

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import multer, { FileFilterCallback } from 'multer';
 import { parse } from 'csv-parse/sync';
 import neo4j from 'neo4j-driver';
+import bcrypt from 'bcryptjs';
 import { authenticate, requireAdmin } from '../middleware/auth';
 import { neo4jConnection } from '../config/neo4j';
 import { logger } from '../utils/logger';
@@ -36,7 +37,7 @@ interface CsvRow {
   access: string;
   relationshipType: string;
   accessTypes: string;
-  location: string;
+  location?: string;
   email: string;
   status: string;
   role: 'admin' | 'user';
@@ -51,7 +52,6 @@ const REQUIRED_CSV_COLUMNS: Array<keyof CsvRow> = [
   'access',
   'relationshipType',
   'accessTypes',
-  'location',
   'email',
   'status',
   'role',
@@ -259,6 +259,10 @@ router.post('/orgchart', upload.single('file'), async (req: Request, res: Respon
         const userExists = existsResult.records.length > 0;
         const action: 'created' | 'updated' = userExists ? 'updated' : 'created';
 
+        // Create default password hash for new users
+        const defaultPassword = 'EKB123';
+        const passwordHash = await bcrypt.hash(defaultPassword, 10);
+
         // Upsert User (MERGE by email, preserve passwordHash and role if exists)
         await session.run(
           `MERGE (u:User {email: $email})
@@ -272,6 +276,8 @@ router.post('/orgchart', upload.single('file'), async (req: Request, res: Respon
              u.status = $status,
              u.relationshipType = $relationshipType,
              u.accessTypes = $accessTypes,
+             u.passwordHash = $passwordHash,
+             u.forcePasswordChange = true,
              u.createdAt = datetime(),
              u.updatedAt = datetime()
            ON MATCH SET
@@ -284,7 +290,7 @@ router.post('/orgchart', upload.single('file'), async (req: Request, res: Respon
              u.accessTypes = $accessTypes,
              u.updatedAt = datetime()
            RETURN u.id AS id`,
-          { email, name, company, jobRole, status, relationshipType, accessTypes, role: csvRole }
+          { email, name, company, jobRole, status, relationshipType, accessTypes, role: csvRole, passwordHash }
         );
 
         if (action === 'created') {

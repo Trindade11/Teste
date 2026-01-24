@@ -131,7 +131,18 @@ export const useOnboardingStore = create<OnboardingState>()(
       startedAt: null,
       completedAt: null,
 
-      open: () => set({ isOpen: true }),
+      open: () =>
+        set((state) => {
+          if (state.status === "not_started") {
+            return {
+              isOpen: true,
+              currentStepId: "welcome" as OnboardingStepId,
+              completedStepIds: [],
+            };
+          }
+
+          return { isOpen: true };
+        }),
       close: () => set({ isOpen: false }),
 
       start: (prefill) => {

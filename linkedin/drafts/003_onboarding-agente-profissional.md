@@ -3,7 +3,7 @@
 ## Metadados
 - **Título de trabalho**: Onboarding em 8 Fases - Do Perfil ao Agente Profissional
 - **Pilar**: [ ] Técnico [x] Organizacional [ ] Conceitual [ ] Tendência [ ] Case
-- **Data planejada**: 27/01/2026 (depois do post de EKS)
+- **Data planejada**: 27/01/2026 08:30 (cadência: seg/qui 08:30)
 - **Status**: [x] Rascunho [ ] Revisão [ ] Pronto [ ] Publicado
 - **Imagem**: Screenshot da tela final do OnboardingWizard ("Seu Agente Profissional foi Criado")
 
@@ -94,10 +94,18 @@ E propõe atualizações que você valida.
 > Quanto tempo leva para um novo colaborador entender como a empresa funciona?
 > E se a IA já soubesse isso desde o primeiro dia?
 >
-> 🔗 Quer participar de conversas sobre EKS e IA corporativa?
-> Entre no grupo: https://chat.whatsapp.com/Fyp7W6h2PXS99z5l1MX5Kc
+> Se fizer sentido, eu deixo o link do grupo no WhatsApp no 1º comentário.
 
 ---
+
+## Comentário 1 (fixado) - copiar e colar
+
+```
+🔗 Eu e quase 100 profissionais de ponta conversamos sobre EKS, ontologia corporativa e IA corporativa (grupo):
+https://chat.whatsapp.com/Fyp7W6h2PXS99z5l1MX5Kc
+ 
+Se você trabalha com processos, gestão do conhecimento ou arquitetura, entra lá — eu compartilho bastidores e padrões práticos.
+```
 
 ## Elementos Visuais
 
@@ -122,11 +130,8 @@ E propõe atualizações que você valida.
 ### Pessoas/Empresas para mencionar
 - (nenhuma específica neste post)
 
-### Hashtags (máx 4)
-1. #EnterpriseKnowledgeSystem
-2. #OnboardingIA
-3. #AgentesIA
-4. #IAparaNegócios
+### Hashtags (regra: não usar hashtags, apenas termos no texto)
+- (sem hashtags - termos já incorporados no texto naturalmente)
 
 ---
 
@@ -139,8 +144,8 @@ E propõe atualizações que você valida.
 - [x] Destaque Unicode para conceitos-chave
 - [x] Parágrafos curtos (máx 3 linhas)
 - [x] CTA claro
-- [x] Hashtags relevantes (2-4)
-- [ ] Imagem preparada (screenshot do OnboardingWizard)
+- [x] Hashtags relevantes (regra: não usar hashtags)
+- [x] Imagem preparada (screenshot do OnboardingWizard - tela "Seu Agente Profissional foi Criado")
 - [ ] Revisão de erros de digitação
 - [ ] Melhor horário: 8h-9h ou 17h-18h
 
@@ -198,10 +203,7 @@ E propõe atualizações que você valida.
 Quanto tempo leva para um novo colaborador entender como a empresa funciona?
 E se a IA já soubesse isso desde o primeiro dia?
 
-🔗 Quer participar de conversas sobre EKS e IA corporativa?
-Entre no grupo: https://chat.whatsapp.com/Fyp7W6h2PXS99z5l1MX5Kc
-
-#EnterpriseKnowledgeSystem #OnboardingIA #AgentesIA #IAparaNegócios
+Se fizer sentido, eu deixo o link do grupo no WhatsApp no 1º comentário.
 ```
 
 ---

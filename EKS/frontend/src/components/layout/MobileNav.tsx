@@ -1,9 +1,9 @@
 "use client";
 
-import { LayoutGrid, Menu, MessageSquare } from "lucide-react";
+import { GitBranch, Menu, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type ViewType = "menu" | "canvas" | "chat";
+type ViewType = "menu" | "processes" | "chat";
 
 interface MobileNavProps {
   currentView: ViewType;
@@ -20,17 +20,16 @@ export function MobileNav({ currentView, onViewChange }: MobileNavProps) {
         onClick={() => onViewChange("menu")}
       />
       <NavButton
-        icon={LayoutGrid}
-        label="Canvas"
-        active={currentView === "canvas"}
-        onClick={() => onViewChange("canvas")}
+        icon={GitBranch}
+        label="Processos"
+        active={currentView === "processes"}
+        onClick={() => onViewChange("processes")}
       />
       <NavButton
         icon={MessageSquare}
         label="Chat"
         active={currentView === "chat"}
         onClick={() => onViewChange("chat")}
-        badge={2} // Example: unread messages
       />
     </nav>
   );

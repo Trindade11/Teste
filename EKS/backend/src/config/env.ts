@@ -25,6 +25,17 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().default('7d'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('30d'),
 
+  // Bootstrap Admin (local, no Neo4j)
+  BOOTSTRAP_ADMIN_ENABLED: z
+    .enum(['true', 'false'])
+    .default('true')
+    .transform((v) => v === 'true'),
+  BOOTSTRAP_ADMIN_EMAIL: z.string().email().default('admin@admin.com.br'),
+  BOOTSTRAP_ADMIN_PASSWORD: z.string().default('admin123'),
+  BOOTSTRAP_ADMIN_ORGANIZATION_TYPE: z
+    .enum(['cocreate', 'cvc', 'startup', 'client'])
+    .default('cvc'),
+
   // Agent Server
   AGENT_SERVER_URL: z.string().url().default('http://localhost:8000'),
 

@@ -28,7 +28,6 @@ interface IngestResult {
     usersCreated: number;
     usersUpdated: number;
     departmentsCreated: number;
-    locationsCreated: number;
     organizationsCreated: number;
     relationshipsCreated: number;
     errors: IngestError[];
@@ -176,11 +175,6 @@ export function DataIngestion() {
                   <p className="text-2xl font-bold text-green-600">{dbStatus.nodeCounts['Organization'] || 0}</p>
                   <p className="text-xs text-muted-foreground">Organizações</p>
                 </div>
-                <div className="bg-orange-50 dark:bg-orange-950 rounded-lg p-3 text-center">
-                  <MapPin className="h-5 w-5 mx-auto text-orange-600 mb-1" />
-                  <p className="text-2xl font-bold text-orange-600">{dbStatus.nodeCounts['Location'] || 0}</p>
-                  <p className="text-xs text-muted-foreground">Localizações</p>
-                </div>
               </div>
 
               {/* Relationship Counts */}
@@ -321,7 +315,7 @@ export function DataIngestion() {
 
           <div className="text-xs text-muted-foreground space-y-1">
             <p><strong>Colunas esperadas:</strong></p>
-            <p>name; company; jobTitle; department; access; relationshipType; accessTypes; location; email; status; role</p>
+            <p>name; company; jobTitle; department; access; relationshipType; accessTypes; email; status; role; managerEmail</p>
           </div>
         </div>
       </Card>

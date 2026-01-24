@@ -4,6 +4,8 @@
  * Preparado para integração futura com grafo MongoDB
  */
 
+import { getTenantConfig } from './tenant-config';
+
 export interface OrgNode {
   id: string;
   name: string;
@@ -27,13 +29,21 @@ export interface OrgChartRelationship {
   type: 'reports_to' | 'peer' | 'has_access_to';
 }
 
+// Função para criar nó com nome configurável
+function createOrgNode(data: Omit<OrgNode, 'company'>): OrgNode {
+  const tenantConfig = getTenantConfig();
+  return {
+    ...data,
+    company: tenantConfig.institutionName || 'Alocc Gestão Patrimonial'
+  };
+}
+
 // Dataset completo parseado do CSV
-export const orgChartNodes: OrgNode[] = [
+const orgChartDataRaw: Omit<OrgNode, 'company'>[] = [
   {
     id: 'agatha.mendes',
     name: 'Ágatha Mendes',
     email: 'agatha.mendes@alocc.com.br',
-    company: 'Alocc Gestão Patrimonial',
     role: 'Analista de Apoio',
     department: 'Apoio',
     leadsAreas: [],
@@ -44,7 +54,6 @@ export const orgChartNodes: OrgNode[] = [
     id: 'alessandra.bouhid',
     name: 'Alessandra Bouhid',
     email: 'alessandra@tna.com.br',
-    company: 'Alocc Gestão Patrimonial',
     role: 'Analista de Wealth Management',
     department: 'TNA  Parceiro',
     leadsAreas: [],
@@ -595,7 +604,8 @@ export const orgChartNodes: OrgNode[] = [
   }
 ];
 
-// Funções auxiliares para navegação no organograma
+// Exportar nós com nome configurável
+export const orgChartNodes: OrgNode[] = orgChartDataRaw.map(node => createOrgNode(node));
 export function getNodeById(id: string): OrgNode | undefined {
   return orgChartNodes.find(node => node.id === id);
 }

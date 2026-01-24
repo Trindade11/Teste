@@ -422,6 +422,28 @@ These 6 questions take <2 minutes and provide enough to start. Everything else i
 - **REQ-OAI-025**: Logs de retrieval (`:RetrievalJob` com intents, tipos de conteúdo acessados e sucesso percebido) DEVEM ser usados como insumo adicional pelo FeedbackAgent ao propor novas `:PersonaVersion` (além dos padrões detectados pelo Memory Decay Agent).
 - **REQ-OAI-026**: Canvas PODE exibir, na visão de Persona, exemplos de como o perfil atual influencia a recuperação de conhecimento (ex.: "priorizando conteúdos sobre planilhas e relatórios").
 
+### Fluxo Pós-Onboarding: Chat Inaugural & Gmail Auth
+
+- **REQ-OAI-034**: Quando onboarding for concluído pela PRIMEIRA VEZ, sistema DEVE:
+  1. Marcar `:User` com `has_completed_onboarding: true` e `onboarding_completed_at: datetime`.
+  2. Criar `:Conversation` com `type: 'inaugural'` e `is_first_chat: true`.
+  3. Ativar assistente no menu (visível para usuário).
+  4. Acionar PLA para enviar Welcome Message.
+- **REQ-OAI-035**: Welcome Message DEVE ser personalizada com base em:
+  - `AIProfile.level` (iniciante/intermediário/técnico).
+  - `AIProfile.needs` (necessidades identificadas).
+  - `PersonaVersion.abilities` (habilidades mapeadas).
+- **REQ-OAI-036**: Welcome Message DEVE explicar:
+  - O que o sistema pode fazer (baseado no perfil).
+  - Como interagir (dica de uso).
+  - Próximos passos sugeridos.
+- **REQ-OAI-037**: Após Welcome Message, PLA DEVE solicitar autorização Gmail com opções claras.
+- **REQ-OAI-038**: Solicitação Gmail DEVE apresentar: `[🔗 Conectar Gmail]` e `[⏭️ Depois]`.
+- **REQ-OAI-039**: Se usuário escolhe "Depois", sistema DEVE:
+  - Marcar `:User` com `gmail_skipped: true`.
+  - Exibir banner persistente lembrando da conexão (não-intrusivo).
+- **REQ-OAI-040**: Gmail é a ÚNICA fonte que requer autorização explícita no app; WhatsApp vem de workflow externo.
+
 ---
 
 ## Success Criteria

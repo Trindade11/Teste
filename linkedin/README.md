@@ -6,6 +6,7 @@
 linkedin/
 ├── README.md                    # Este arquivo
 ├── posts/                       # Publicações já feitas (arquivo por post)
+│   ├── 2026-01-20_o-que-e-eks.md
 │   ├── 2026-01-15_neuroforge-grafos-ontologias.md
 │   ├── 2026-01-12_enterprise-knowledge-system-ecossistema.md
 │   ├── 2026-01-05_puc-angels-conselheiro.md
@@ -16,7 +17,8 @@ linkedin/
 │   └── 001_o-que-e-eks.md       # Primeiro draft pronto
 └── strategy/                    # Documentos de estratégia
     ├── ESTILO-DE-ESCRITA.md     # Análise do estilo pessoal
-    └── ESTRATEGIA-CONTEUDO-EKS.md # Plano de conteúdo
+    ├── ESTRATEGIA-CONTEUDO-EKS.md # Plano de conteúdo
+    └── PUBLICO-ALVO.md          # Definição de audiência segmentada
 ```
 
 ---
@@ -32,8 +34,8 @@ Posicionar **Rodrigo Trindade** como referência em **Enterprise Knowledge Syste
 | Métrica | Valor |
 |---------|-------|
 | Seguidores | 3.916 |
-| Posts documentados | 5 |
-| Rascunhos prontos | 3 |
+| Posts documentados | 6 |
+| Rascunhos prontos | 2 |
 | Média de impressões | ~1.357 |
 | Média de reações | ~32 |
 
