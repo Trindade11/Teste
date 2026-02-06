@@ -476,6 +476,46 @@ A ressonância é calculada sobre relações no grafo. Usar labels canônicos:
 
 ---
 
+## Integração com Sistema de Feedback Estratégico (Novo - 2025-02-01)
+
+A Ressonância se integra com o **Sistema de Feedback Estratégico** (spec 055) para:
+
+### Notificações de Evolução
+
+Quando feedback de um usuário evolui no pipeline, o sistema notifica:
+
+- *"Sua sugestão sobre relatórios regionais virou uma iniciativa"*
+- *"A necessidade que você identificou está sendo avaliada"*
+- *"Seu feedback originou o projeto X"*
+
+### Reconhecimento de Autoria (Não Pontuação)
+
+O feedback preserva **gênese** — quem sinalizou, em qual contexto. Isso alimenta o reconhecimento contextual:
+
+- *"Iniciativa originada por João, Comercial"*
+- *"Contribuiu para a evolução do sistema X"*
+
+### Eventos de Ressonância do Feedback
+
+```yaml
+feedback_evolution_events:
+  - type: "feedback_promoted"
+    message: "Sua sugestão evoluiu para iniciativa"
+    trigger: "Feedback do usuário promovido para Necessity/Initiative"
+    
+  - type: "feedback_strategic_impact"
+    message: "Seu feedback conectou com objetivo estratégico Y"
+    trigger: "Sistema inferiu conexão com Objective"
+    
+  - type: "project_genesis"
+    message: "Você originou o projeto Z"
+    trigger: "Project criado com [:ORIGINATED_FROM] para feedback do usuário"
+```
+
+> **Referência**: Ver spec `055-strategic-feedback-system` para o sistema completo de feedback.
+
+---
+
 ## Related Specs
 
 - **008-task-generation-canvas** – tarefas e planos que abastecem KPIs.  
@@ -485,4 +525,6 @@ A ressonância é calculada sobre relações no grafo. Usar labels canônicos:
 - **019-multi-agent-orchestration** – Feedback/Personal Improvement Agent pode consumir esses KPIs para sugerir melhorias.
 - **021-notification-center** – Onde notificações semânticas aparecem.
 - **022-onboarding-ai-profile** – Nível 2 gera conhecimento que ressoa.
+- **040-business-intent-graph** – BIG com Macroáreas Estratégicas.
 - **050-meta-graph-schema** – Labels canônicos.
+- **055-strategic-feedback-system** – Sistema de feedback estratégico (gênese, evolução, reconhecimento).

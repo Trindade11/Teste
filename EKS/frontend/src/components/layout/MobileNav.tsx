@@ -1,9 +1,9 @@
 "use client";
 
-import { GitBranch, Menu, MessageSquare } from "lucide-react";
+import { GitBranch, Menu, MessageSquare, BookOpen, Network, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type ViewType = "menu" | "processes" | "chat";
+type ViewType = "menu" | "knowledge" | "navigator" | "processes" | "chat" | "validation";
 
 interface MobileNavProps {
   currentView: ViewType;
@@ -20,10 +20,23 @@ export function MobileNav({ currentView, onViewChange }: MobileNavProps) {
         onClick={() => onViewChange("menu")}
       />
       <NavButton
-        icon={GitBranch}
-        label="Processos"
-        active={currentView === "processes"}
-        onClick={() => onViewChange("processes")}
+        icon={BookOpen}
+        label="Conhecimento"
+        active={currentView === "knowledge"}
+        onClick={() => onViewChange("knowledge")}
+      />
+      <NavButton
+        icon={CheckCircle}
+        label="Validar"
+        active={currentView === "validation"}
+        onClick={() => onViewChange("validation")}
+        badge={6}
+      />
+      <NavButton
+        icon={Network}
+        label="Navegar"
+        active={currentView === "navigator"}
+        onClick={() => onViewChange("navigator")}
       />
       <NavButton
         icon={MessageSquare}

@@ -28,13 +28,13 @@ interface ThemeState {
 
 const defaultTheme: ThemeConfig = {
   colors: {
-    primary: 'hsl(221.2 83.2% 53.3%)', // Default blue
-    secondary: 'hsl(210 40% 96.1%)',
-    accent: 'hsl(210 40% 96.1%)',
-    background: 'hsl(0 0% 100%)',
+    primary: '#3b82f6', // Blue 500
+    secondary: '#6366f1', // Indigo 500
+    accent: '#8b5cf6', // Violet 500
+    background: '#ffffff',
   },
   logo: null,
-  iconColor: 'hsl(221.2 83.2% 53.3%)',
+  iconColor: '#3b82f6',
 }
 
 export const useThemeStore = create<ThemeState>()(

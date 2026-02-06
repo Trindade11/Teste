@@ -1,0 +1,1111 @@
+Transcrição
+2 de fevereiro de 2026, 04:15PM
+
+Rodrigo Trindade Trindade começou a transcrição
+
+João Soares   0:03
+De tempo médio de finalizar o ciclo dela. Ela tem problemas, ela tem a disponibilidade, a eficiência. E aí a gente sabe que a planta está conectada, por exemplo, com as entregas, entregas agendadas.
+E que toda entrega agendada tem um cliente e esse cliente gera a receita e a receita volta direto para a planta. Então é em vez da gente criar componentes que trazem para a gente essa integração, ou seja, tem uma certa redundância, tem que integrar no banco, tem que entregar no RB.
+Tem que fazer sempre essas pontes e otimizar essas pontes? Não. A gente traz isso para um contexto em tempo real, unificado. Então é em cima disso que a gente constrói automações. É agentes, produtos, porque é isso que vai habilitar para a gente uma.
+11 contexto preciso, onde, por exemplo, a primary key é exatamente a relação semântica, a relação real ou da realidade de um dado com o outro, de uma lógica com a outra, de uma ação com a outra, dentro de um contexto específico.
+Então era mais isso, claro.
+
+Bruno Cesar   1:11
+Posso fazer uma pergunta?
+É, eu queria só entender assim. Acho que é uma pergunta um pouco mais, é fundamental, básica, vamos chamar assim. É porque você está explicando a lógica e eu estou achando interessantíssimo. Me remete muito assim a um conceito que eu tenho estudado sobre o Neo forj me parece.
+
+João Soares   1:20
+Sim.
+
+Bruno Cesar   1:29
+Que remete em peculiaridade uma do outro. Agora, na questão técnica, qual é a linguagem, qual é AO banco? Como é que é essa parte de uso disso na prática? Porque você não sei se você vai, vai chegar nesse público. Eu só queria fazer essa pergunta porque ainda não viso.
+
+João Soares   1:34
+A.
+Sim, não.
+Exato.
+
+Bruno Cesar   1:46
+Não visualizei essa parte. Aí eu estou meio assim, está bom, estou entendendo. Vai lá, continua. É só isso mesmo, porque.
+
+João Soares   1:48
+Entendi.
+Entendi, não? Perfeito. É uma colocação perfeita, tipo, como isso se traduziria em um sistema de verdade? Então a gente tem a de novo. A gente tem que ter como criar um gêmeo digital, ou seja, a gente precisa virtualizar.
+
+Bruno Cesar   1:58
+Yeah.
+
+João Soares   2:06
+Esse contexto que é totalmente semântico e abstrato. Então a gente precisa representar essa estrutura de uma forma digital para que os sistemas possam acessar ela. E é aí onde a gente chega, por exemplo, num grafo, num banco de dados de grafo que é próprio.
+Para lidar com relações, com entidades, com conceitos que são coisas mais abstratas. E tudo isso está sempre baseado na origem. Então aqui num data source, por exemplo, eu posso ter n data sources. Na camada de lógica, eu posso ter n lógica.
+Posso criar um machine learning para prever se a planta tem muito e muitos problemas ou poucos problemas. E É Ela quem vai. E aí assim, de novo, é aberto, sabe? Isso é definido em tempo, por exemplo, de execução de projeto. Por que usar?
+Um grafana para observabilidade e não o centre, porque a gente vai fazer um modelo e usando, sei lá, um network x em Python e não Jupyter notebook. Isso são requisitos técnicos do seu produto, mas você sempre vai passar por essa lógica que é.
+
+Bruno Cesar   3:09
+É nesse caso.
+Yep.
+
+João Soares   3:14
+Construir a relação ontológica no ambiente digital de uma forma que seja útil para o seu para sua estrutura técnica, sabe?
+
+Sidnei   3:15
+Yeah.
+Okay.
+All.
+Mas aí vocês estão falando de lógica, me permitam aí. É a questão da lógica, você tem o formalismo dela, tá? Então, quando você fala lógica, você está dizendo que existem várias, mas quais? Você tem que explicitar isso. Não existe uma não.
+
+João Soares   3:37
+Okay.
+Qualquer um, por exemplo.
+
+Sidnei   3:40
+Não é a qualquer uma. Se é uma lógica descritiva, se é uma lógica temporal, se é uma lógica para consistente, anotada. Existem vários tipos de lógica, tá? Então não é o que eu estou entendendo da sua explicação. É que você tem um conjunto de regras que vão ser implementadas, que está.
+
+Bruno Cesar   3:53
+E.
+A.
+
+Sidnei   4:00
+Que estão é configuradas como lógica, porque na literatura de lógica você vai encontrar várias lógicas, principalmente a antologia, ela ainda é descritiva.
+
+João Soares   4:04
+Sim.
+Exato, exato. É quando eu falo lógica, você pode se entendi. Quando você fala de lógica, você pode se basear num processo. Então, a lógica, ela sempre está descrevendo um processo, por exemplo, de uma empresa, a lógica para fazer.
+
+Bruno Cesar   4:13
+A.
+
+Sidnei   4:23
+Hello.
+
+João Soares   4:24
+A relação das invoices, quais invoices são pagas? Então eu posso usar, por exemplo, vou ler.
+
+Sidnei   4:26
+Então, o.
+
+Bruno Cesar   4:27
+E.
+
+Sidnei   4:30
+O João.
+Me permita, você está falando de regras, de regras. Quando você fala de lógica, você tem os axiomas, você tem a prova de teorema, você tem uma série de implicações. Não é você está falando de regras e não de lógica.
+
+João Soares   4:34
+Tudo.
+Jane Lanches.
+Sim.
+E por que regras não teriam a mesma, o mesmo comportamento?
+
+Sidnei   4:50
+Quando a gente a.
+Por que não? Porque você a forma de você estruturar existe prova. Como é que você consegue provar, por exemplo, um processo de um workflow que teoria você usa para provar? Como é que você valida uma rede de Petri? Como é que você prova uma rede de Petri?
+A rede de Petri, ela é.
+
+João Soares   5:12
+Através da lógica, não é?
+
+Sidnei   5:15
+Não, você tem um mecanismo, é, são máquinas de estado finito, não tem lógica ali.
+
+João Soares   5:21
+Exato, elas também de amnísticas, então tem lógica, tipo, não tem como ela fugir da lógica.
+
+Sidnei   5:24
+É, então você tem máquinas?
+Então é, eu, é tudo bem, é a minha visão, se é, você está confundindo lógica com regra, tá?
+AO campo da lógica, você começa a falar de lógica descritível. É lógica, é paraconsistente, temporal. Você tem vários modelos, então você tem axiomicizações dessa lógica e no mundo corporativo você não vai encontrar todas elas.
+
+João Soares   5:38
+Sim.
+Sim.
+Entendi um evento ou um objeto tipo isso, um evento e um objeto, por exemplo.
+
+Sidnei   5:56
+Oi.
+É porque a é aquilo lá, o conceito, o conceito de lógica, a gente pode aplicar para qualquer coisa, tá? Qual é a lógica de pensamento de alguém? Quer dizer, mas você tem que descrever e formalizar isso.
+
+Bruno Cesar   6:00
+E.
+
+João Soares   6:08
+Sim.
+Entendi.
+Entendi.
+
+Sidnei   6:15
+Só que você. Como é que você prova? Então você não tem uma fundamentação. É matemática. Eu estou falando do aspeto matemático da lógica, não é todo.
+
+João Soares   6:19
+Entendi.
+Entendi para isso, entendi, entendi.
+
+Bruno Cesar   6:24
+A.
+
+João Soares   6:28
+Entendi, e isso se dá de novo só no nível semântico. Então você tem que de novo ter essas estruturas definidas, a regra em nível também semântico, porque senão o resultado não vai ter significado.
+Não vai ter rastreabilidade.
+
+Rodrigo Trindade Trindade   6:47
+João, deixa eu fazer uma pergunta, você só para tentar tangibilizar corporativamente, por exemplo, uma política interna de uma empresa é uma regra.
+
+João Soares   6:57
+Sim, por exemplo, essa lógica, essa regra está codificada em uma lógica de Python, por exemplo.
+
+Rodrigo Trindade Trindade   6:58
+Sim.
+
+Sidnei   7:05
+Então é tudo bem.
+
+Bruno Cesar   7:05
+A.
+
+Rodrigo Trindade Trindade   7:06
+sim e acessível semanticamente para que o modelo entenda diante de um cenário que tiver sendo enfim interagido ali né uma interação ele entender aquela aquela a lógica daquela regra não sei se eu tô falando errado eu acho que esse
+
+Bruno Cesar   7:11
+A.
+
+Sidnei   7:21
+Não, não, não, é o contrário. Numa política de uma empresa, você tem regras, você tem regras. E ela pode estar sendo estruturada através de uma lógica.
+
+Rodrigo Trindade Trindade   7:24
+A.
+Isso.
+
+João Soares   7:31
+Vamos.
+
+Bruno Cesar   7:33
+Hhh.
+
+Sidnei   7:37
+Mas, em princípio, são regras. Você tem regras ali, tá? Eu poderia pegar um exemplo e provar, como é que você prova que aquela regra ela é válida?
+
+Rodrigo Trindade Trindade   7:40
+Sim.
+
+João Soares   7:42
+Sim.
+ou determinísticas, elas determinam o resultado. Sim.
+Ela precisa dar um resultado específico.
+
+Sidnei   7:54
+Não, ela tem que responder. Quando eu coloquei lá, são questões de competência. O que essa regra, o que essa ontologia, o que a regra busca responder? Então, com base nisso, você tem todo o mecanismo lógico de resolução.
+
+Bruno Cesar   7:58
+Sim.
+A.
+
+Sidnei   8:09
+Tá então uma regra, por exemplo, a política de uma empresa, ela não está num mundo fechado. Você tem 3 ou 4 mundos numa política de uma empresa, por exemplo, você tem a política interna, você tem política externa, você tem todo um conjunto de regras que fazem.
+
+João Soares   8:10
+Exato.
+Possibilidades.
+
+Sidnei   8:27
+A política de uma empresa, a própria questão política. O que é a política? Se a gente começar a definir a política da empresa, qual a atividade da empresa? Então, você começa a entrar em vários mundos, em vários espaços. Então aí é que a lógica.
+
+João Soares   8:31
+Sim.
+
+Sidnei   8:43
+Não que é lógica, mas aí que você vai ter várias segmentações, vários mundos, tá?
+
+João Soares   8:50
+Ou módulos, tipo funções lógicas que cumprem uma regra.
+
+Sidnei   8:56
+É, você vai ter é entidades. Eu não vou falar lógico. Você vai ter entidades que tem por sua relação. Tá numa política de.
+
+João Soares   9:06
+Sim, exato, exato. E era esse o ponto que eu queria aqui chegar. Essa relação, essa entidade, seja ela eventual, seja ela é estática, vamos dizer assim, ela precisa existir também na no nível ontológico. Então é como se você tivesse que definir.
+A lógica daquela daquela informação dentro da camada odontológica, entendeu?
+
+Sidnei   9:30
+É você é a camada fala.
+
+Bruno Cesar   9:32
+Documentário.
+Tenho que perguntar.
+É bem interessante essa conversa, como é que a gente vai lá no cerne? Porque quando a gente parte do pressuposto que a gente está falando tudo isso aqui, porque tem uma IA que vai consumir esses dados, aí a gente entende que existe um propósito para essa IA responder algo, o universo de conhecimento que aquela IA vai ter a especialização e justamente usando esses mecanismos.
+
+João Soares   10:06
+As respostas.
+
+Bruno Cesar   10:07
+Para que OLM lá no final, via prompt, ele procure aquilo que você quer que ele procure, você já dá o endpoint de semântica aqui para pergunta de lá, tipo assim, você já meio que faz um SEO embutido, é meio que isso assim você.
+
+Sidnei   10:14
+Sim.
+É.
+
+João Soares   10:22
+Isso.
+
+Bruno Cesar   10:24
+É gerando um conceito. Então, quando você entende o que você quer entregar do agente, você trata os dados para ele já dar até a resposta ali embutida, como embed de alguma forma, essa cultura de um gráfico, você pode embutir esses valores.
+
+Sidnei   10:24
+Exatamente.
+
+João Soares   10:34
+Não em relação exato.
+
+Bruno Cesar   10:39
+É se isso aqui, isso aquilo, até lógicas e regras, você pode embutir dentro do próprio Chuck, que é uma coisa que eu fiz muito interessante.
+
+João Soares   10:45
+isso é ele que traz perfeita colocação é ele que traz a rastreabilidade e o e a eventização enfim a eu falo evento não agora como parte ontológica mas como um acontecimento dentro do sistema em tempo real
+É isso que garante a conectividade de tudo.
+
+Bruno Cesar   11:06
+Muito interessante.
+
+João Soares   11:08
+Então você não precisa bater em 10 APIs, não. Você já tem o dado consolidado, a estrutura atualizada, consolidada, e isso se retroalimenta. Então, conforme entra uma informação nova, um dado novo, uma lógica nova, uma estrutura de um, sei lá, uma ação nova.
+OA antologia já sabe que aquela ação é nova e como ela se relaciona, até onde ela pode ir, ela não precisa ficar testando, gastando ou quem é à toa, entendeu?
+
+Rodrigo Trindade Trindade   11:38
+Essa questão da temporalidade é fundamental. Eu estou, eu estou vendo assim, na realidade, eu estou entendendo o ponto do entre o lógica e o regra. É uma questão de semântica. Aí eu entendi, lógica é uma coisa, lógica é uma coisa, é regra, é outra.
+
+Bruno Cesar   11:48
+Isso exatamente.
+
+Sidnei   11:49
+Mhm.
+
+João Soares   11:49
+Sim, exatamente. Por isso que está no nível ontológico. Exato.
+
+Sidnei   11:52
+No.
+
+Bruno Cesar   11:54
+Mhm.
+
+Sidnei   11:54
+Account.
+
+Rodrigo Trindade Trindade   11:54
+A lógica não necessariamente vai ser considerada dentro de uma ontologia. De repente, a lógica de construção pode ser, mas não a ré.
+
+Sidnei   12:01
+Não me permita, Rodrigo, na base antológica, toda a construção antológica você vai é, você vai ter que provar ela. Como é que você prova uma lógica em termos matemáticos? É esse o ponto. Você tem axiomas.
+
+Rodrigo Trindade Trindade   12:05
+Por favor, é bom, Hein?
+
+Sidnei   12:18
+Você tem, por exemplo, você tem a parte 111 entidade, está contida em outra entidade. Você tem todo um inter-relacionamento que você prova de forma é matemática e.
+
+João Soares   12:18
+É um grupo.
+
+Rodrigo Trindade Trindade   12:20
+Boa.
+
+Bruno Cesar   12:20
+Hhh.
+
+João Soares   12:30
+Conceitual.
+
+Rodrigo Trindade Trindade   12:32
+Olha, não, mas não matemático, entendi. Matemática é diferente, conceitual. Aí que tal detalhe, por exemplo, eu fiquei um bom tempo até definir qual era a ingestão inicial do que eu chamo, que eu chamo. Não é um termo já conhecido.
+
+Bruno Cesar   12:32
+A.
+
+Sidnei   12:32
+No.
+
+Bruno Cesar   12:37
+A.
+A.
+
+Rodrigo Trindade Trindade   12:48
+Enterprise lobicista é eu, é aquele aquela antologia. Eu tirei, eu tirei da minha experiência, da minha visão. É de anos corporativos trabalhando. Exatamente. É minha visão da realidade. OPA.
+
+Sidnei   12:52
+Então.
+
+Bruno Cesar   12:53
+A.
+A.
+
+João Soares   12:59
+Existe o consenso da realidade.
+
+Rodrigo Trindade Trindade   13:04
+Uma, se eu tiver, é esse fluxo de informações aqui concatenados, enfim, explorável. Eu vou conseguir é extrair, é o eu vou conseguir extrair resultados ali. Não estou falando que é o melhor resultado, é um resultado que eu defini. Cada um pode escolher a sua ontologia.
+
+Bruno Cesar   13:04
+Mhm.
+A.
+Sim.
+
+Rodrigo Trindade Trindade   13:23
+Mas pelo que eu estou entendendo, Sidney, existe a pelo que você está trazendo aí. Existem parâmetros técnicos e matemáticos para eu não sei se é validar, eu não sei se é ou pelo menos para descrever.
+
+Bruno Cesar   13:24
+E.
+Sim.
+A.
+
+Sidnei   13:34
+Pra validar quando você?
+Isso exatamente.
+
+Bruno Cesar   13:38
+A.
+
+Rodrigo Trindade Trindade   13:38
+Pô, isso é interessante que você está falando. Isso que você está falando é interessante, porque assim, vamos supor que a ontologia que eu criei, vamos supor, tá? Não sei. Eu gostaria de saber até um pouco mais. É dentro dessas técnicas de matemáticas lógicas, a minha ontologia, vamos suportar que já está, recebe.
+
+João Soares   13:40
+Exato.
+
+Sidnei   13:41
+Porque?
+
+Bruno Cesar   13:44
+Sim.
+
+Rodrigo Trindade Trindade   13:55
+É 72% de acurácia, vamos colocar assim, entendeu? É uma. Estou falando de um assunto que eu não Domino, tá? Queria escutar de vocês aí.
+
+Bruno Cesar   13:58
+A.
+
+Sidnei   14:00
+É por aí?
+
+Bruno Cesar   14:02
+Isso.
+
+Sidnei   14:04
+Quando você falou do seu sistema, vamos dizer assim, da descrição que você fez do EKS, tá? Imagina o que você falou, você fez para mim, para você, tá? E como é que você compartilha isso? Como é que ele se comporta no mundo externo?
+
+Bruno Cesar   14:04
+A.
+
+Rodrigo Trindade Trindade   14:11
+Mhm.
+
+Bruno Cesar   14:17
+Alli.
+
+Sidnei   14:21
+A sua visão de mundo pode ser diferente da visão de mundo de outro e de outros. O que você conceitou é então a base é que sustenta uma antologia.
+
+Bruno Cesar   14:27
+Mhm.
+
+Rodrigo Trindade Trindade   14:28
+Sim.
+
+Bruno Cesar   14:33
+A.
+
+Sidnei   14:36
+É OA lógica dela, tá a lógica. Quando eu digo lógica, são o formalizam que ela traz, tá? Como eu formalizo e como eu faço inferência, tá? João é filho de.
+
+Bruno Cesar   14:37
+A.
+A.
+A.
+
+Sidnei   14:51
+Pedro é Paulo, é primo de João, tá? Portanto, tá. Então você tem é relacionamentos que você vai construindo através desse mecanismo da lógica.
+
+Bruno Cesar   14:52
+Sim.
+Sim.
+
+Sidnei   15:08
+Tá, então tem conclusões? Eu não vou saber. Agora eu teria que ter formulado alguns exemplos melhores, mas você faz inferência.
+
+Bruno Cesar   15:18
+A.
+
+Sidnei   15:18
+Tá, por exemplo, numa política de da empresa, tá? Eu tenho condições de fazer inferências. Se eu tiver, tá. Ela é estruturada de forma é formal.
+
+Bruno Cesar   15:27
+E.
+A.
+
+Sidnei   15:32
+Com base no texto, tá?
+
+Rodrigo Trindade Trindade   15:33
+Não, eu entendi, eu entendi o que você está colocando e eu concordo.
+
+Bruno Cesar   15:34
+Hhh.
+Sabe um público interessante, tem 5 minutos.
+Nesse contexto aqui, pode falar, pode falar, vai.
+
+Sidnei   15:39
+Oi.
+
+Rodrigo Trindade Trindade   15:40
+Só complementar. Eu entendi que você colocou, Sidney, e vamos lá. A ontologia que eu criei tem foco em enterprise, tem foco em empresas, é e é uma visão inicial, é uma gestão inicial.
+Inicial é base para qualquer empresa. Na minha visão é essa, é criar uma gestão inicial base para qualquer empresa. É óbvio que vão existir refinamentos, existem necessidades, mas toda empresa tem projetos. Toda empresa deveria ter missão, visão de valores.
+
+Sidnei   16:14
+Então, você já está construindo?
+
+Rodrigo Trindade Trindade   16:14
+Toda ambição, toda empresa tem ver.
+
+Sidnei   16:18
+Você já está construindo?
+
+Rodrigo Trindade Trindade   16:18
+Toda empresa deveria ter OKR, tanto a empresa deveria ter gestão de tarefas. É, enfim, tem. Eu poderia citar aqui diversas coisas que estão considerando. Toda empresa tem áreas, toda empresa tem visão, visões estratégica, operacional, ataque. Então isso, essa.
+
+Sidnei   16:20
+Isso.
+Isso você está falando de entidades?
+
+Rodrigo Trindade Trindade   16:35
+Essa ontologia é base, é o que eu estou trabalhando para formular o meu, o meu sistema. Concordo que, pô, qualquer um dessas, ninguém daqui dessa sala vai criar uma igual a minha, porque as visões são completamente diferentes. Vão criar uma, vão criar melhores ou piores.
+
+Bruno Cesar   16:37
+A.
+A.
+
+Sidnei   16:43
+It.
+
+Bruno Cesar   16:50
+É, o Rodrigo fez uma.
+
+Rodrigo Trindade Trindade   16:53
+Ou iguais.
+
+Bruno Cesar   16:53
+Uma bazinha, Rodrigo.
+
+Rodrigo Trindade Trindade   16:55
+Aham.
+
+Bruno Cesar   16:56
+A minha visão é que você fez uma base, você construiu uma base de aplicação desse conceito usando IA de uma modo que envolve uma interface, todo um fluxo de experiência do usuário para.
+
+Rodrigo Trindade Trindade   16:59
+Isso.
+Isso aí eu vou. Eu vou mostrar isso na sequência. Eu vou mostrar isso depois que o João João tá fazendo a Esplanação aí bacana pra caramba. Mas eu não queria deixar de perder essa oportunidade porque é essa, no meu ponto de vista, tá?
+
+Bruno Cesar   17:11
+Isso esse que eu entendi, eu achei muito interessante.
+
+Sidnei   17:11
+Okay.
+
+Bruno Cesar   17:15
+E logicamente.
+Aham.
+
+Rodrigo Trindade Trindade   17:23
+Vão surgir n empresas fazendo isso daqui para frente. N vão surgir, é óbvio. Pessoal está começando a entender um pouco mais de do que são os potencial dos modelos, mas que, sem contexto, João colocou aí a questão do contexto sem contexto, a gente não consegue.
+
+Sidnei   17:28
+É.
+
+Bruno Cesar   17:30
+Sim.
+
+Rodrigo Trindade Trindade   17:39
+É.
+Os modelos não vão conseguir entregar o que tem que ser entregue. É eu. Essa foi a minha visão inicial. Concordo que existe refinamento perfeito que existe, mas eu achei interessante. Mas eu não estou falando, Sidney, da questão de você falou de métricas de.
+
+Bruno Cesar   17:45
+Mhm.
+A.
+
+Rodrigo Trindade Trindade   17:58
+Tem um documento, saber qual é a é a acurácia de é observabilidade. Na verdade, não estou estou falando de observabilidade. Aí é, eu não estou nem falando disso. Eu estou falando é, será que existe alguma métrica que fala?
+
+Sidnei   18:06
+Is.
+
+Rodrigo Trindade Trindade   18:13
+Cara, o sua ontologia está com o nível de ramificações, o nível de eu no meu, na minha estrutura, tem diversas de a tem uma taxonomia definida, tem uma ontologia definida, o esquema do burro.
+
+Sidnei   18:19
+Responde.
+Algumas métricas.
+
+Rodrigo Trindade Trindade   18:31
+Está, enfim, Eu Não posso mostrar aqui para vocês.
+
+Bruno Cesar   18:32
+É isso, isso tem que ser definido.
+Justamente você pensando no que você quer que o agente, se é você está pensando no contexto de um agente de ar que no final, vai consumir esses dados e vai responder o usuário. É o que a gente quer que esse agente seja especializado em quais dados e como que ele vai interpretar, digamos assim.
+Como que a gente vai tratar dessa forma ontológica, et cetera, esses dados para que a gente lá no final consumo. Então é o guideline, o briefing do agente que ele tem que responder e a quem, de que forma, pá, pá, pá, que vão ser a base para construir essa lógica, para interpretar o os dados e criar.
+Chunks que tem esses dados embutidos.
+
+Rodrigo Trindade Trindade   19:09
+E eu não sei nem falar se é criar adiante, não falo nem do chant, mas é dar ao dá a possibilidade do agente ter a informação que está disponível para ele, que geralmente não se sabe. O gráfico não é justamente isso, essa a.
+
+Bruno Cesar   19:20
+Yep.
+
+Rodrigo Trindade Trindade   19:25
+A definição de um de um esquema, de um passar o esquema para o modelo, o modelo conseguir saber o que está lendo e saber o que está por vir, o que está, porque eu não vou passar o banco todo para ele, mas eu tenho que passar para ele do que aquilo ali se trata.
+A cada conversa, a cada Thread que se vicia, o modelo tem que conhecer. OPA, cheguei na empresa, é eu meio que faço isso para mim. Antiga, queria essa relação. É do tipo, é como se a cada conversa tinha que tivesse que contextualizar o modelo como um todo. Eu tenho que dar um.
+Um povo de informações.
+
+Sidnei   20:20
+Então.
+
+Rodrigo Trindade Trindade   20:20
+Eu tenho que é de projetos. A gestão de projetos é fundamental. Não dá para ser largado, não dá para ser. Eu tenho que eu tenho que definir em projetos, por exemplo, na no meu, no meu pipeline aqui de gestão de projetos, que o projeto entra no banco já todo relacionado com.
+
+Sidnei   20:26
+Então você.
+
+Rodrigo Trindade Trindade   20:38
+Descritivo o nome do projeto responsável, departamento, status é a fase. A prioridade é dar de início data de data alvo é classe de memória, validade é vínculos com OKR.
+Por exemplo, se o projeto tem que ter um vínculo com AKR, é o que é o é o pecado das empresas. Aliás, as empresas geralmente criam seus projetos. Não tem link nenhum com a estratégia. Eu quero justamente mostrar isso. É um projeto, não pode ter um link com um objetivo estratégico.
+
+Sidnei   21:00
+É.
+Então.
+
+Rodrigo Trindade Trindade   21:10
+Então, enfim, é isso, esse overview aí.
+
+Sidnei   21:13
+Então, Rodrigo, o que você descreveu até agora, tá? Você escreveu, como você já falou, você está fazendo uma ingestão de dados, tá? Até então você ainda não tem uma antologia. O que você descreveu em vários pontos aí são o que são as entidades e relacionamentos dessas entidades.
+
+Rodrigo Trindade Trindade   21:13
+Sobre esse assunto.
+
+Sidnei   21:32
+Tá, então, por exemplo, é, você tem aí toda empresa, tem OKR? Não necessariamente, tá. Então você tem aí uma, é, tem empresas que não vão.
+Ter então, se você tem na lógica que é toda empresa tem que ter, quando aparece uma empresa que não tem a sua ontologia, descarta.
+
+Rodrigo Trindade Trindade   22:00
+Posso complementar, eu gostei do seu ponto de vista. E uma empresa que não tem AKR, ela não está nem preparada para ter isso aqui. Ela tá, ela assim, ela não é cliente disso ainda, entendeu?
+
+Sidnei   22:08
+Então, aí você.
+Então você já está definindo, lembra quando eu coloquei lá no grupo lá as questões de competência, tá? O que a antologia está buscando responder? O que a sua antologia, o seu EKS para ela?
+Está buscando responder? Está buscando responder o quê? Quais são as empresas que hoje possuem um alinhamento para o que eu quero fazer? O que eu quero fazer? Eu quero implementar um EKS.
+para as empresas que estão alinhadas com a IA. Para isso, elas precisam ter o quê? Então você já começa a definir regras, entidades e relacionamento dessas entidades. E você vai verificar isso.
+O exemplo do EKR. Imagina que eu estou colocando lá numa LLM. Eu estou pesquisando empresas para eu fazer a prospecção. Ok, mas na minha antologia já está explícito. Empresa precisa
+
+alexandre lotti   23:08
+A.
+
+Sidnei   23:17
+Ter OKR, tá? Só que no mundo eu tenho outros mundos. Tem empresa que não tem. A hora que bate e volta a empresa que veio está prospetando e não tem, você não vai receber como output.
+Antologia no raciocínio dela, ela vai, é.
+De forma formalmente, está toda e toda empresa.
+Contém OKR, então na leitura lógica, se tem e que não contém OKRA, lógica descarta então o raciocínio lógico, a formalização lógica.
+passa por esses elementos, entidade, relacionamento e o axioma, que cada um é contido, não contido, é disjunto, não disjunto, que é a mesma coisa. Então você tem elementos matemáticos que vão validando o seu Antônio, não é que vão validando,
+
+Rodrigo Trindade Trindade   24:20
+S.
+
+Sidnei   24:24
+Eles vão construindo o raciocínio da sua antologia.
+
+Rodrigo Trindade Trindade   24:28
+Eu gostei desse ponto de vista, o cid.
+
+Bruno Cesar   24:29
+Então, Eduardo, um comentário pontual, cara, é isso tudo que você está falando? É o escopo macro disso que a gente chama de ontologia, do qual eu agradeço pelos compartilhar o seu conhecimento e entendendo que mais uma vez, o que vai definir o que é necessário e o que não é necessário dentro desse processo é feito, não é o que você quer.
+como resultado do seu agente de IA. E isso é um, se encontra, enfim, o inverso. Feito isso, aí você já tem um conjunto de parâmetros que você precisa considerar para criar a lógica para construir o teu, o teu, a tua ontologia.
+
+Sidnei   24:51
+Realmente, então volto de novo para a questão de competência.
+
+Bruno Cesar   25:06
+Resumo, então a gente está sentado em cima do briefing do agente, vocês concordam ou não?
+
+Sidnei   25:12
+Sim, a gente volta para o que acontece. Existem n metodologias, tem algumas metodologias para desenvolver antologia. Uma delas, que é essa mentologic, ela preza.
+
+Rodrigo Trindade Trindade   25:12
+Oh.
+
+Sidnei   25:26
+Pelo que o primeiro ponto é, tem nunca na real, segundo, que é essa questão da competência. O que a minha antologia precisa responder? Que vai de encontro, Bruno, ao que você falou do agente. O que o meu agente precisa fazer?
+Tá, então essa questão de especificação na engenharia de software, a gente tem os requisitos, são etapas, então existe todo um processo metodológico para desenvolvimento, como quando ele inicia na engenharia de software.
+É por uma análise, é levantamento de requisitos na parte de processos, levantamento de processos. Quais são os processos que a organização que vai usar a EKAS precisa ter? Tá, ela não tem o processo que envolve OKR.
+É OKR não é OK.
+Ela não tem.
+Entende? Então, quais são os levantamentos? Ou melhor, voltando toda a metodologia vai ter suas etapas e uma das etapas que é base para todas as outras, por exemplo, na parte do CRISP-DM, o CRISP-DM.
+Tem uma das etapas que é Business, tá? O que eu quero do o que? Quais são os objetivos do Business? Que dados eu vou usar? Como eu vou implementar? Ou seja, todo e qualquer metodologia que a gente que nós vamos encontrar.
+Aplicadas, elas vão ter um primeiro levantamento sempre. Aí vai de encontro que você falou, Bruno, tá? No caso, eu vou projetar um sistema multi agentes, tá bem legal. O que cada agente vai fazer?
+AO agente a vai fazer isso, tá? Por quê? Por isso, isso. Ou seja, esse levantamento inicial, ele vai trazer, no caso de antologia, as entidades e os relacionamentos dessas entidades, que aí você vai permitir.
+É elaborar aí, voltando o Suárez, a questão você pode ter fora do modelo antológico, que aí você vai ter regras, tá? Você tem desenvolvimento dirigido a regras, engine, engine regras no.
+Que você vai trabalhar com regras, tá? Elas não estão dentro de um de um universo fechado da lógica da formalização. Tá uma regra. Ela tem exceções se você não tiver que nem OCLOCL.
+
+João Soares   27:45
+A.
+Jane.
+Exato.
+
+Sidnei   27:59
+Eu não vou lembrar agora, mas OCL é usado para você validar queries. Não é validar queries, você ter uma.
+É, não chega, não deixa de ser validação, mas você tem o formalismo. Todo modelo relacional, ele vem da teoria de conjuntos. Então você tem formalismos que provam isso, o modelo relacional. Quando se falou em
+
+João Soares   28:24
+Yes.
+
+Sidnei   28:25
+Que em toda a chave estrangeira você tem todo um é um modelo matemático que foi desenvolvido e gerou a lógica relacional, o banco de dados relacional.
+Ele está embutido aí. Então, esses formalismos lógicos é que validam, por exemplo, no caso do modelo relacional, o que é o banco relacional hoje. OCR entra numa etapa posterior.
+A é não deixa de ser validação de das etapas anteriores.
+Tá.
+Então é voltando, não é toda a metodologia, toda processo de desenvolvimento, existe uma metodologia por trás.
+
+João Soares   29:17
+E eu acho, eu achei interessante sua colocação, porque é exatamente esse caminho que eu tendia a tomar. É essa replicação, essa sincronização, que é o que garante esse ecossistema em tempo real. Então aqui a gente consegue ver, por exemplo, o modelo relacional.
+Com seus objetos, mas ele está sempre indexando numa ontology query language, então é esse serviço de ontologia que vai lidar com os objetos, que vai lidar com o banco em si.
+
+Sidnei   29:42
+O sistema tá dado.
+
+João Soares   29:51
+Mas, na realidade, a pessoa está interagindo pela tomada dos dados.
+
+Sidnei   29:55
+Oh, só tem um map entidade para dado.
+Você tem um dataset ali, você mapa entidade, tipo de.
+
+João Soares   29:59
+Entendeu?
+Exato, exato. Então você nunca fugiria de uma estrutura convencional do que é hoje, principalmente porque ela é relacional. Agora, como que como eu conecto tudo isso? Então a gente tem essa sincronização, esse indexing.
+
+Sidnei   30:23
+É.
+
+João Soares   30:25
+É do seu domínio, então objetos, as funções ou ações. E aí a gente tem coisas que definem esse data base de ontologias que seriam que seria a parte da.
+Das regras que você estava explicando, é isso, Sidney, tipo ações, verbos, tudo isso é reflete a.
+
+Sidnei   30:44
+Sim.
+
+João Soares   30:51
+A estrutura do dado, mas de uma forma conectada e conjunta, de uma maneira semântica, até.
+
+Sidnei   31:00
+É, eu diria formal, está?
+
+João Soares   31:02
+Sim, exato, exato.
+
+Sidnei   31:04
+Não é porque é semântica, aquilo lá eu posso, não sei quem que foi citar, não foi aqui. Citou um exemplo de tangerina. A tangerina era conhecida com vários nomes, tá? A gente tem uma semântica aí.
+
+João Soares   31:16
+Meu imóvel.
+Exato.
+
+Sidnei   31:18
+Bergamota, não sei onde que eu vi. Foi um exemplo bem interessante, quer dizer.
+
+João Soares   31:22
+Foi no foi no foi no último artigo, no ufo, alguma coisa. E é. E é exatamente isso, a formalização do que aquilo será. A tangerina vai ser bergamota ou pocan?
+
+Sidnei   31:27
+Então.
+Então aí você vê que a semântica aí ela é secundária. Se você não formalizou que uma tangerina, ela pode ter todos esses nomes, é aí que é o um node, um node semântico.
+
+João Soares   31:39
+Exato.
+É o buraco.
+
+Sidnei   31:50
+Ele também tem suas nuances, ele tem suas alternativas. A gente pode estar falando de uma mesma coisa de várias formas, mas a semântica é igual. Semântica é igual não, mas tem ali uma semântica, mas ela é diferente.
+
+João Soares   31:55
+Entendo.
+Exato.
+Sim.
+
+Sidnei   32:07
+Mas ela tá falando a mesma coisa, quer dizer, então existe aí um.
+
+João Soares   32:12
+Um consenso que deve ser formalizado dentro dessa ontologia, dessa estrutura ontológica.
+
+Sidnei   32:17
+É, não sei, não saberia nem se. Aí eu coloco até em questão se é consenso ou não, mas é uma formalização de como se entende mesmo. Não é lógico que vai chegar a um consenso, por exemplo.
+
+João Soares   32:26
+And no hell.
+É um consenso e não tem como não ser diferente, porque a gente entra de novo naquela discussão de o que eu posso, até onde eu posso ir e por que que tem que ser assim do meu jeito e não do seu jeito? Porque que a gente não deveria achar um consenso que é igual a todos, né?
+
+Sidnei   32:35
+É.
+Nada.
+É, você acaba formalizando os três conceitos. Por exemplo, imagina que você está construindo uma antologia para usar no país inteiro. Tá? Aí eu vou Como é que regionalmente se conhece Bergamota ou sei qual outro nome em locais distintos do país?
+
+João Soares   32:53
+Certo.
+Okay.
+
+Sidnei   33:06
+Quer dizer, então o consenso, eu vejo que você formaliza, existe um conceito na formalização, mas o consenso, ele não, não, não tá no que você resultou, tá? Não tá no que você resultou no sentido de que
+
+João Soares   33:15
+Desastre.
+
+Sidnei   33:23
+Antologia que eu estou usando aqui.
+
+João Soares   33:23
+Mas no escopo exato.
+
+Sidnei   33:26
+A antologia que eu estou usando no sul do país, quando você fala mexerica, é mexerica. Agora, quando eu estou falando lá para outra região do país, em Minas Gerais, vai ser bergamota. Então, qual é o consenso aí? Não existe. Existe um consenso no momento da hora que eu defini, porque, mas eu defini.
+
+João Soares   33:37
+Sim.
+Okay.
+O domínio, tipo, eu vou atender o mineiro ou eu vou atender só tangerina? E por que?
+
+Sidnei   33:51
+Então.
+
+Rodrigo Trindade Trindade   33:51
+Deixa eu fazer uma pergunta para vocês, vocês não estão? Eu estou tratando isso como se fosse um tissauro, aquele aquela técnica, propriedade e uma propriedade, o node. Dentro do node eu tenho essas justamente essas relações onde eu consigo encontrar para mim.
+
+Sidnei   33:59
+Não, aí você vai ter que ter é quando ele.
+Is.
+
+Rodrigo Trindade Trindade   34:08
+Eu estou tratando pelo menos dessa forma. É um problema, é um problema. Esse aí, esse aí, na realidade, é da tangerina. Está ótimo, mas é.
+
+Sidnei   34:11
+Isso aí você veio.
+
+Rodrigo Trindade Trindade   34:22
+JS está indo na reunião, por exemplo. E aí, se a gente tivesse uma transcrição de reunião que eu falasse JS, quem é JS modelo tem que ser capaz de saber que alguém está sendo citado, ter uma definição que João Soares é.
+JS conseguir enxergar isso para ele conseguir fazer qualquer outra coisa sem isso não funciona.
+
+João Soares   34:43
+Okay.
+
+Sidnei   34:45
+É.
+
+João Soares   34:45
+É, mas isso teria que estar sendo consensual no quesito do domínio. Por que a gente é definiria os nomes com as com as iniciais, entendeu? Tipo, esse é o consenso. Até onde a gente vai?
+
+Rodrigo Trindade Trindade   34:46
+Sim, isso é uma função.
+
+Sidnei   34:56
+Então.
+
+Rodrigo Trindade Trindade   34:59
+É não, mas é que tá detalhe, mas a esse é o é um bom ponto, a empresa, ela é viva, ela não vai querer saber de padrão. O cara vai ter o apelido que nem JSE, isso vai ter que ser, tem que ser uma.
+
+João Soares   35:11
+Aham.
+
+Sidnei   35:11
+Like there.
+
+Rodrigo Trindade Trindade   35:13
+Por isso que eu falo bastante, cara, de um agente dentro disso aí, um agente que eu estou falando, não é de a, mas é um agente de curadoria, curador ontológico. Ele tem que estar lapidando o tempo todo. Na meu ponto de vista, nenhum sistema interface vai funcionar da forma que tem que funcionar se só depender de dia.
+
+João Soares   35:25
+Sim.
+
+Sidnei   35:26
+Aí eu.
+
+Rodrigo Trindade Trindade   35:31
+Técnica e é e sistema. Tem que ter alguém capacitado em ontologia? Exatamente. Tem que ter alguém fazendo a curadoria de todo o sistema ao longo do tempo. Esse cara.
+
+João Soares   35:33
+De padrão.
+
+Sidnei   35:35
+Aí.
+
+João Soares   35:39
+No centro de excelência.
+
+Rodrigo Trindade Trindade   35:48
+Na minha origem desse cara é o gerente de projetos, um processo que ele não, gerente de projetos é o é o cara que é primeiro economista, por exemplo, esse cara já sabe, já domina isso. Só que hoje em dia, sem a sem a, ele fazia de um para outros tipos de projetos que funcionavam muito bem.
+
+Sidnei   35:52
+Não.
+
+Rodrigo Trindade Trindade   36:06
+Mas porque a gente está se propondo aqui, que é uma visão mais Enterprise, é, vai ter esse profissional, vai evoluir para lidar com esses sistemas. É um ponto de vista que eu tenho, tá? Para mim é assim, mas é para mim é uma, é uma premissa, já que eu tenho, tá no meu sistema que eu estou construindo.
+
+Sidnei   36:17
+It.
+
+Rodrigo Trindade Trindade   36:22
+Já tem o admin é um curadão ontológico, ele faz isso normal.
+
+Sidnei   36:26
+Eu, o Rodrigo, você tem aí a questão da engenharia e representação do conhecimento. Você tem, vamos ser um nível acima, tá? É mesmo na questão, quando estava falando agora de antologia, a antologia por si só, ela não resolve muita coisa, tá?
+
+Rodrigo Trindade Trindade   36:28
+Mhm.
+
+Sidnei   36:42
+A gente tem que ter falando, tá vendo arquitetura antológica, arquitetura de conhecimento. A gente tá falando de conhecimento pelo próprio termo lá no seu EKS. Você tem conhecimento ali? Tem a palavra conhecimento, conhecimento organizacional.
+Então a gente tem aí um a engenharia de conhecimento. Ela que vai ser um engenheiro de conhecimento, o arquiteto de conhecimento que vai lidar com tudo isso que você acabou de descrever. É ele que vai ter o vai buscar na onde?
+Então, os conhecimentos da organização para arquitetar, juntamente com o engenheiro do conhecimento, o projeto EKS.
+Tá, é o cara que, no caso, você está cumprindo esse papel para uma atividade que você está desenvolvendo, mas você está cumprindo um papel, além de arquiteto de conhecimento, de engenheiro de conhecimento, tá?
+
+João Soares   37:42
+Eu acho interessante, sim, essa provocação, porque eu sinto que é exatamente isso que falta no looping da IA. Se a IA por si só cria isso, ela vai ser vazia, ela não tem gosto.
+Ela não tem perceção da realidade de dizer assim, nossa, isso é bom? Isso responde minha pergunta. Ou isso não responde minha pergunta? Ela é determinística. Então a gente sempre e vai cair nesse lugar de do tipo.
+Beleza, OK, estou aqui definido minha antologia e ela funciona muito bem. Mas por que ela funciona muito bem? Porque ela me atende, ela resolve a minha percepção.
+
+Sidnei   38:22
+Mhm.
+
+João Soares   38:28
+Entende? Por isso que esse consenso generalizado é importante, porque a gente está falando de uma organização de uma entidade não individual.
+
+Rodrigo Trindade Trindade   38:38
+Boa, João é AIA. Vai somente responder a perguntas ou ela vai trazer insights? Ela vai trazer conhecimento para a corporação. Um fato que eu vejo assim, muito claro, por exemplo, que eu estou considerando qual o principal?
+
+Sidnei   38:52
+So.
+
+Rodrigo Trindade Trindade   38:53
+O principal documento que eu uso no meu no meu pipeline de gestão, transcrição de reunião. Para mim, tudo sai dali. As reuniões acontecem. Aliás, é uma outra premissa desse sistema aqui, se não tiver reunião transcrita.
+Se não tiver conteúdo, ele não funciona. Ele vira assim, rague de luxo é, vai responder pergunta, vai ficar, vou botar documento lá e ficar respondendo pergunta, beleza, ótimo, quer ter um fato de luxo? Tenha, mas o objetivo não é esse.
+
+João Soares   39:15
+Exato.
+É exatamente isso.
+
+Rodrigo Trindade Trindade   39:24
+Objetivo é, numa reunião que foi citado, um projeto, o modelo que vai fazer a compreensão, vai gerar os insights para a empresa, vai conhecer a missão, vai conhecer a visão, vai ter que conhecer os OKRS, vai identificar o que foi falado da reunião, que tem impacto no OKR ou num risco operacional, num risco jurídico.
+Tudo isso pré-mapeado para mim, a ontologia tá é justamente esse, é o objetivo dela, tá? Tem esse todo esse compêndulo de conhecimento mapeado para que no momento não é simplesmente na interação do usuário que isso acontece, não é na alteração do usuário.
+
+João Soares   39:45
+Sim.
+Eu.
+
+Rodrigo Trindade Trindade   39:58
+Isso tudo tá acontecendo em background a cada interação, a cada interação que o conhecimento é inserido da na no nessa ontologia. Eu nesse momento eu um modelo que eu.
+
+Sidnei   39:58
+Eles.
+
+João Soares   40:02
+Exato.
+Exato.
+Exato.
+A.
+
+Sidnei   40:34
+Acho que os politicados.
+
+Rodrigo Trindade Trindade   40:35
+Informação estratégica é, eu tenho aqui um visão estratégica, depois eu mostro aí na sequência, aonde eu vou ter os impactos que cada conversa dele, cada conteúdo dele, o board da empresa vai ter acesso direto, ele pode ter acesso direto, tá?
+
+João Soares   40:37
+Sim.
+
+Rodrigo Trindade Trindade   40:51
+É nesse, é nessa linha que eu estou seguindo, tá?
+
+João Soares   40:52
+Isso leva.
+
+Sidnei   40:54
+É, você vai ter aí os reasoners.
+
+João Soares   40:54
+Isso leva para um desenvolvimento orientado a ontologia. Você vê que o ponto focal nunca mais vai ser a camada de dados, vai ser a ontologia.
+
+Sidnei   40:59
+No, I've.
+Aí você tem uma?
+Não, então.
+
+Rodrigo Trindade Trindade   41:06
+Completo, com certeza.
+
+Sidnei   41:08
+Aí você vai ter, no caso, tá, não é como posso dizer, não é a antologia em si, tá, mas são os raciocinadores que vão se utilizar da antologia, tá? Não é OA antologia, é a antologia, ela é um instrumento.
+
+João Soares   41:18
+Em cima dela, exatamente.
+
+Rodrigo Trindade Trindade   41:19
+Sim.
+
+João Soares   41:23
+Ela é o ponto focal, ela é o ponto focal.
+
+Sidnei   41:25
+para que eu possa raciocinar. Então você vai ter os reasoners, você tem a Lalgina, você tem o Meta C mais mais, ou seja, é onde que aí vai entrar a parte da estruturação formal feita através da lógica.
+
+João Soares   41:27
+Exato.
+
+Sidnei   41:42
+Tá na lógica matemática é igual quando você.
+
+João Soares   41:45
+Pessoal, vou precisar sair aqui. Obrigado pela conversa. Desculpa não poder acompanhar vocês até o final. Está muito interessante, mas é um compromisso agora, então obrigado, pessoal.
+
+Rodrigo Trindade Trindade   41:49
+Beleza, João.
+Rigad Allikad, Ferach and Pub.
+
+Sidnei   41:56
+Valeu.
+
+Rodrigo Trindade Trindade   41:59
+Deu pra sua?
+
+João Soares   42:00
+O Bruno está multado.
+
+Sidnei   42:04
+Opa.
+
+Bruno Cesar   42:04
+Deixa eu fazer um comentário pontual também antes do João sair, agradecer pelas palavras do João, que eu também já estou de saída, mas sugeri da gente ir nessa numa próxima reunião, a gente meio que ter uma pauta, dividir 2 ou 3 tópicos e a gente define um tempo. Aí a gente dá uma é, consegue botar uma série de informações interessantes na mesa.
+
+João Soares   42:17
+Sim.
+
+Bruno Cesar   42:23
+Para a gente misturar um quebra-cabeça maior, entendeu? Então acho que vai ser bem interessante. Se a gente dá. É macro, não é uma coisa muito formal, é só ter foco macro. De repente, alguém tem um assunto interessante, traz o tópico. A gente sabe que vai dividir ali 1 hora, mais ou menos em 23 falas.
+
+João Soares   42:25
+Jane.
+
+Rodrigo Trindade Trindade   42:27
+Ótimo.
+
+Bruno Cesar   42:38
+Cada um logicamente vai dar seus comentários, só uma sugestão, porque aí a gente vai ser, vai preferir um pouco comporando a conversa.
+
+João Soares   42:41
+Teste grande.
+
+Rodrigo Trindade Trindade   42:42
+Bruno, perfeito. Bruno, perfeito. Eu tinha convidado o João e o Alexandre para fazer a apresentação. O João começou a fazer a apresentação e eu também faria. Mas enfim, estamos aqui construindo a sua colocação e está perfeita e a gente tem que definir que modelo é.
+
+João Soares   42:45
+Legal.
+
+Bruno Cesar   42:47
+Sim.
+Mhm.
+Right.
+
+Rodrigo Trindade Trindade   42:58
+É esse que o que vai fazer sentido. Eu acho que a gente já está próximo aqui. Alexandre, já fica aí a sugestão, você trazer o teu projeto para a gente, enfim, conversar um pouco sobre sobre ele e eu também mostrar alguma coisa aqui a gente ser de repente mais até é focado, mas sem perder a Riqueza de.
+Dos questionamentos, dos detalhes. Eu acho que é riquíssimo. É para mim, pô, cara top, João, temos 1 hora de já de conversa, está 100% maneiro para caramba.
+
+João Soares   43:22
+Legal.
+
+Bruno Cesar   43:23
+Pro pro com o dever de casa, tem o dever de casa, como que é? Como que esse conselho de ontologia pode pegar OA transcrição dessa nossa reunião para enriquecer ela, para que a gente possa construir uma base de conhecimento?
+
+alexandre lotti   43:25
+Olha uma.
+
+Bruno Cesar   43:37
+É ontológica em cima dos assuntos que a gente está conversando, como que a gente?
+
+João Soares   43:38
+Viva.
+Sim.
+
+Rodrigo Trindade Trindade   43:41
+Isso seria interessante, já pensei em fazer isso já, mas é outro projeto.
+
+João Soares   43:45
+Legal, vamos fazer, vamos construir isso aí. Valeu, pessoal, obrigado, está?
+
+Rodrigo Trindade Trindade   43:47
+Fala, Alexandre.
+
+alexandre lotti   43:49
+Olha, é uma simples palavra que eu perguntei no começo, rendeu a nossa conversa toda. Hoje eu falei, que diabo de ontologia é essa que vocês tanto falam?
+
+Rodrigo Trindade Trindade   43:59
+Hhh.
+
+alexandre lotti   44:00
+E não terminou. O assunto não acabou. A gente continua falando, mas uns 5 anos aqui direto da odontologia é muito importante.
+
+Sidnei   44:03
+Mhm.
+
+Rodrigo Trindade Trindade   44:08
+É muito importante.
+
+alexandre lotti   44:08
+Eu gostei muito de ouvir vocês todos falando, aí hoje não deu, mas outro dia eu falo.
+
+João Soares   44:08
+Certo.
+
+Rodrigo Trindade Trindade   44:14
+Isso vamos tentar marcar de 15 em 15 dias, 15 em 15 dias para a gente fazer esse encontro, quem puder participar e fora do horário, fora do horário comercial, que eu acho que fica mais fácil para todo mundo participar.
+
+Sidnei   44:14
+Ainda dá tempo de falar, né?
+
+João Soares   44:18
+Pode, aproveita aí.
+
+alexandre lotti   44:25
+É a noite eu acho mais tranquilo meu.
+
+João Soares   44:25
+Trem.
+
+Rodrigo Trindade Trindade   44:27
+Beleza, senhores, posso dar um print aí e publicar, fazer uma publicação da gente? Depois alguém alguém encontra, beleza, vou tirar um print aí pra gente.
+
+Bruno Cesar   44:33
+Hora.
+
+alexandre lotti   44:33
+Cortana.
+
+Sidnei   44:34
+Olha, não é que a minha câmera aqui não funcionou, cara?
+
+Rodrigo Trindade Trindade   44:39
+Relaxa, filho, relaxa, tá registrado. OS aí é OS da odontologia. Aí, senhores, ótimo reunião da gente. Enfim, até a próxima. Valeu, abraço.
+
+Bruno Cesar   44:48
+Julio.
+Yeah.
+
+Sidnei   44:51
+Alô, Ther, abraço a todos, tchau, igualmente.
+
+alexandre lotti   44:51
+Abraço, gente, foi um prazer.
+
+Rodrigo Trindade Trindade   44:55
+Tchau.
+
+Rodrigo Trindade Trindade parou a transcrição

@@ -46,6 +46,12 @@ const envSchema = z.object({
 
   // Logging
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
+
+  // Azure OpenAI
+  AZURE_OPENAI_KEY: z.string().optional(),
+  AZURE_OPENAI_ENDPOINT: z.string().optional(),
+  AZURE_OPENAI_API_VERSION: z.string().default('2024-08-01-preview'),
+  AZURE_OPENAI_DEPLOYMENT_NAME: z.string().default('gpt-4o-mini-aion'),
 });
 
 // Validate and export environment variables

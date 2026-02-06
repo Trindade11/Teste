@@ -1,0 +1,268 @@
+{
+  "summary": "A reunião teve como objetivo discutir o progresso do programa de aceleração e a implementação de uma nova ferramenta de inteligência artificial (IA) no Notion, que visa melhorar a gestão do conhecimento e a interação com as startups. Os participantes revisaram o histórico do diagnóstico do programa, as primeiras seis semanas de implementação e o cronograma de tarefas. Foi destacado que a IA do Notion foi personalizada para atender às necessidades do programa, permitindo interações mais eficientes e a geração de relatórios automatizados. A equipe também discutiu a importância de garantir a propriedade intelectual e a necessidade de um primeiro piloto pagante para o produto Maverick. Além disso, foram abordadas questões sobre a governança e a eficácia do programa, com sugestões para melhorar a comunicação e a interação com as startups. As decisões tomadas incluem a continuidade do uso do Notion como plataforma principal e a busca por especialistas para ajudar na implementação de soluções de IA. Os próximos passos incluem a organização de reuniões regulares e a coleta de feedback das startups para aprimorar o programa.",
+  "keyTopics": [
+    {
+      "topic": "Implementação da IA",
+      "description": "A equipe discutiu a implementação de uma IA personalizada no Notion, que visa facilitar a interação com o conteúdo do programa e gerar relatórios automatizados. A IA foi projetada para ajudar na gestão do conhecimento e na extração de informações relevantes.",
+      "relevance": 1.0
+    },
+    {
+      "topic": "Progresso do Programa",
+      "description": "Foi feita uma atualização sobre as primeiras seis semanas do programa de aceleração, destacando as tarefas executadas e o cronograma estabelecido. O foco está em garantir a propriedade intelectual e avançar com o produto Maverick.",
+      "relevance": 0.9
+    },
+    {
+      "topic": "Governança e Desafios",
+      "description": "Os participantes discutiram os desafios enfrentados em relação à governança da Montreal e como isso impacta a execução do programa. Foi mencionado que a burocracia pode atrasar processos simples, como a implementação de ferramentas.",
+      "relevance": 0.8
+    },
+    {
+      "topic": "Feedback das Startups",
+      "description": "A importância de coletar feedback das startups participantes foi enfatizada para entender suas necessidades e melhorar o programa. A equipe sugeriu realizar questionários para mapear as demandas das startups.",
+      "relevance": 0.8
+    },
+    {
+      "topic": "Propriedade Intelectual",
+      "description": "A discussão sobre a proteção da propriedade intelectual do produto Maverick foi um ponto central, com a necessidade de estruturar contratos e garantir a segurança dos dados envolvidos.",
+      "relevance": 0.9
+    },
+    {
+      "topic": "Reuniões Regulares",
+      "description": "Foi decidido manter reuniões regulares às quartas-feiras para revisar o progresso do programa e discutir quaisquer questões emergentes. A flexibilidade para agendar reuniões adicionais conforme necessário também foi abordada.",
+      "relevance": 0.7
+    },
+    {
+      "topic": "Especialistas em IA",
+      "description": "A equipe discutiu a necessidade de trazer especialistas em inteligência artificial para ajudar na implementação de soluções mais robustas e garantir a eficácia do programa.",
+      "relevance": 0.8
+    },
+    {
+      "topic": "Estratégia de Aceleração",
+      "description": "Foi debatido o formato do programa de aceleração, com sugestões para torná-lo mais abrangente e menos dependente de contrapartidas iniciais, visando atrair mais startups.",
+      "relevance": 0.8
+    }
+  ],
+  "decisions": [
+    {
+      "value": "Continuar usando o Notion como plataforma principal",
+      "description": "Decidiu-se que o Notion será a plataforma principal para gerenciar o conhecimento e as interações com as startups, devido à sua flexibilidade e capacidade de integração com outras ferramentas. A equipe acredita que isso facilitará a comunicação e a gestão do programa.",
+      "relatedPerson": "Rodrigo Trindade",
+      "relatedArea": "Gestão do Programa",
+      "impact": "Melhoria na gestão do conhecimento e na comunicação com as startups.",
+      "confidence": 0.9
+    },
+    {
+      "value": "Buscar especialistas em IA",
+      "description": "Foi decidido que a equipe irá procurar especialistas em inteligência artificial para auxiliar na implementação de soluções mais robustas e na criação de uma base de dados recuperável. Essa decisão visa garantir que o programa tenha a expertise necessária para avançar.",
+      "relatedPerson": "Rodrigo Trindade",
+      "relatedArea": "Desenvolvimento de Produto",
+      "impact": "Aumento da eficácia e robustez do programa.",
+      "confidence": 0.8
+    },
+    {
+      "value": "Realizar reuniões regulares",
+      "description": "A equipe decidiu manter reuniões regulares às quartas-feiras para revisar o progresso do programa e discutir questões emergentes. Essa decisão visa garantir que todos os membros da equipe estejam alinhados e que as necessidades das startups sejam atendidas.",
+      "relatedPerson": "Rodrigo Trindade",
+      "relatedArea": "Comunicação Interna",
+      "impact": "Melhoria na coordenação e alinhamento da equipe.",
+      "confidence": 0.8
+    },
+    {
+      "value": "Coletar feedback das startups",
+      "description": "Decidiu-se que a equipe irá implementar um sistema de coleta de feedback das startups participantes para entender melhor suas necessidades e melhorar o programa. Isso incluirá questionários e reuniões de acompanhamento.",
+      "relatedPerson": "Vinicius Mendes Marcilio",
+      "relatedArea": "Gestão do Programa",
+      "impact": "Aprimoramento do programa com base nas necessidades reais das startups.",
+      "confidence": 0.9
+    }
+  ],
+  "tasks": [
+    {
+      "value": "Organizar feedback das startups",
+      "description": "A equipe deve criar um questionário para coletar feedback das startups participantes do programa. Esse feedback será crucial para entender suas necessidades e melhorar a experiência no programa.",
+      "assignee": "Vinicius Mendes Marcilio",
+      "relatedArea": "Gestão do Programa",
+      "deadline": "Não mencionado",
+      "priority": "high",
+      "confidence": 0.8
+    },
+    {
+      "value": "Procurar especialistas em IA",
+      "description": "Rodrigo Trindade ficará responsável por buscar especialistas em inteligência artificial que possam ajudar na implementação de soluções para o programa. Essa tarefa é essencial para garantir a eficácia das ferramentas que estão sendo desenvolvidas.",
+      "assignee": "Rodrigo Trindade",
+      "relatedArea": "Desenvolvimento de Produto",
+      "deadline": "Não mencionado",
+      "priority": "high",
+      "confidence": 0.8
+    },
+    {
+      "value": "Manter reuniões regulares",
+      "description": "A equipe deve manter reuniões regulares às quartas-feiras para revisar o progresso do programa e discutir quaisquer questões emergentes. Essa tarefa é importante para garantir a comunicação contínua e o alinhamento entre os membros da equipe.",
+      "assignee": "Rodrigo Trindade",
+      "relatedArea": "Comunicação Interna",
+      "deadline": "Não mencionado",
+      "priority": "medium",
+      "confidence": 0.7
+    },
+    {
+      "value": "Criar um relatório de progresso",
+      "description": "A equipe deve criar um relatório de progresso do programa que inclua as principais atividades realizadas, os resultados alcançados e os próximos passos. Esse relatório será compartilhado com as partes interessadas para garantir transparência.",
+      "assignee": "Julio Lewkowicz",
+      "relatedArea": "Gestão do Programa",
+      "deadline": "Não mencionado",
+      "priority": "medium",
+      "confidence": 0.7
+    },
+    {
+      "value": "Documentar as interações no Notion",
+      "description": "A equipe deve garantir que todas as interações e decisões tomadas durante as reuniões sejam documentadas no Notion. Isso ajudará a manter um histórico claro e acessível para todos os membros da equipe.",
+      "assignee": "Rodrigo Trindade",
+      "relatedArea": "Gestão do Conhecimento",
+      "deadline": "Não mencionado",
+      "priority": "medium",
+      "confidence": 0.7
+    }
+  ],
+  "action_items": [
+    {
+      "value": "Coletar feedback das startups",
+      "description": "Vinicius Mendes Marcilio será responsável por criar um questionário para coletar feedback das startups participantes do programa. Esse feedback será crucial para entender suas necessidades e melhorar a experiência no programa.",
+      "assignee": "Vinicius Mendes Marcilio",
+      "deadline": "Não mencionado",
+      "priority": "high",
+      "confidence": 0.8
+    },
+    {
+      "value": "Buscar especialistas em IA",
+      "description": "Rodrigo Trindade ficará responsável por buscar especialistas em inteligência artificial que possam ajudar na implementação de soluções para o programa. Essa tarefa é essencial para garantir a eficácia das ferramentas que estão sendo desenvolvidas.",
+      "assignee": "Rodrigo Trindade",
+      "deadline": "Não mencionado",
+      "priority": "high",
+      "confidence": 0.8
+    },
+    {
+      "value": "Criar um relatório de progresso",
+      "description": "Julio Lewkowicz deve criar um relatório de progresso do programa que inclua as principais atividades realizadas, os resultados alcançados e os próximos passos. Esse relatório será compartilhado com as partes interessadas para garantir transparência.",
+      "assignee": "Julio Lewkowicz",
+      "deadline": "Não mencionado",
+      "priority": "medium",
+      "confidence": 0.7
+    },
+    {
+      "value": "Documentar interações no Notion",
+      "description": "Rodrigo Trindade deve garantir que todas as interações e decisões tomadas durante as reuniões sejam documentadas no Notion. Isso ajudará a manter um histórico claro e acessível para todos os membros da equipe.",
+      "assignee": "Rodrigo Trindade",
+      "deadline": "Não mencionado",
+      "priority": "medium",
+      "confidence": 0.7
+    },
+    {
+      "value": "Manter reuniões regulares",
+      "description": "Rodrigo Trindade deve garantir que as reuniões regulares às quartas-feiras sejam mantidas para revisar o progresso do programa e discutir quaisquer questões emergentes.",
+      "assignee": "Rodrigo Trindade",
+      "deadline": "Não mencionado",
+      "priority": "medium",
+      "confidence": 0.7
+    }
+  ],
+  "risks": [
+    {
+      "value": "Burocracia na Governança",
+      "description": "A burocracia na governança da Montreal pode atrasar a execução de tarefas simples, como a implementação de ferramentas. Isso pode resultar em perda de oportunidades e frustração entre os membros da equipe. A mitigação envolve a criação de um plano de ação para acelerar processos burocráticos.",
+      "relatedPerson": "Vinicius Mendes Marcilio",
+      "relatedArea": "Gestão do Programa",
+      "priority": "high",
+      "impact": "Atrasos na execução do programa e perda de oportunidades.",
+      "confidence": 0.8
+    },
+    {
+      "value": "Falta de Engajamento das Startups",
+      "description": "Se as startups não se engajarem adequadamente no programa, isso pode comprometer os resultados esperados. A falta de feedback e interação pode levar a uma percepção negativa do programa. A mitigação envolve a implementação de estratégias de engajamento e comunicação.",
+      "relatedPerson": "Rodrigo Trindade",
+      "relatedArea": "Gestão do Programa",
+      "priority": "medium",
+      "impact": "Resultados abaixo do esperado e insatisfação das startups.",
+      "confidence": 0.7
+    },
+    {
+      "value": "Dependência de Especialistas Externos",
+      "description": "A dependência de especialistas externos para a implementação de soluções de IA pode criar riscos se esses profissionais não estiverem disponíveis ou não atenderem às expectativas. Isso pode atrasar o progresso do programa. A mitigação envolve a busca de múltiplos especialistas e a criação de um plano de contingência.",
+      "relatedPerson": "Rodrigo Trindade",
+      "relatedArea": "Desenvolvimento de Produto",
+      "priority": "medium",
+      "impact": "Atrasos na implementação de soluções e comprometimento da qualidade do programa.",
+      "confidence": 0.7
+    }
+  ],
+  "insights": [
+    {
+      "value": "Importância da IA na Gestão",
+      "description": "A implementação da IA no Notion demonstrou ser uma ferramenta valiosa para a gestão do conhecimento e a interação com as startups. A personalização da IA para atender às necessidades específicas do programa pode aumentar a eficiência e a eficácia das operações.",
+      "relatedPerson": "Rodrigo Trindade",
+      "relatedArea": "Gestão do Programa",
+      "impact": "Melhoria na gestão do conhecimento e na comunicação com as startups.",
+      "confidence": 0.9
+    },
+    {
+      "value": "Necessidade de Feedback Contínuo",
+      "description": "A coleta de feedback contínuo das startups é fundamental para entender suas necessidades e melhorar o programa. Isso pode ajudar a identificar áreas de melhoria e garantir que o programa atenda às expectativas dos participantes.",
+      "relatedPerson": "Vinicius Mendes Marcilio",
+      "relatedArea": "Gestão do Programa",
+      "impact": "Aprimoramento do programa com base nas necessidades reais das startups.",
+      "confidence": 0.8
+    },
+    {
+      "value": "Desafios da Governança",
+      "description": "Os desafios enfrentados em relação à governança da Montreal destacam a necessidade de simplificar processos e reduzir a burocracia. A agilidade na execução de tarefas é crucial para o sucesso do programa.",
+      "relatedPerson": "Rodrigo Trindade",
+      "relatedArea": "Gestão do Programa",
+      "impact": "Aumento da eficiência e satisfação da equipe.",
+      "confidence": 0.8
+    },
+    {
+      "value": "Oportunidade de Melhorar a Comunicação",
+      "description": "A necessidade de melhorar a comunicação entre a equipe e as startups foi identificada como uma oportunidade para fortalecer o relacionamento e garantir que as expectativas sejam alinhadas. Isso pode ser alcançado por meio de reuniões regulares e feedback estruturado.",
+      "relatedPerson": "Vinicius Mendes Marcilio",
+      "relatedArea": "Comunicação Interna",
+      "impact": "Fortalecimento do relacionamento com as startups e aumento da satisfação.",
+      "confidence": 0.8
+    }
+  ],
+  "mentioned_entities": [
+    {
+      "value": "Maverick",
+      "entityType": "product",
+      "description": "Maverick é o produto chefe do programa de aceleração, que está em fase de desenvolvimento e busca o primeiro piloto pagante.",
+      "mentions": 5,
+      "confidence": 0.9
+    },
+    {
+      "value": "Notion",
+      "entityType": "tool",
+      "description": "Notion é a ferramenta escolhida para gerenciar o conhecimento e as interações no programa de aceleração, permitindo a personalização e integração com IA.",
+      "mentions": 10,
+      "confidence": 0.9
+    },
+    {
+      "value": "Pirelli",
+      "entityType": "client",
+      "description": "Pirelli é uma das startups com as quais a equipe está em contato, e houve discussões sobre um possível piloto com eles.",
+      "mentions": 3,
+      "confidence": 0.8
+    },
+    {
+      "value": "OneOps",
+      "entityType": "product",
+      "description": "OneOps é um produto que está sendo considerado para ser integrado ao programa de aceleração, com potencial para agregar valor.",
+      "mentions": 2,
+      "confidence": 0.7
+    },
+    {
+      "value": "Gemini",
+      "entityType": "tool",
+      "description": "Gemini é uma ferramenta de IA mencionada como uma alternativa ao ChatGPT, utilizada por alguns membros da equipe.",
+      "mentions": 3,
+      "confidence": 0.7
+    }
+  ]
+}

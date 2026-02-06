@@ -10,6 +10,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.config import settings
 from src.utils.neo4j_client import neo4j_client
 from src.routers.chat_router import router as chat_router
+from src.routers.ingestion_router import router as ingestion_router
+from src.routers.schema_router import router as schema_router
 
 # Configure logging
 logging.basicConfig(
@@ -84,6 +86,8 @@ async def root():
 
 # Register routers
 app.include_router(chat_router)
+app.include_router(ingestion_router)
+app.include_router(schema_router)
 
 
 if __name__ == "__main__":

@@ -23,6 +23,61 @@ interface OrgChartResponse {
   subordinates: OrgChartUser[];
 }
 
+interface OrgChartNode {
+  id: string;
+  name: string;
+  email: string;
+  company: string;
+  role: string;
+  department: string;
+}
+
+/**
+ * GET /orgchart/nodes
+ * List org chart nodes (users) for UI combos
+ */
+router.get('/nodes', async (req: Request, res: Response) => {
+  const session = neo4jConnection.getSession();
+
+  try {
+    const result = await session.run(
+      `MATCH (u:User)
+       OPTIONAL MATCH (u)-[:MEMBER_OF]->(d:Department)
+       RETURN
+         u.id AS id,
+         u.name AS name,
+         u.email AS email,
+         u.company AS company,
+         u.jobTitle AS role,
+         d.name AS department
+       ORDER BY u.name`,
+      {}
+    );
+
+    const nodes: OrgChartNode[] = result.records.map((r) => ({
+      id: r.get('id'),
+      name: r.get('name') || '',
+      email: r.get('email') || '',
+      company: r.get('company') || '',
+      role: r.get('role') || '',
+      department: r.get('department') || '',
+    }));
+
+    res.json({
+      success: true,
+      data: nodes,
+    });
+  } catch (error) {
+    logger.error('OrgChart nodes fetch error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch org chart nodes',
+    });
+  } finally {
+    await session.close();
+  }
+});
+
 /**
  * GET /orgchart/:email
  * Get organizational chart context for a specific user

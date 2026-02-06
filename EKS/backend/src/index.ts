@@ -13,6 +13,10 @@ import userRoutes from './routes/user.routes';
 import structureRoutes from './routes/structure.routes';
 import companyRoutes from './routes/company.routes';
 import piaRoutes from './routes/pia.routes';
+import projectsRoutes from './routes/projects.routes';
+import ontologyRoutes from './routes/ontology.routes';
+import externalParticipantsRoutes from './routes/external-participants.routes';
+import meetingsRoutes from './routes/meetings.routes';
 
 const app = express();
 
@@ -73,6 +77,10 @@ app.use('/user', userRoutes);
 app.use('/structure', structureRoutes);
 app.use('/company', companyRoutes);
 app.use('/pia', piaRoutes);
+app.use('/projects', projectsRoutes);
+app.use('/ontology', ontologyRoutes);
+app.use('/external-participants', externalParticipantsRoutes);
+app.use('/meetings', meetingsRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

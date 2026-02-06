@@ -349,7 +349,7 @@ export const mockApi = {
           organizationType: 'client',
           jobTitle: 'Analista de Processos',
           relationshipType: 'Colaborador',
-          accessTypes: ['Operacional', 'Financeiro'],
+          accessTypes: ['Estratégico', 'Tático', 'Operacional'],
           status: 'Ativo',
           createdAt: '2025-12-29T21:15:00.560000000+00:00',
           updatedAt: '2026-01-05T21:25:35.131000000+00:00',

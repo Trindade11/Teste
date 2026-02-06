@@ -87,6 +87,15 @@ interface OrgChartData {
   subordinates: OrgChartUser[];
 }
 
+interface OrgChartNode {
+  id: string;
+  name: string;
+  email: string;
+  company: string;
+  role: string;
+  department: string;
+}
+
 class ApiClient {
   private baseUrl: string;
 
@@ -270,6 +279,13 @@ class ApiClient {
 
   async getOrgChart(email: string): Promise<ApiResponse<OrgChartData>> {
     return this.request<OrgChartData>(`/orgchart/${encodeURIComponent(email)}`);
+  }
+
+  async getOrgChartNodes(): Promise<ApiResponse<OrgChartNode[]>> {
+    if (USE_MOCK) {
+      return (mockApi as any).getAllOrgChartNodes();
+    }
+    return this.request<OrgChartNode[]>('/orgchart/nodes');
   }
 
   async getOnboardingDraft(): Promise<ApiResponse<OnboardingDraftResponse | null>> {
@@ -480,6 +496,358 @@ class ApiClient {
     }
 
     return { success: true, data };
+  }
+
+  // ===== Projects CRUD =====
+
+  async getProjects(filters?: { status?: string; department?: string; ownerId?: string; includeArchived?: boolean }): Promise<ApiResponse<any[]>> {
+    const params = new URLSearchParams();
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.department) params.append('department', filters.department);
+    if (filters?.ownerId) params.append('ownerId', filters.ownerId);
+    if (filters?.includeArchived) params.append('includeArchived', 'true');
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return this.request<any[]>(`/projects${query}`);
+  }
+
+  async getProject(id: string): Promise<ApiResponse<any>> {
+    return this.request<any>(`/projects/${id}`);
+  }
+
+  async createProject(project: any): Promise<ApiResponse<any>> {
+    return this.request<any>('/projects', {
+      method: 'POST',
+      body: JSON.stringify(project),
+    });
+  }
+
+  async createProjectNewVersion(id: string, updates: any): Promise<ApiResponse<any>> {
+    return this.request<any>(`/projects/${id}/new-version`, {
+      method: 'POST',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  async updateProject(id: string, project: any): Promise<ApiResponse<any>> {
+    return this.request<any>(`/projects/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(project),
+    });
+  }
+
+  async deleteProject(id: string): Promise<ApiResponse<{ message: string }>> {
+    return this.request<{ message: string }>(`/projects/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getProjectHistory(id: string): Promise<ApiResponse<any[]>> {
+    return this.request<any[]>(`/projects/${id}/history`);
+  }
+
+  // ===== OKRs & Objectives =====
+
+  async getOkrsList(): Promise<ApiResponse<any[]>> {
+    return this.request<any[]>('/projects/okrs/list');
+  }
+
+  async getObjectivesList(): Promise<ApiResponse<any[]>> {
+    return this.request<any[]>('/projects/objectives/list');
+  }
+
+  async createOkr(okr: any): Promise<ApiResponse<any>> {
+    return this.request<any>('/projects/okrs', {
+      method: 'POST',
+      body: JSON.stringify(okr),
+    });
+  }
+
+  async createObjective(objective: any): Promise<ApiResponse<any>> {
+    return this.request<any>('/projects/objectives', {
+      method: 'POST',
+      body: JSON.stringify(objective),
+    });
+  }
+
+  async archiveOkr(id: string, reason?: string, supersededById?: string): Promise<ApiResponse<{ message: string }>> {
+    return this.request<{ message: string }>(`/projects/okrs/${id}/archive`, {
+      method: 'POST',
+      body: JSON.stringify({ reason, supersededById }),
+    });
+  }
+
+  async deleteOkr(id: string): Promise<ApiResponse<{ message: string }>> {
+    return this.request<{ message: string }>(`/projects/okrs/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async deleteObjective(id: string): Promise<ApiResponse<{ message: string }>> {
+    return this.request<{ message: string }>(`/projects/objectives/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async updateObjective(id: string, objective: any): Promise<ApiResponse<any>> {
+    return this.request<any>(`/projects/objectives/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(objective),
+    });
+  }
+
+  // ===== Ontology =====
+
+  async getOntologyStats(): Promise<ApiResponse<any>> {
+    return this.request<any>('/ontology/stats');
+  }
+
+  async getOntologySchema(): Promise<ApiResponse<any>> {
+    return this.request<any>('/ontology/schema');
+  }
+
+  async getOntologyTaxonomy(): Promise<ApiResponse<any>> {
+    return this.request<any>('/ontology/taxonomy');
+  }
+
+  async getOntologyThesaurus(): Promise<ApiResponse<any>> {
+    return this.request<any>('/ontology/thesaurus');
+  }
+
+  async getOntologyIngestionSources(): Promise<ApiResponse<any>> {
+    return this.request<any>('/ontology/ingestion-sources');
+  }
+
+  async getOntologyGraph(limit?: number, nodeTypes?: string[]): Promise<ApiResponse<any>> {
+    const params = new URLSearchParams();
+    if (limit) params.append('limit', limit.toString());
+    if (nodeTypes?.length) params.append('nodeTypes', nodeTypes.join(','));
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return this.request<any>(`/ontology/graph${query}`);
+  }
+
+  // ===== External Participants =====
+
+  async getExternalParticipants(filters?: {
+    status?: string;
+    partnerType?: string;
+    organization?: string;
+    search?: string;
+  }): Promise<ApiResponse<any[]>> {
+    const params = new URLSearchParams();
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.partnerType) params.append('partnerType', filters.partnerType);
+    if (filters?.organization) params.append('organization', filters.organization);
+    if (filters?.search) params.append('search', filters.search);
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return this.request<any[]>(`/external-participants${query}`);
+  }
+
+  async getExternalParticipant(id: string): Promise<ApiResponse<any>> {
+    return this.request<any>(`/external-participants/${id}`);
+  }
+
+  async createExternalParticipant(data: {
+    name: string;
+    email?: string;
+    organization: string;
+    partnerType: 'strategic' | 'operational' | 'tactical';
+    role?: string;
+    notes?: string;
+  }): Promise<ApiResponse<any>> {
+    return this.request<any>('/external-participants', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateExternalParticipant(id: string, data: {
+    name?: string;
+    email?: string;
+    organization?: string;
+    partnerType?: 'strategic' | 'operational' | 'tactical';
+    role?: string;
+    notes?: string;
+    status?: 'active' | 'inactive';
+  }): Promise<ApiResponse<any>> {
+    return this.request<any>(`/external-participants/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteExternalParticipant(id: string): Promise<ApiResponse<any>> {
+    return this.request<any>(`/external-participants/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async reactivateExternalParticipant(id: string): Promise<ApiResponse<any>> {
+    return this.request<any>(`/external-participants/${id}/reactivate`, {
+      method: 'POST',
+    });
+  }
+
+  async getExternalParticipantsStats(): Promise<ApiResponse<any>> {
+    return this.request<any>('/external-participants/stats');
+  }
+
+  // ===== Meetings =====
+
+  async getPartnerOrganizations(): Promise<ApiResponse<Array<{ name: string; participantCount: number }>>> {
+    return this.request<Array<{ name: string; participantCount: number }>>('/meetings/organizations');
+  }
+
+  async ingestMeeting(payload: {
+    meetingNode: {
+      title: string;
+      date?: string;
+      time?: string;
+      duration?: string;
+      organizer?: string;
+      topic?: string;
+      meetingType?: string;
+      confidentiality?: string;
+      recurrence?: string;
+      sourceFile?: string;
+      processedAt?: string;
+    };
+    entities: Array<{
+      type: string;
+      value: string;
+      confidence?: number;
+      visibility?: string;
+      memoryLevel?: string;
+      classification?: string;
+      sourceRef?: string;
+      linkedNodeId?: string;
+      context?: string;
+    }>;
+    relationships?: Array<{
+      from: string;
+      to: string;
+      type: string;
+      properties?: Record<string, any>;
+    }>;
+    ingestionItem?: {
+      sourceType: string;
+      sourceRef: string;
+      meetingMetadata?: Record<string, any>;
+    };
+    curationJob?: {
+      sourceType: string;
+      sourceRef: string;
+      status: string;
+      priority?: string;
+      summary?: string;
+    };
+  }): Promise<ApiResponse<{ meetingId: string; title: string; entitiesLinked: number }>> {
+    return this.request<{ meetingId: string; title: string; entitiesLinked: number }>('/meetings/ingest', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async getMeetings(filters?: { limit?: number; projectId?: string }): Promise<ApiResponse<any[]>> {
+    const params = new URLSearchParams();
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.projectId) params.append('projectId', filters.projectId);
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return this.request<any[]>(`/meetings${query}`);
+  }
+
+  async extractFromTranscript(payload: {
+    transcript: string;
+    meetingContext?: {
+      title?: string;
+      project?: string;
+      participants?: string[];
+    };
+  }): Promise<ApiResponse<{
+    entities: Array<{
+      type: 'task' | 'decision' | 'risk' | 'insight' | 'action_item';
+      value: string;
+      confidence: number;
+      context?: string;
+      assignee?: string;
+      deadline?: string;
+      priority?: 'high' | 'medium' | 'low';
+    }>;
+    summary: string;
+    keyTopics: string[];
+    processingTime: number;
+  }>> {
+    return this.request('/meetings/extract', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  // ========================================
+  // Entity Matching (Agents API - port 8000)
+  // ========================================
+  
+  async matchEntities(terms: string[]): Promise<ApiResponse<Array<{
+    input_term: string;
+    found: boolean;
+    candidates: Array<{
+      node: { id: string; label: string; name: string; aliases: string[] };
+      score: number;
+      match_type: string;
+      matched_term: string;
+    }>;
+    best_match: {
+      node: { id: string; label: string; name: string; aliases: string[] };
+      score: number;
+      match_type: string;
+      matched_term: string;
+    } | null;
+    suggested_action: 'link' | 'review' | 'create';
+  }>>> {
+    const AGENTS_URL = process.env.NEXT_PUBLIC_AGENTS_URL || 'http://localhost:8000';
+    try {
+      const response = await fetch(`${AGENTS_URL}/ingestion/match-entities`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ terms }),
+      });
+      const data = await response.json();
+      return { success: data.success, data: data.data, error: data.error };
+    } catch (error) {
+      console.error('[API] matchEntities error:', error);
+      return { success: false, error: 'Failed to connect to agents API' };
+    }
+  }
+
+  async matchEntity(term: string): Promise<ApiResponse<{
+    input_term: string;
+    found: boolean;
+    candidates: Array<{
+      node: { id: string; label: string; name: string; aliases: string[] };
+      score: number;
+      match_type: string;
+      matched_term: string;
+    }>;
+    best_match: {
+      node: { id: string; label: string; name: string; aliases: string[] };
+      score: number;
+      match_type: string;
+      matched_term: string;
+    } | null;
+    suggested_action: 'link' | 'review' | 'create';
+  }>> {
+    const AGENTS_URL = process.env.NEXT_PUBLIC_AGENTS_URL || 'http://localhost:8000';
+    try {
+      const response = await fetch(`${AGENTS_URL}/ingestion/match-entity`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ term }),
+      });
+      const data = await response.json();
+      return { success: data.success, data: data.data, error: data.error };
+    } catch (error) {
+      console.error('[API] matchEntity error:', error);
+      return { success: false, error: 'Failed to connect to agents API' };
+    }
   }
 }
 

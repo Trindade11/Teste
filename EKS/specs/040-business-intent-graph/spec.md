@@ -355,6 +355,79 @@ All knowledge nodes inherit base properties from `database-schema.md` plus:
 
 ---
 
+## Macroáreas Estratégicas (Novo - 2025-02-01)
+
+> *"Objetivos estratégicos são abstratos demais para o dia a dia."*
+
+A solução é criar uma **camada semântica intermediária** entre Objetivos e Iniciativas.
+
+### Estrutura Hierárquica Completa
+
+```
+Missão / Visão (Purpose)
+   ↓
+Objetivos Estratégicos (Objective)
+   ↓
+Macroáreas Estratégicas (StrategicArea)  ← NOVO
+   ↓
+Iniciativas / Projetos / Melhorias (Initiative/Project)
+```
+
+### O que são Macroáreas
+
+As **macroáreas** funcionam como:
+- **Eixos de esforço** - direções de trabalho
+- **Campos de energia estratégica** - onde a organização investe atenção
+- **Vetores de ataque** - zonas de investimento cognitivo e operacional
+
+**Exemplos genéricos**:
+- Eficiência Operacional
+- Inteligência de Decisão
+- Experiência do Cliente
+- Redução de Risco
+- Inovação de Produto
+
+### Modelo de Dados
+
+```cypher
+(:StrategicArea {
+  id: string,
+  name: string,                 // "Eficiência Operacional"
+  description: string,
+  owner_id: string,
+  status: string,               // "active" | "archived"
+  created_at: datetime
+})
+
+// Relacionamentos
+(:StrategicArea)-[:SERVES]->(:Objective)
+(:Initiative)-[:CONTRIBUTES_TO]->(:StrategicArea)
+(:Feedback)-[:SIGNALS_NEED_IN]->(:StrategicArea)
+(:Project)-[:CONTRIBUTES_TO]->(:StrategicArea)
+```
+
+### Visualização de Energia Estratégica
+
+O EKS permite responder perguntas que **nenhum BI tradicional responde bem**:
+
+- Quais objetivos estratégicos estão **superalimentados**?
+- Quais estão **órfãos de iniciativas**?
+- Onde temos **muitas melhorias táticas**, mas pouco impacto estratégico?
+- Onde existem **poucas iniciativas, mas de alto potencial**?
+
+Isso é **leitura sistêmica do esforço organizacional**, não relatório.
+
+### Requisitos de Macroáreas
+
+- **REQ-BIG-031**: Sistema DEVE suportar `:StrategicArea` como camada entre Objective e Initiative
+- **REQ-BIG-032**: Toda `:StrategicArea` DEVE estar vinculada a pelo menos um `:Objective`
+- **REQ-BIG-033**: Sistema DEVE calcular densidade de iniciativas por Macroárea
+- **REQ-BIG-034**: Dashboard DEVE visualizar cobertura de Macroáreas
+
+> **Referência**: Ver spec `055-strategic-feedback-system` para sistema completo de feedback estratégico.
+
+---
+
 ## Out of Scope
 
 - Automatic OKR progress tracking from external systems (future integration)

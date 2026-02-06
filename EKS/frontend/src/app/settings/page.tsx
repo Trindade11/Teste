@@ -9,13 +9,20 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useThemeStore } from "@/store/themeStore"
 import { useAuthStore } from "@/store/authStore"
-import { ArrowLeft, Save, Upload, RotateCcw, Palette, Image as ImageIcon, Database, User, Bot, Building2 } from "lucide-react"
+import { ArrowLeft, Save, Upload, RotateCcw, Palette, Image as ImageIcon, Database, User, Bot, Building2, FileText, Target, FolderKanban, Network, Shield } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { DataIngestion } from "@/components/admin/DataIngestion"
+import { MeetingTranscriptIngestion } from "@/components/admin/MeetingTranscriptIngestion"
 import { ProfileDataEditor } from "@/components/settings/ProfileDataEditor"
 import { MyAgents } from "@/components/settings/MyAgents"
 import { CompanyDescription } from "@/components/settings/CompanyDescription"
+import { StrategicObjectives } from "@/components/settings/StrategicObjectives"
+import { ProjectIngestion } from "@/components/settings/ProjectIngestion"
+import { OntologyViewer } from "@/components/settings/OntologyViewer"
+import { MenuPermissionsManager } from "@/components/settings/MenuPermissionsManager"
+import { ExternalParticipantsManager } from "@/components/settings/ExternalParticipantsManager"
+import { useSettingsPermissionsStore } from "@/store/settingsPermissionsStore"
 
 export default function SettingsPage() {
   const { user } = useAuthStore()
@@ -24,10 +31,41 @@ export default function SettingsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const logoInputRef = useRef<HTMLInputElement>(null)
 
-  const [activeSection, setActiveSection] = useState<'theme' | 'ingest' | 'profile' | 'agents' | 'company'>('theme')
+  const [activeSection, setActiveSection] = useState<'theme' | 'ingest' | 'meetings' | 'profile' | 'agents' | 'company' | 'strategy' | 'projects' | 'ontology' | 'permissions' | 'external-participants'>('theme')
+  const { getVisibleMenus } = useSettingsPermissionsStore()
+  const userRole = user?.role || 'user'
+  const visibleMenus = getVisibleMenus(userRole)
 
-  const [tempColors, setTempColors] = useState(config.colors)
-  const [tempIconColor, setTempIconColor] = useState(config.iconColor)
+  // Force visible colors by checking if saved colors are too light
+  const getValidColor = (color: string | undefined, fallback: string) => {
+    if (!color) return fallback;
+    
+    // Check if it's a very light color (like the old HSL values)
+    if (color.includes('hsl')) {
+      const match = color.match(/\d+\.?\d*%/g);
+      if (match && match.length >= 2) {
+        const lightness = parseFloat(match[1]);
+        if (lightness > 85) return fallback; // Too light, use fallback
+      }
+    }
+    if (color.startsWith('#')) {
+      const hex = color.replace('#', '');
+      const r = parseInt(hex.substr(0, 2), 16);
+      const g = parseInt(hex.substr(2, 2), 16);
+      const b = parseInt(hex.substr(4, 2), 16);
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      if (brightness > 230) return fallback; // Too light, use fallback
+    }
+    return color;
+  };
+
+  const [tempColors, setTempColors] = useState({
+    primary: getValidColor(config.colors.primary, '#3b82f6'),
+    secondary: getValidColor(config.colors.secondary, '#6366f1'),
+    accent: getValidColor(config.colors.accent, '#8b5cf6'),
+    background: config.colors.background || '#ffffff',
+  })
+  const [tempIconColor, setTempIconColor] = useState(config.iconColor || '#3b82f6')
   const [tempLogo, setTempLogo] = useState<string | null>(config.logo)
   const [tempInstitutionName, setTempInstitutionName] = useState(config.institutionName || '')
   const [tempInstitutionShortName, setTempInstitutionShortName] = useState(config.institutionShortName || '')
@@ -68,11 +106,17 @@ export default function SettingsPage() {
 
   const handleReset = () => {
     resetTheme()
-    setTempColors(config.colors)
-    setTempIconColor(config.iconColor)
-    setTempLogo(config.logo)
-    setTempInstitutionName(config.institutionName || '')
-    setTempInstitutionShortName(config.institutionShortName || '')
+    // Force update with new default colors
+    setTempColors({
+      primary: '#3b82f6',
+      secondary: '#6366f1',
+      accent: '#8b5cf6',
+      background: '#ffffff',
+    })
+    setTempIconColor('#3b82f6')
+    setTempLogo(null)
+    setTempInstitutionName('')
+    setTempInstitutionShortName('')
   }
 
   // Check if user is admin
@@ -196,6 +240,91 @@ export default function SettingsPage() {
                     </button>
                     <button
                       type="button"
+                      onClick={() => setActiveSection('strategy')}
+                      className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                        activeSection === 'strategy'
+                          ? 'bg-muted border-border text-foreground'
+                          : 'bg-background border-transparent text-muted-foreground hover:bg-muted/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Target className="h-4 w-4" />
+                        <span className="text-sm font-medium">Objetivos Estratégicos</span>
+                      </div>
+                      <div className="text-xs mt-1">
+                        OKRs e metas organizacionais
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSection('projects')}
+                      className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                        activeSection === 'projects'
+                          ? 'bg-muted border-border text-foreground'
+                          : 'bg-background border-transparent text-muted-foreground hover:bg-muted/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <FolderKanban className="h-4 w-4" />
+                        <span className="text-sm font-medium">Ingestão de Projetos</span>
+                      </div>
+                      <div className="text-xs mt-1">
+                        Cadastrar projetos vinculados aos OKRs
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSection('external-participants')}
+                      className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                        activeSection === 'external-participants'
+                          ? 'bg-muted border-border text-foreground'
+                          : 'bg-background border-transparent text-muted-foreground hover:bg-muted/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        <span className="text-sm font-medium">Participantes Externos</span>
+                      </div>
+                      <div className="text-xs mt-1">
+                        Parceiros estratégicos, operacionais e táticos
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSection('meetings')}
+                      className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                        activeSection === 'meetings'
+                          ? 'bg-muted border-border text-foreground'
+                          : 'bg-background border-transparent text-muted-foreground hover:bg-muted/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        <span className="text-sm font-medium">Transcrições de Reunião</span>
+                      </div>
+                      <div className="text-xs mt-1">
+                        Importar transcrições do Teams/Zoom
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSection('ontology')}
+                      className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                        activeSection === 'ontology'
+                          ? 'bg-muted border-border text-foreground'
+                          : 'bg-background border-transparent text-muted-foreground hover:bg-muted/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Network className="h-4 w-4" />
+                        <span className="text-sm font-medium">Ontologia do Projeto</span>
+                      </div>
+                      <div className="text-xs mt-1">
+                        Taxonomia, tesauro e visão geral do grafo
+                      </div>
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => setActiveSection('profile')}
                       className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
                         activeSection === 'profile'
@@ -228,6 +357,27 @@ export default function SettingsPage() {
                         Gerenciar agentes de IA personalizados
                       </div>
                     </button>
+                    
+                    {/* Admin Only: Permissions */}
+                    {userRole === 'admin' && (
+                      <button
+                        type="button"
+                        onClick={() => setActiveSection('permissions')}
+                        className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                          activeSection === 'permissions'
+                            ? 'bg-muted border-border text-foreground'
+                            : 'bg-background border-transparent text-muted-foreground hover:bg-muted/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Shield className="h-4 w-4" />
+                          <span className="text-sm font-medium">Permissões de Menu</span>
+                        </div>
+                        <div className="text-xs mt-1">
+                          Configurar visibilidade para usuários
+                        </div>
+                      </button>
+                    )}
                   </div>
 
                   {/* Content */}
@@ -345,6 +495,76 @@ export default function SettingsPage() {
                               <h3 className="text-xl font-semibold">Cores do Tema</h3>
                             </div>
 
+                            {/* Color Preview Cards */}
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <p className="text-sm text-muted-foreground">
+                                  Preview das cores aplicadas nos cards de navegação:
+                                </p>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setTempColors({
+                                      primary: '#3b82f6',
+                                      secondary: '#6366f1',
+                                      accent: '#8b5cf6',
+                                      background: '#ffffff',
+                                    });
+                                  }}
+                                  className="text-xs"
+                                >
+                                  Forçar Cores Visíveis
+                                </Button>
+                              </div>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <div className="text-center">
+                                  <div 
+                                    className="h-16 rounded-lg border-2 mb-2 flex items-center justify-center"
+                                    style={{ 
+                                      backgroundColor: tempColors.primary || '#3b82f6',
+                                      borderColor: tempColors.primary || '#3b82f6'
+                                    }}
+                                  >
+                                    <span className="text-white text-xs font-medium">Primary</span>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">Estratégia</p>
+                                </div>
+                                <div className="text-center">
+                                  <div 
+                                    className="h-16 rounded-lg border-2 mb-2 flex items-center justify-center"
+                                    style={{ 
+                                      backgroundColor: tempColors.secondary || '#6366f1',
+                                      borderColor: tempColors.secondary || '#6366f1'
+                                    }}
+                                  >
+                                    <span className="text-white text-xs font-medium">Secondary</span>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">Projetos</p>
+                                </div>
+                                <div className="text-center">
+                                  <div 
+                                    className="h-16 rounded-lg border-2 mb-2 flex items-center justify-center"
+                                    style={{ 
+                                      backgroundColor: tempColors.accent || '#8b5cf6',
+                                      borderColor: tempColors.accent || '#8b5cf6'
+                                    }}
+                                  >
+                                    <span className="text-white text-xs font-medium">Accent</span>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">Insights</p>
+                                </div>
+                                <div className="text-center">
+                                  <div 
+                                    className="h-16 rounded-lg border-2 mb-2 flex items-center justify-center bg-slate-500 border-slate-500"
+                                  >
+                                    <span className="text-white text-xs font-medium">Muted</span>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">Visão Externa</p>
+                                </div>
+                              </div>
+                            </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Primary Color */}
                       <div className="space-y-2">
@@ -365,6 +585,9 @@ export default function SettingsPage() {
                           />
                         </div>
                         <p className="text-xs text-muted-foreground">Cor principal dos botões e links</p>
+                        <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                          Usado em: Estratégia (navegação)
+                        </p>
                       </div>
 
                       {/* Secondary Color */}
@@ -386,6 +609,9 @@ export default function SettingsPage() {
                           />
                         </div>
                         <p className="text-xs text-muted-foreground">Cor de fundo secundária</p>
+                        <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                          Usado em: Projetos (navegação)
+                        </p>
                       </div>
 
                       {/* Accent Color */}
@@ -407,6 +633,9 @@ export default function SettingsPage() {
                           />
                         </div>
                         <p className="text-xs text-muted-foreground">Cor para elementos destacados</p>
+                        <p className="text-xs text-violet-600 dark:text-violet-400 font-medium">
+                          Usado em: Insights (navegação)
+                        </p>
                       </div>
 
                       {/* Icon Color */}
@@ -428,6 +657,9 @@ export default function SettingsPage() {
                           />
                         </div>
                         <p className="text-xs text-muted-foreground">Cor padrão dos ícones da interface</p>
+                        <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                          Usado em: Ícones em toda a interface
+                        </p>
                       </div>
                     </div>
 
@@ -465,6 +697,15 @@ export default function SettingsPage() {
                     {activeSection === 'company' && (
                       <CompanyDescription />
                     )}
+                    {activeSection === 'strategy' && (
+                      <StrategicObjectives />
+                    )}
+                    {activeSection === 'projects' && (
+                      <ProjectIngestion />
+                    )}
+                    {activeSection === 'ontology' && (
+                      <OntologyViewer />
+                    )}
                     {activeSection === 'profile' && (
                       <ProfileDataEditor />
                     )}
@@ -473,6 +714,15 @@ export default function SettingsPage() {
                     )}
                     {activeSection === 'ingest' && (
                       <DataIngestion />
+                    )}
+                    {activeSection === 'meetings' && (
+                      <MeetingTranscriptIngestion />
+                    )}
+                    {activeSection === 'external-participants' && (
+                      <ExternalParticipantsManager />
+                    )}
+                    {activeSection === 'permissions' && userRole === 'admin' && (
+                      <MenuPermissionsManager />
                     )}
                   </div>
                 </div>

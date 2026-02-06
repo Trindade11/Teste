@@ -105,6 +105,153 @@ graph LR
 
 ## Node Types
 
+### `Meeting`
+
+**Purpose**: Representa reuniões ingeridas via transcrição VTT (spec 013)
+
+**Properties Base**:
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `id` | String (UUID) | Yes | Identificador único |
+| `title` | String | Yes | Título da reunião |
+| `date` | String | Yes | Data da reunião (YYYY-MM-DD) |
+| `time` | String | No | Hora de início (HH:MM) |
+| `duration` | String | No | Duração (HH:MM:SS) |
+| `organizer` | String | No | Nome do organizador |
+| `topic` | String | No | Tópico/Assunto principal |
+| `createdAt` | DateTime | Yes | Data de criação do node |
+| `createdBy` | UUID | Yes | Usuário que ingeriu |
+
+**Properties de Classificação**:
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `meetingType` | Enum | Yes | `kickoff`, `status`, `planning`, `review`, `retrospective`, `brainstorm`, `alignment`, `decision`, `other` |
+| `confidentiality` | Enum | Yes | `normal`, `restricted`, `confidential` |
+| `recurrence` | Enum | No | `single`, `recurring` |
+
+**Properties de Conteúdo (LLM)**:
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `summary` | String | No | Resumo executivo gerado por LLM (200-500 palavras) |
+| `keyTopics` | Array[String] | No | Tópicos principais discutidos |
+| `sourceFile` | String | No | Nome do arquivo VTT original |
+| `processedAt` | DateTime | No | Data de processamento |
+
+**Properties de Ingestão**:
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `ingestionStatus` | Enum | No | `pending`, `approved`, `rejected` |
+| `entityCount` | Integer | No | Quantidade de entidades extraídas |
+| `ingestedAt` | DateTime | No | Data de ingestão no grafo |
+
+**Indexes**:
+- `id` (unique)
+- `date`
+- `meetingType`
+
+---
+
+### `ActionItem`
+
+**Purpose**: Itens de ação extraídos de reuniões (spec 013)
+
+**Properties**:
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `id` | String (UUID) | Yes | Identificador único |
+| `value` | String | Yes | Descrição da ação |
+| `description` | String | No | Detalhamento da ação |
+| `assignee` | String | No | Responsável |
+| `deadline` | String | No | Prazo |
+| `priority` | Enum | No | `low`, `medium`, `high` |
+| `status` | Enum | Yes | `pending`, `in_progress`, `completed` |
+| `confidence` | Float | No | Confiança da extração (0.0-1.0) |
+| `sourceRef` | String | No | Referência da fonte (meeting ID) |
+| `createdAt` | DateTime | Yes | Data de criação |
+
+---
+
+### `Decision`
+
+**Purpose**: Decisões registradas em reuniões (spec 013)
+
+**Properties**:
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `id` | String (UUID) | Yes | Identificador único |
+| `value` | String | Yes | Título da decisão |
+| `description` | String | No | Descrição detalhada |
+| `rationale` | String | No | Justificativa |
+| `impact` | String | No | Impacto esperado |
+| `relatedPerson` | String | No | Pessoa que tomou a decisão |
+| `relatedArea` | String | No | Área afetada |
+| `confidence` | Float | No | Confiança da extração |
+| `createdAt` | DateTime | Yes | Data de criação |
+
+---
+
+### `Risk`
+
+**Purpose**: Riscos identificados em reuniões (spec 013)
+
+**Properties**:
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `id` | String (UUID) | Yes | Identificador único |
+| `value` | String | Yes | Título do risco |
+| `description` | String | No | Descrição detalhada |
+| `impact` | String | No | Impacto potencial |
+| `probability` | Enum | No | `low`, `medium`, `high` |
+| `mitigation` | String | No | Ações de mitigação |
+| `relatedPerson` | String | No | Pessoa que levantou |
+| `relatedArea` | String | No | Área em risco |
+| `priority` | Enum | No | `low`, `medium`, `high` |
+| `confidence` | Float | No | Confiança da extração |
+| `createdAt` | DateTime | Yes | Data de criação |
+
+---
+
+### `Insight`
+
+**Purpose**: Insights e aprendizados de reuniões (spec 013)
+
+**Properties**:
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `id` | String (UUID) | Yes | Identificador único |
+| `value` | String | Yes | Título do insight |
+| `description` | String | No | Explicação detalhada |
+| `impact` | String | No | Potencial de impacto |
+| `relatedPerson` | String | No | Quem contribuiu |
+| `relatedArea` | String | No | Área que pode se beneficiar |
+| `confidence` | Float | No | Confiança da extração |
+| `createdAt` | DateTime | Yes | Data de criação |
+
+---
+
+### `ExternalParticipant`
+
+**Purpose**: Participantes externos (não colaboradores) identificados em reuniões
+
+**Properties**:
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `id` | String (UUID) | Yes | Identificador único |
+| `name` | String | Yes | Nome completo |
+| `email` | String | No | Email (único se presente) |
+| `organization` | String | No | Organização de origem |
+| `role` | String | No | Função/Cargo |
+| `partnerType` | Enum | No | `operational`, `strategic`, `external`, `vendor` |
+| `notes` | String | No | Observações |
+| `createdAt` | DateTime | Yes | Data de cadastro |
+
+**Indexes**:
+- `id` (unique)
+- `email` (unique, se presente)
+- `organization`
+
+---
+
 ### `Document`
 
 **Purpose**: Representa documentos ingeridos no sistema (reuniões, relatórios, etc.)
@@ -330,6 +477,15 @@ graph LR
 ---
 
 ## Relationship Types
+
+### Meeting Relationships
+
+| Relationship | From | To | Description |
+|-------------|------|-----|-------------|
+| `RELATED_TO_PROJECT` | Meeting | Project | Reunião pertence a um projeto |
+| `PARTICIPATED_IN` | Person/User/ExternalParticipant | Meeting | Pessoa participou da reunião |
+| `EXTRACTED_FROM` | Task/Decision/Risk/Insight/ActionItem | Meeting | Entidade extraída da reunião |
+| `ORGANIZED_BY` | Meeting | Person/User | Quem organizou a reunião |
 
 ### Document Relationships
 

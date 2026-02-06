@@ -1,13 +1,13 @@
 "use client";
 
-import { X, GitBranch, ClipboardList } from "lucide-react";
+import { X, GitBranch, ClipboardList, BookOpen, Network, CheckCircle, Star, TrendingUp, Zap, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useThemeStore } from "@/store/themeStore";
 import { ONBOARDING_STEPS, useOnboardingStore } from "@/store/onboarding-store";
 import { useInstitutionConfig } from "@/hooks/useInstitutionConfig";
 import { cn } from "@/lib/utils";
 
-export type ViewType = "onboarding" | "processes";
+export type ViewType = "onboarding" | "processes" | "knowledge" | "navigator" | "validation";
 
 interface SidebarProps {
   onClose?: () => void;
@@ -15,8 +15,10 @@ interface SidebarProps {
   onViewChange?: (view: ViewType) => void;
 }
 
-const MENU_ITEMS: { id: ViewType; label: string; icon: React.ReactNode; description: string }[] = [
-  { id: "processes", label: "Processos", icon: <GitBranch className="w-4 h-4" />, description: "Mapa de processos" },
+const MENU_ITEMS: { id: ViewType; label: string; icon: React.ReactNode; badge?: number }[] = [
+  { id: "navigator", label: "Visão Estratégica", icon: <Network className="w-4 h-4" /> },
+  { id: "knowledge", label: "Conhecimento", icon: <BookOpen className="w-4 h-4" /> },
+  { id: "validation", label: "Validação", icon: <CheckCircle className="w-4 h-4" />, badge: 6 },
 ];
 
 export function Sidebar({ onClose, currentView = "processes", onViewChange }: SidebarProps) {
@@ -134,12 +136,12 @@ export function Sidebar({ onClose, currentView = "processes", onViewChange }: Si
               )}>
                 {item.icon}
               </span>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium">{item.label}</div>
-                <div className="text-[10px] text-muted-foreground truncate">
-                  {item.description}
-                </div>
-              </div>
+              <span className="text-sm font-medium">{item.label}</span>
+              {item.badge && item.badge > 0 && (
+                <span className="ml-auto px-1.5 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-medium">
+                  {item.badge}
+                </span>
+              )}
             </button>
           );
         })}
@@ -148,7 +150,23 @@ export function Sidebar({ onClose, currentView = "processes", onViewChange }: Si
       {/* Spacer */}
       <div className="flex-1" />
 
-      <div className="pt-4 border-t border-border" />
+      {/* User Recognition */}
+      <div className="pt-3 mt-3 border-t border-border">
+        <div className="flex items-center gap-3 px-2 py-2 rounded-lg bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
+          <div className="p-1.5 rounded-full bg-amber-500/20">
+            <Star className="w-4 h-4 text-amber-500" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xs font-medium flex items-center gap-1">
+              <span>42 pontos</span>
+              <TrendingUp className="w-3 h-3 text-green-500" />
+            </div>
+            <div className="text-[10px] text-muted-foreground">
+              12 validações esta semana
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

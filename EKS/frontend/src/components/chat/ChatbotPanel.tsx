@@ -436,7 +436,7 @@ export function ChatbotPanel({
       )}
 
       {/* Painel do Chat - tamanho fixo */}
-      <div className="h-full w-full flex flex-col bg-card relative">
+      <div className="h-full w-full flex flex-col bg-card relative border-l-2 border-border shadow-[-4px_0_12px_rgba(0,0,0,0.08)]">
         {/* Botão de colapsar - SEMPRE VISÍVEL */}
         <Button 
           variant="ghost" 
