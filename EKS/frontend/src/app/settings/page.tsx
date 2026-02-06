@@ -150,7 +150,7 @@ export default function SettingsPage() {
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 h-full overflow-y-auto p-8">
+            <div className="flex-1 min-w-0 h-full overflow-y-auto p-8">
               <div className="max-w-5xl mx-auto space-y-6">
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -381,7 +381,7 @@ export default function SettingsPage() {
                   </div>
 
                   {/* Content */}
-                  <div className="space-y-6">
+                  <div className="space-y-6 min-w-0">
                     {activeSection === 'theme' && (
                       <>
                         <div>

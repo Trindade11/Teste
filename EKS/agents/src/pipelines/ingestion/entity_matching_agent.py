@@ -115,7 +115,10 @@ class EntityMatchingAgent:
         return 1 - (distance / max_len)
     
     def partial_match_score(self, term: str, target: str) -> float:
-        """Score para match parcial (um contém o outro)"""
+        """
+        Score para match parcial (um contém o outro).
+        Melhorado para lidar com casos como "Montreal" em "Montreal Ventures".
+        """
         n_term = self.normalize(term)
         n_target = self.normalize(target)
         
@@ -123,10 +126,32 @@ class EntityMatchingAgent:
             return 0.0
         if n_term == n_target:
             return 1.0
+        
+        # Match de substring: se term está contido em target (ex: "montreal" em "montreal ventures")
         if n_term in n_target:
-            return len(n_term) / len(n_target)
+            # Boost se o termo começa no início do target (ex: "montreal" em "montreal ventures")
+            if n_target.startswith(n_term):
+                base_score = len(n_term) / len(n_target)
+                # Boost adicional para termos que são palavras completas no início
+                if n_target[len(n_term):len(n_term)+1] in [' ', '']:
+                    return min(0.85, base_score + 0.15)
+                return min(0.75, base_score + 0.1)
+            # Termo no meio ou fim
+            return min(0.7, len(n_term) / len(n_target))
+        
+        # Match reverso: se target está contido em term
         if n_target in n_term:
-            return len(n_target) / len(n_term)
+            return min(0.7, len(n_target) / len(n_term))
+        
+        # Word-based matching: verifica se todas as palavras do term estão no target
+        term_words = [w for w in n_term.split() if len(w) > 2]  # Ignora palavras muito curtas
+        target_words = set(n_target.split())
+        
+        if term_words and all(word in target_words for word in term_words):
+            # Todas as palavras do term estão no target
+            matched_ratio = len(term_words) / max(len(term_words), len(target_words.split()))
+            return min(0.8, 0.6 + (matched_ratio * 0.2))
+        
         return 0.0
     
     async def load_graph_nodes(self, labels: List[str] = None) -> List[GraphNode]:
@@ -226,13 +251,22 @@ class EntityMatchingAgent:
                         best_type = "fuzzy_alias"
                         matched_term = alias
             
-            # 5. Match parcial
+            # 5. Match parcial (substring/word-based)
             if best_score < self.fuzzy_threshold:
                 partial = self.partial_match_score(term, node.canonical_name or node.name)
                 if partial >= self.partial_threshold and partial > best_score:
                     best_score = partial
                     best_type = "partial"
                     matched_term = node.canonical_name or node.name
+            
+            # 6. Match parcial em aliases
+            if best_score < self.fuzzy_threshold:
+                for alias in node.aliases:
+                    partial = self.partial_match_score(term, alias)
+                    if partial >= self.partial_threshold and partial > best_score:
+                        best_score = partial
+                        best_type = "partial_alias"
+                        matched_term = alias
             
             if best_score >= self.partial_threshold:
                 candidates.append(MatchCandidate(

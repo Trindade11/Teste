@@ -755,6 +755,35 @@ class ApiClient {
     return this.request<any[]>(`/meetings${query}`);
   }
 
+  // ===== Validation Feed =====
+
+  async getValidations(filters?: { status?: string }): Promise<ApiResponse<any[]>> {
+    const params = new URLSearchParams();
+    if (filters?.status) params.append('status', filters.status);
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return this.request<any[]>(`/meetings/validations${query}`);
+  }
+
+  async updateValidation(id: string, updates: {
+    validated?: boolean;
+    description?: string;
+    priority?: string;
+    deadline?: string;
+    assigneeId?: string;
+  }): Promise<ApiResponse<{ id: string; entityType: string; updated: boolean }>> {
+    return this.request<{ id: string; entityType: string; updated: boolean }>(`/meetings/validations/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  async bulkValidate(ids: string[], validated: boolean = true): Promise<ApiResponse<{ updated: number }>> {
+    return this.request<{ updated: number }>('/meetings/validations/bulk-validate', {
+      method: 'POST',
+      body: JSON.stringify({ ids, validated }),
+    });
+  }
+
   async extractFromTranscript(payload: {
     transcript: string;
     meetingContext?: {

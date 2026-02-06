@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+// Textarea removido - keyTopics agora são tags simples
 import { 
   Upload, 
   FileText, 
@@ -37,6 +38,7 @@ import {
   GitBranch,
   Save,
   Target,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -51,7 +53,6 @@ type EntityType =
   | "area"            // Área/Departamento mencionado (spec 007)
   | "deadline"        // Data/Prazo identificado
   | "followup"        // Ação de follow-up
-  | "actionItem"      // Item de ação específico
   | "mentionedEntity"; // Organização, ferramenta, conceito mencionado
 
 // Classificação Real vs Passageiro (spec 010)
@@ -80,11 +81,18 @@ interface ExtractedEntity {
   // Campos LLM enrichment
   description?: string;               // Descrição detalhada gerada pelo LLM
   relatedPerson?: string;             // Pessoa relacionada (quem levantou, é afetado, etc.)
-  relatedArea?: string;               // Área/departamento relacionado
   impact?: string;                    // Impacto esperado/potencial
   priority?: 'high' | 'medium' | 'low'; // Prioridade/severidade
-  // Campos específicos de ActionItem
-  assignee?: string;                  // Responsável pela ação
+  // Match sugerido (para curador aceitar com 1 clique)
+  suggestedMatch?: {
+    nodeId: string;
+    nodeName: string;
+    nodeLabel: string;
+    score: number;
+    matchType: string;
+  };
+  // Campos de Tarefa (assignee, deadline) - aplicáveis a task
+  assignee?: string;                  // Responsável pela tarefa/ação
   deadline?: string;                  // Prazo (data)
   // Campos específicos de mentionedEntity
   entityType?: 'organization' | 'tool' | 'product' | 'client' | 'person_external' | 'concept';
@@ -100,19 +108,19 @@ type MeetingType =
   | "brainstorm" 
   | "alignment" 
   | "decision" 
+  | "routine"
   | "other";
 
 // Nível de confidencialidade
 type ConfidentialityLevel = "normal" | "confidential" | "restricted";
 
 interface MeetingMetadata {
-  title: string;
+  title: string;                                // Título oficial da reunião (definido pelo curador)
   date: string;
   time: string;                                 // Hora de início da reunião
   duration: string;
   organizer: string;                            // Nome do organizador
   organizerId?: string;                         // ID do organizador (User node)
-  topic: string;
   relatedProjectId: string;
   relatedProjectName: string;
   // Novos campos conforme specs
@@ -148,18 +156,12 @@ interface ExternalParticipantNode {
   status: 'active' | 'inactive';
 }
 
-interface KeyTopic {
-  topic: string;
-  description: string;
-  relevance: number;
-}
-
 interface ExtractionResult {
   metadata: MeetingMetadata;
   entities: ExtractedEntity[];
   rawText: string;
   summary?: string;
-  keyTopics?: KeyTopic[] | string[];
+  keyTopics?: string[];
 }
 
 const ENTITY_CONFIG: Record<EntityType, { icon: typeof Users; label: string; color: string; defaultClassification: DataClassification; defaultMemoryLevel: MemoryLevel }> = {
@@ -177,6 +179,7 @@ const ENTITY_CONFIG: Record<EntityType, { icon: typeof Users; label: string; col
     defaultClassification: "real",
     defaultMemoryLevel: "medium"
   },
+  // NOTA: actionItem foi consolidado em task (tarefa) conforme Visão Estratégica
   project: { 
     icon: FolderKanban, 
     label: "Projeto", 
@@ -226,13 +229,6 @@ const ENTITY_CONFIG: Record<EntityType, { icon: typeof Users; label: string; col
     defaultClassification: "real",
     defaultMemoryLevel: "short"
   },
-  actionItem: { 
-    icon: Target, 
-    label: "Ação", 
-    color: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400",
-    defaultClassification: "real",
-    defaultMemoryLevel: "medium"
-  },
   mentionedEntity: { 
     icon: Tag, 
     label: "Entidade", 
@@ -251,6 +247,7 @@ const MEETING_TYPES: Record<MeetingType, string> = {
   brainstorm: "Brainstorm",
   alignment: "Alinhamento",
   decision: "Tomada de Decisão",
+  routine: "Rotina",
   other: "Outro",
 };
 
@@ -309,6 +306,8 @@ export function MeetingTranscriptIngestion() {
   const [confidentiality, setConfidentiality] = useState<ConfidentialityLevel>("normal");
   const [defaultVisibility, setDefaultVisibility] = useState<Visibility>("corporate");
   const [recurrence, setRecurrence] = useState<"single" | "recurring">("single");
+  const [meetingTitle, setMeetingTitle] = useState("");
+  const [existingRecurringSeries, setExistingRecurringSeries] = useState<string[]>([]);
   
   // Estados para Data e Hora da reunião (campos obrigatórios - não disponíveis no VTT)
   const [meetingDate, setMeetingDate] = useState<string>("");
@@ -316,6 +315,11 @@ export function MeetingTranscriptIngestion() {
   
   // Estado para controlar aba ativa na seção de entidades
   const [activeEntityTab, setActiveEntityTab] = useState<EntityType | "all">("all");
+  
+  // Estado para keyTopics (metadados simples para recuperação)
+  const [keyTopicsData, setKeyTopicsData] = useState<string[]>([]);
+  const [editingKeyTopicIdx, setEditingKeyTopicIdx] = useState<number | null>(null);
+  const [newTopicInput, setNewTopicInput] = useState("");
 
   // Load org chart and projects on mount
   useEffect(() => {
@@ -348,6 +352,21 @@ export function MeetingTranscriptIngestion() {
           setPartnerOrganizations(orgsResponse.data);
         }
         
+        // Load existing recurring meeting series titles (for combo)
+        try {
+          const meetingsResponse = await (api as any).getMeetings({ limit: 200 });
+          if (meetingsResponse?.success && Array.isArray(meetingsResponse.data)) {
+            const seriesTitles = meetingsResponse.data
+              .filter((m: any) => m.recurrence === 'recurring' && m.title)
+              .map((m: any) => m.title as string);
+            const uniqueSeries = [...new Set(seriesTitles)].sort();
+            setExistingRecurringSeries(uniqueSeries);
+            console.log(`[Ingestion] Recurring series loaded: ${uniqueSeries.length} series`);
+          }
+        } catch (err) {
+          console.warn("Failed to load recurring meeting series:", err);
+        }
+
         // Load thesaurus for speaker matching (Ontology-First principle)
         const thesaurusResponse = await api.getOntologyThesaurus();
         if (thesaurusResponse?.success && Array.isArray(thesaurusResponse.data)) {
@@ -654,7 +673,7 @@ export function MeetingTranscriptIngestion() {
             value: isAutoMatched ? bestCandidate.name : speaker.name,
             confidence: matchResult.matched ? bestCandidate.confidence : 0.5,
             context,
-            validated: isAutoMatched ? true : null, // Auto-match = auto-validado
+            validated: true, // Todas entidades validadas por padrão - curador rejeita as incorretas
             classification: "real",
             memoryLevel: "long",
             visibility: defaultVisibility,
@@ -689,7 +708,7 @@ export function MeetingTranscriptIngestion() {
       // Fase 2 - Integrar Azure OpenAI para extrair tarefas, decisoes, riscos, insights
       const llmEntities: ExtractedEntity[] = [];
       let meetingSummary = "";
-      let keyTopics: KeyTopic[] = [];
+      let keyTopics: string[] = [];
       
       if (parsedVTT?.rawTranscript) {
         try {
@@ -712,33 +731,40 @@ export function MeetingTranscriptIngestion() {
             console.log(`[LLM Extraction] Summary length: ${summary?.length || 0} chars`);
             console.log(`[LLM Extraction] KeyTopics count: ${topics?.length || 0}`);
             console.log(`[LLM Extraction] Summary preview: "${(summary || '').slice(0, 100)}..."`);
+            // Log detalhado dos tipos de entidades recebidos do backend
+            if (Array.isArray(entities)) {
+              const typeCounts: Record<string, number> = {};
+              for (const e of entities) {
+                typeCounts[e.type || 'SEM_TIPO'] = (typeCounts[e.type || 'SEM_TIPO'] || 0) + 1;
+              }
+              console.log(`[LLM Extraction] Entity types received:`, typeCounts);
+            }
             
             meetingSummary = summary || "";
-            // Preservar keyTopics completos (com description e relevance)
+            // keyTopics são metadados simples (array de strings) para recuperação
             if (Array.isArray(topics)) {
-              keyTopics = topics.map((t: any) => {
-                if (typeof t === 'string') {
-                  return { topic: t, description: '', relevance: 0.5 };
-                }
-                return {
-                  topic: t.topic || String(t),
-                  description: t.description || '',
-                  relevance: t.relevance || 0.5,
-                };
-              });
+              keyTopics = topics.map((t: any) =>
+                typeof t === 'string' ? t : (t.topic || String(t))
+              );
             } else {
               keyTopics = [];
             }
-            console.log(`[LLM Extraction] KeyTopics:`, keyTopics);
+            console.log(`[LLM Extraction] KeyTopics (${keyTopics.length}):`, keyTopics);
             
             // Convert LLM entities to ExtractedEntity format
             for (const entity of entities || []) {
               console.log(`[LLM Entity] Processing:`, entity);
               
+              // Map actionItem → task (consolidação: "Ação" e "Tarefa" agora são "Tarefa")
+              let mappedType = entity.type as string;
+              if (mappedType === 'actionItem' || mappedType === 'action_item') {
+                mappedType = 'task';
+              }
+              
               // Validate entity type
-              const validTypes: EntityType[] = ["task", "decision", "risk", "insight", "actionItem", "mentionedEntity"];
-              if (!validTypes.includes(entity.type as EntityType)) {
-                console.warn(`[LLM Entity] Invalid type "${entity.type}", skipping entity:`, entity);
+              const validTypes: EntityType[] = ["task", "decision", "risk", "insight", "mentionedEntity"];
+              if (!validTypes.includes(mappedType as EntityType)) {
+                console.warn(`[LLM Entity] Invalid type "${entity.type}" (mapped: "${mappedType}"), skipping entity:`, entity);
                 continue;
               }
               
@@ -746,24 +772,24 @@ export function MeetingTranscriptIngestion() {
               const contextParts: string[] = [];
               if (entity.assignee) contextParts.push(`Responsável: ${entity.assignee}`);
               if (entity.relatedPerson) contextParts.push(`Relacionado: ${entity.relatedPerson}`);
-              if (entity.relatedArea) contextParts.push(`Área: ${entity.relatedArea}`);
               if (entity.deadline) contextParts.push(`Prazo: ${entity.deadline}`);
               
               llmEntities.push({
                 id: `llm-${llmEntities.length}`,
-                type: entity.type as EntityType,
+                type: mappedType as EntityType,
                 value: entity.value,
                 confidence: entity.confidence,
                 context: entity.context || contextParts.join(' | ') || undefined,
-                validated: null, // Precisa validação do curador
+                validated: true, // Validadas por padrão - curador rejeita as incorretas
                 classification: "real",
                 memoryLevel: entity.type === "insight" ? "long" : "medium",
                 visibility: defaultVisibility,
                 sourceRef: `llm:azure-openai`,
                 // Novos campos LLM
                 description: entity.description,
-                relatedPerson: entity.relatedPerson || entity.assignee,
-                relatedArea: entity.relatedArea,
+                assignee: entity.assignee,               // Responsável (para tasks)
+                relatedPerson: entity.relatedPerson || entity.assignee, // Pessoa relacionada (decisions/risks/insights)
+                deadline: entity.deadline,               // Prazo (para tasks)
                 impact: entity.impact,
                 priority: entity.priority,
               });
@@ -812,12 +838,18 @@ export function MeetingTranscriptIngestion() {
                 };
               }
               
-              // Se match médio (>=0.6), sugerir no contexto mas não vincular automaticamente
+              // Se match médio (>=0.6), sugerir com dados estruturados para o curador aceitar
               if (matchResult.found && matchResult.best_match && matchResult.best_match.score >= 0.6) {
                 console.log(`[EntityMatching] "${entity.value}" -> suggestion: ${matchResult.best_match.node.name} (${matchResult.best_match.score.toFixed(2)})`);
                 return {
                   ...entity,
-                  context: `${entity.context} | Possível match: ${matchResult.best_match.node.name} (${Math.round(matchResult.best_match.score * 100)}%)`,
+                  suggestedMatch: {
+                    nodeId: matchResult.best_match.node.id,
+                    nodeName: matchResult.best_match.node.name,
+                    nodeLabel: matchResult.best_match.node.label,
+                    score: matchResult.best_match.score,
+                    matchType: matchResult.best_match.match_type,
+                  },
                 };
               }
               
@@ -875,13 +907,14 @@ export function MeetingTranscriptIngestion() {
       // Build result with VTT data + LLM entities
       const extractionResult: ExtractionResult = {
         metadata: {
-          title: file.name.replace(/\.[^/.]+$/, ""),
+          title: recurrence === "recurring"
+            ? (meetingTitle || file.name.replace(/\.[^/.]+$/, ""))
+            : file.name.replace(/\.[^/.]+$/, ""),
           date: meetingDate || new Date().toISOString().split("T")[0],
           time: meetingTime || "00:00",
           duration: parsedVTT?.duration || "00:00:00",
           organizer: selectedOrganizer?.name || "A ser definido",
           organizerId: selectedOrganizerId || undefined,
-          topic: selectedProject?.name || file.name.replace(/\.[^/.]+$/, ""),
           relatedProjectId: selectedProjectId || "",
           relatedProjectName: selectedProject?.name || "",
           // Novos campos de metadados (specs 009, 013, 014)
@@ -900,6 +933,8 @@ export function MeetingTranscriptIngestion() {
 
       console.log(`[Ingestion] Result: ${extractionResult.entities.length} entities, duration: ${extractionResult.metadata.duration}`);
       setResult(extractionResult);
+      // Atualizar estado de keyTopics para edição
+      setKeyTopicsData(keyTopics);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao processar arquivo");
     } finally {
@@ -914,6 +949,38 @@ export function MeetingTranscriptIngestion() {
       ...result,
       entities: result.entities.map(e => 
         e.id === entityId ? { ...e, validated } : e
+      ),
+    });
+  };
+
+  // Aceitar match sugerido pelo EntityMatchingAgent (1-click linking)
+  const handleAcceptSuggestedMatch = (entityId: string) => {
+    if (!result) return;
+    setResult({
+      ...result,
+      entities: result.entities.map(e => {
+        if (e.id !== entityId || !e.suggestedMatch) return e;
+        return {
+          ...e,
+          linkedNodeId: e.suggestedMatch.nodeId,
+          value: e.suggestedMatch.nodeName, // Usar nome canônico do grafo
+          confidence: Math.max(e.confidence, e.suggestedMatch.score),
+          validated: true,
+          sourceRef: `manual-link:${e.suggestedMatch.nodeLabel}:${e.suggestedMatch.nodeId}`,
+          context: e.context ? `${e.context} | Vinculado a: ${e.suggestedMatch.nodeLabel}` : `Vinculado a: ${e.suggestedMatch.nodeLabel}`,
+          suggestedMatch: undefined, // Limpar sugestão após aceitar
+        };
+      }),
+    });
+  };
+
+  // Rejeitar match sugerido (manter como nova entidade)
+  const handleRejectSuggestedMatch = (entityId: string) => {
+    if (!result) return;
+    setResult({
+      ...result,
+      entities: result.entities.map(e =>
+        e.id === entityId ? { ...e, suggestedMatch: undefined } : e
       ),
     });
   };
@@ -1081,7 +1148,6 @@ export function MeetingTranscriptIngestion() {
         date: result.metadata.date,
         duration: result.metadata.duration,
         organizer: result.metadata.organizer,
-        topic: result.metadata.topic,
         meetingType: result.metadata.meetingType,
         confidentiality: result.metadata.confidentiality,
         recurrence: result.metadata.recurrence,
@@ -1089,7 +1155,7 @@ export function MeetingTranscriptIngestion() {
         processedAt: result.metadata.processingTimestamp,
         // Campos de resumo extraídos pelo LLM
         summary: result.summary || "",
-        keyTopics: result.keyTopics || [],
+        keyTopics: keyTopicsData.length > 0 ? keyTopicsData : (result.keyTopics || []), // string[] - metadados para recuperação
       },
 
       // Entidades Real para grafo principal (spec 010, 012)
@@ -1103,14 +1169,15 @@ export function MeetingTranscriptIngestion() {
         sourceRef: e.sourceRef,            // spec 014 - proveniência
         linkedNodeId: e.linkedNodeId,      // Vinculação com node existente
         context: e.context,
-        // Campos adicionais para entidades (tasks, decisions, risks, insights, actionItems)
+        // Campos adicionais para entidades (tasks, decisions, risks, insights)
         description: e.description || e.context || '',
         assignee: e.assignee || e.relatedPerson || '',
         relatedPerson: e.relatedPerson || '',
-        relatedArea: e.relatedArea || '',
         deadline: e.deadline || '',
         priority: e.priority || 'medium',
         impact: e.impact || '',
+        // Tipo específico para mentionedEntity (organization, tool, product, client, etc.)
+        entityType: e.entityType,
       })),
 
       // Relacionamentos a serem criados (spec 007, 014)
@@ -1196,6 +1263,7 @@ export function MeetingTranscriptIngestion() {
     setConfidentiality("normal");
     setDefaultVisibility("corporate");
     setRecurrence("single");
+    setMeetingTitle("");
     setActiveEntityTab("all");
     // Reset campos de Data/Hora
     setMeetingDate("");
@@ -1265,7 +1333,7 @@ export function MeetingTranscriptIngestion() {
   const pendingCount = result?.entities.filter(e => e.validated === null).length || 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-w-0 overflow-hidden">
       <div>
         <h2 className="text-xl font-semibold">Ingestão de Transcrições de Reunião</h2>
         <p className="text-sm text-muted-foreground mt-1">
@@ -1274,8 +1342,8 @@ export function MeetingTranscriptIngestion() {
       </div>
 
       {/* Pre-configuration Card */}
-      <Card className="p-6">
-        <div className="space-y-4">
+      <Card className="p-6 overflow-hidden">
+        <div className="space-y-4 min-w-0">
           <div className="flex items-center gap-2">
             <Tag className="h-5 w-5 text-primary" />
             <h3 className="text-lg font-semibold">Configuração Prévia</h3>
@@ -1388,51 +1456,8 @@ export function MeetingTranscriptIngestion() {
             </div>
           </div>
 
-          {/* Row 3: Default Visibility and Recurrence */}
+          {/* Row 4: Recorrência */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                {defaultVisibility === "corporate" ? (
-                  <Building2 className="h-4 w-4 text-purple-600" />
-                ) : (
-                  <Users className="h-4 w-4 text-blue-600" />
-                )}
-                Visibilidade Padrão (spec 009)
-              </Label>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setDefaultVisibility("corporate")}
-                  className={cn(
-                    "flex-1 px-3 py-2 rounded-lg border text-sm font-medium transition-colors",
-                    defaultVisibility === "corporate"
-                      ? "bg-purple-100 border-purple-300 text-purple-700 dark:bg-purple-900/30 dark:border-purple-700 dark:text-purple-400"
-                      : "bg-background border-border text-muted-foreground hover:bg-muted"
-                  )}
-                >
-                  <Building2 className="h-4 w-4 inline mr-1" />
-                  Corporativo
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDefaultVisibility("personal")}
-                  className={cn(
-                    "flex-1 px-3 py-2 rounded-lg border text-sm font-medium transition-colors",
-                    defaultVisibility === "personal"
-                      ? "bg-blue-100 border-blue-300 text-blue-700 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-400"
-                      : "bg-background border-border text-muted-foreground hover:bg-muted"
-                  )}
-                >
-                  <Users className="h-4 w-4 inline mr-1" />
-                  Pessoal
-                </button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {defaultVisibility === "corporate" 
-                  ? "Visível para toda a organização" 
-                  : "Visível apenas para você"}
-              </p>
-            </div>
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <GitBranch className="h-4 w-4" />
@@ -1441,7 +1466,9 @@ export function MeetingTranscriptIngestion() {
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => setRecurrence("single")}
+                  onClick={() => {
+                    setRecurrence("single");
+                  }}
                   className={cn(
                     "flex-1 px-3 py-2 rounded-lg border text-sm font-medium transition-colors",
                     recurrence === "single"
@@ -1465,6 +1492,55 @@ export function MeetingTranscriptIngestion() {
                 </button>
               </div>
             </div>
+            {/* Título da Reunião Recorrente - aparece quando Recorrente é selecionado */}
+            {recurrence === "recurring" && (
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Título da Reunião *
+                </Label>
+                {existingRecurringSeries.length > 0 ? (
+                  <>
+                    <select
+                      value={existingRecurringSeries.includes(meetingTitle) ? meetingTitle : "__NEW__"}
+                      onChange={(e) => {
+                        if (e.target.value !== "__NEW__") {
+                          setMeetingTitle(e.target.value);
+                        } else {
+                          setMeetingTitle("");
+                        }
+                      }}
+                      className="w-full px-3 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                    >
+                      {existingRecurringSeries.map((series) => (
+                        <option key={series} value={series}>{series}</option>
+                      ))}
+                      <option value="__NEW__">+ Digitar novo título...</option>
+                    </select>
+                    {!existingRecurringSeries.includes(meetingTitle) && (
+                      <Input
+                        type="text"
+                        value={meetingTitle}
+                        onChange={(e) => setMeetingTitle(e.target.value)}
+                        placeholder="Ex: Board Semanal, Daily Standup..."
+                        className="w-full mt-2"
+                      />
+                    )}
+                  </>
+                ) : (
+                  <Input
+                    type="text"
+                    value={meetingTitle}
+                    onChange={(e) => setMeetingTitle(e.target.value)}
+                    placeholder="Ex: Board Semanal, Daily Standup, Revisão Mensal..."
+                    className="w-full"
+                  />
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Título oficial que agrupa todas as ocorrências desta reunião recorrente.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Nota: Participantes serão identificados automaticamente pelo parser VTT */}
@@ -1478,8 +1554,8 @@ export function MeetingTranscriptIngestion() {
       </Card>
 
       {/* Upload Card */}
-      <Card className="p-6">
-        <div className="space-y-4">
+      <Card className="p-6 overflow-hidden">
+        <div className="space-y-4 min-w-0">
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" />
             <h3 className="text-lg font-semibold">Upload de Transcrição</h3>
@@ -1548,11 +1624,16 @@ export function MeetingTranscriptIngestion() {
       {result && (
         <>
           {/* Metadata */}
-          <Card className="p-6">
-            <div className="space-y-4">
+          <Card className="p-6 overflow-hidden">
+            <div className="space-y-4 min-w-0">
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-primary" />
                 <h3 className="text-lg font-semibold">Metadados da Reunião</h3>
+              </div>
+
+              <div className="mb-2">
+                <p className="text-xs text-muted-foreground">Título</p>
+                <p className="font-semibold text-base">{result.metadata.title}</p>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -1584,10 +1665,19 @@ export function MeetingTranscriptIngestion() {
                     {CONFIDENTIALITY_LEVELS[result.metadata.confidentiality].label}
                   </p>
                 </div>
+                {result.metadata.recurrence === "recurring" && (
+                  <div>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <GitBranch className="h-3 w-3" />
+                      Recorrência
+                    </p>
+                    <p className="font-medium">Recorrente</p>
+                  </div>
+                )}
               </div>
               
               {/* Summary and Key Topics (LLM extraction) */}
-              {(result.summary || result.keyTopics?.length) && (
+              {(result.summary || (keyTopicsData.length > 0 ? keyTopicsData : result.keyTopics)?.length) && (
                 <div className="mt-4 pt-4 border-t border-border space-y-3">
                   {result.summary && (
                     <div>
@@ -1595,48 +1685,84 @@ export function MeetingTranscriptIngestion() {
                         <FileText className="h-3 w-3" />
                         Resumo (extraído por IA)
                       </p>
-                      <p className="text-sm bg-muted/50 p-3 rounded-lg">{result.summary}</p>
+                      <p className="text-sm bg-muted/50 p-3 rounded-lg break-words overflow-hidden">{result.summary}</p>
                     </div>
                   )}
-                  {result.keyTopics && result.keyTopics.length > 0 && (
+                  {((keyTopicsData.length > 0 ? keyTopicsData : result.keyTopics) || []).length > 0 && (
                     <div>
-                      <p className="text-xs text-muted-foreground mb-2">Tópicos Principais</p>
-                      <div className="flex flex-wrap gap-2">
-                        {result.keyTopics.map((topic, i) => {
-                          // Suporta formato novo (objeto) e antigo (string)
-                          const isObject = typeof topic === 'object' && topic !== null;
-                          const topicName = isObject ? (topic as KeyTopic).topic : topic;
-                          const topicDesc = isObject ? (topic as KeyTopic).description : undefined;
-                          const relevance = isObject ? (topic as KeyTopic).relevance : undefined;
-                          
-                          return (
-                            <div 
-                              key={i} 
-                              className="group relative"
-                              title={topicDesc}
-                            >
-                              <Badge 
-                                variant="secondary" 
-                                className={cn(
-                                  "text-xs cursor-help transition-colors",
-                                  relevance && relevance >= 0.8 && "bg-primary/20 text-primary border-primary/30"
-                                )}
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 mb-2">
+                        <Tag className="h-3 w-3" />
+                        Tópicos Principais — metadados para recuperação ({(keyTopicsData.length > 0 ? keyTopicsData : result.keyTopics || []).length})
+                      </p>
+                      <div className="flex flex-wrap gap-2 items-center">
+                        {keyTopicsData.map((topic, i) => (
+                          <div key={i} className="group inline-flex items-center">
+                            {editingKeyTopicIdx === i ? (
+                              <Input
+                                value={topic}
+                                onChange={(e) => {
+                                  const updated = [...keyTopicsData];
+                                  updated[i] = e.target.value;
+                                  setKeyTopicsData(updated);
+                                }}
+                                className="h-7 text-xs w-[180px]"
+                                onBlur={() => {
+                                  // Remover se ficou vazio
+                                  if (!keyTopicsData[i]?.trim()) {
+                                    setKeyTopicsData(keyTopicsData.filter((_, idx) => idx !== i));
+                                  }
+                                  setEditingKeyTopicIdx(null);
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    if (!keyTopicsData[i]?.trim()) {
+                                      setKeyTopicsData(keyTopicsData.filter((_, idx) => idx !== i));
+                                    }
+                                    setEditingKeyTopicIdx(null);
+                                  }
+                                  if (e.key === 'Escape') {
+                                    setEditingKeyTopicIdx(null);
+                                  }
+                                }}
+                                autoFocus
+                              />
+                            ) : (
+                              <Badge
+                                variant="secondary"
+                                className="text-xs cursor-pointer transition-colors hover:bg-accent pr-1 gap-1"
+                                onClick={() => setEditingKeyTopicIdx(i)}
+                                title="Clique para editar"
                               >
-                                {topicName}
-                                {relevance && (
-                                  <span className="ml-1 opacity-60">
-                                    {Math.round(relevance * 100)}%
-                                  </span>
-                                )}
+                                {topic}
+                                <button
+                                  className="ml-1 opacity-40 hover:opacity-100 hover:text-red-500 transition-opacity rounded-full p-0.5"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setKeyTopicsData(keyTopicsData.filter((_, idx) => idx !== i));
+                                  }}
+                                  title="Remover tópico"
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
                               </Badge>
-                              {topicDesc && (
-                                <div className="absolute z-50 bottom-full left-0 mb-1 w-64 p-2 bg-popover text-popover-foreground text-xs rounded-md shadow-lg border opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                  {topicDesc}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
+                            )}
+                          </div>
+                        ))}
+                        {/* Adicionar novo tópico */}
+                        <div className="inline-flex items-center gap-1">
+                          <Input
+                            value={newTopicInput}
+                            onChange={(e) => setNewTopicInput(e.target.value)}
+                            placeholder="+ adicionar..."
+                            className="h-7 text-xs w-[120px] border-dashed"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && newTopicInput.trim()) {
+                                setKeyTopicsData([...keyTopicsData, newTopicInput.trim()]);
+                                setNewTopicInput("");
+                              }
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
                   )}
@@ -1644,40 +1770,40 @@ export function MeetingTranscriptIngestion() {
               )}
 
               {/* Provenance Info (spec 014) */}
-              <div className="mt-4 pt-4 border-t border-border">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Database className="h-3 w-3" />
-                  <span>Proveniência: {result.metadata.sourceFile}</span>
-                  <span className="mx-2">•</span>
-                  <span>Processado em: {new Date(result.metadata.processingTimestamp).toLocaleString('pt-BR')}</span>
+              <div className="mt-4 pt-4 border-t border-border overflow-hidden">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap min-w-0">
+                  <Database className="h-3 w-3 shrink-0" />
+                  <span className="truncate">Proveniência: {result.metadata.sourceFile}</span>
+                  <span className="shrink-0">•</span>
+                  <span className="shrink-0">Processado em: {new Date(result.metadata.processingTimestamp).toLocaleString('pt-BR')}</span>
                 </div>
               </div>
             </div>
           </Card>
 
           {/* Validation Summary */}
-          <Card className="p-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
+          <Card className="p-6 overflow-hidden">
+            <div className="space-y-4 min-w-0">
+              <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-primary" />
                   <h3 className="text-lg font-semibold">Validação de Entidades</h3>
                 </div>
-                <div className="flex gap-3 text-sm">
-                  <span className="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded">
+                <div className="flex gap-2 text-sm flex-wrap">
+                  <span className="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded whitespace-nowrap">
                     ✓ {validatedCount} validadas
                   </span>
-                  <span className="px-2 py-1 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded">
+                  <span className="px-2 py-1 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded whitespace-nowrap">
                     ✗ {rejectedCount} rejeitadas
                   </span>
-                  <span className="px-2 py-1 bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400 rounded">
+                  <span className="px-2 py-1 bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400 rounded whitespace-nowrap">
                     ? {pendingCount} pendentes
                   </span>
                 </div>
               </div>
 
               {/* Resumo: Auto-matched vs Pendentes */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-lg">
                   <p className="text-sm text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
                     <CheckCircle className="h-4 w-4" />
@@ -1735,7 +1861,7 @@ export function MeetingTranscriptIngestion() {
               </div>
 
               {/* Entity List */}
-              <div className="space-y-2 max-h-[500px] overflow-y-auto">
+              <div className="space-y-2 max-h-[500px] overflow-y-auto overflow-x-hidden">
                 {filteredEntities.map((entity) => {
                   const config = ENTITY_CONFIG[entity.type];
                   const Icon = config.icon;
@@ -1743,14 +1869,14 @@ export function MeetingTranscriptIngestion() {
                     <div
                       key={entity.id}
                       className={cn(
-                        "p-3 rounded-lg border transition-colors",
+                        "p-3 rounded-lg border transition-colors overflow-hidden",
                         entity.validated === true && "bg-green-50/50 dark:bg-green-950/20 border-green-200 dark:border-green-800",
                         entity.validated === false && "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-800 opacity-60",
                         entity.validated === null && "bg-muted/30 border-border"
                       )}
                     >
                       {/* Row 1: Type badge, value, confidence, validation buttons */}
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
                         <span className={cn("px-2 py-1 rounded text-xs flex items-center gap-1", config.color)}>
                           <Icon className="h-3 w-3" />
                           {config.label}
@@ -1789,7 +1915,7 @@ export function MeetingTranscriptIngestion() {
                         </span>
                         
                         {/* Graph link indicator for participants and mentionedEntities */}
-                        {(entity.type === "participant" || entity.type === "mentionedEntity") && (
+                        {(entity.type === "participant" || entity.type === "mentionedEntity") && !entity.suggestedMatch && (
                           <span
                             className={cn(
                               "text-xs px-1.5 py-0.5 rounded shrink-0 flex items-center gap-1",
@@ -1802,6 +1928,30 @@ export function MeetingTranscriptIngestion() {
                             <Link2 className="h-3 w-3" />
                             {entity.linkedNodeId ? "Vinculado" : "Novo"}
                           </span>
+                        )}
+
+                        {/* Suggested match - 1-click accept for curator */}
+                        {entity.suggestedMatch && !entity.linkedNodeId && (
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleAcceptSuggestedMatch(entity.id)}
+                              className="text-xs px-2 py-0.5 rounded flex items-center gap-1 bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-400 hover:bg-sky-200 dark:hover:bg-sky-900/70 transition-colors border border-sky-300 dark:border-sky-700"
+                              title={`Vincular a "${entity.suggestedMatch.nodeName}" (${entity.suggestedMatch.nodeLabel}) — ${Math.round(entity.suggestedMatch.score * 100)}% confiança`}
+                            >
+                              <Link2 className="h-3 w-3" />
+                              <span className="max-w-[180px] truncate">→ {entity.suggestedMatch.nodeName}</span>
+                              <span className="opacity-70">{Math.round(entity.suggestedMatch.score * 100)}%</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRejectSuggestedMatch(entity.id)}
+                              className="text-xs px-1 py-0.5 rounded text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                              title="Ignorar sugestão — manter como nova entidade"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
                         )}
 
                         {entity.validated === null ? (
@@ -1829,7 +1979,7 @@ export function MeetingTranscriptIngestion() {
                       </div>
 
                       {/* Row 2: Context, Responsável (para ações), Tipo (para entidades) */}
-                      <div className="mt-2 flex items-center gap-4 text-xs">
+                      <div className="mt-2 flex items-center gap-2 text-xs flex-wrap min-w-0">
                         {/* Expand button for entities with description */}
                         {entity.description && (
                           <button
@@ -1846,28 +1996,7 @@ export function MeetingTranscriptIngestion() {
                           </button>
                         )}
 
-                        {/* Responsável inline para actionItem */}
-                        {entity.type === "actionItem" && (
-                          <div className="flex items-center gap-1 shrink-0">
-                            <span className="text-muted-foreground">Responsável:</span>
-                            <select
-                              value={entity.assignee && orgNodes.some((n) => n.name === entity.assignee) ? entity.assignee : ""}
-                              onChange={(e) => handleUpdateEntityField(entity.id, "assignee", e.target.value)}
-                              className="w-48 px-2 py-0.5 text-xs border rounded bg-background"
-                              title="Somente colaboradores internos podem ser responsáveis"
-                            >
-                              <option value="">Selecionar...</option>
-                              {orgNodes.map((n) => (
-                                <option key={n.id} value={n.name}>
-                                  {n.name}
-                                </option>
-                              ))}
-                            </select>
-                            <span className="text-muted-foreground mx-1">|</span>
-                            <span className="text-muted-foreground">Prazo:</span>
-                            <span className="text-muted-foreground">{entity.deadline || "Não mencionado"}</span>
-                          </div>
-                        )}
+                        {/* Responsável inline removido - mantido apenas na seção expandida */}
 
                         {/* Tipo de entidade editável para mentionedEntity */}
                         {entity.type === "mentionedEntity" && (
@@ -1903,7 +2032,10 @@ export function MeetingTranscriptIngestion() {
                           </div>
                         )}
                         
-                        <p className="text-muted-foreground flex-1 truncate">{entity.context}</p>
+                        {/* Context text: exibir apenas para participant e mentionedEntity */}
+                        {(entity.type === "participant" || entity.type === "mentionedEntity") && entity.context && (
+                          <p className="text-muted-foreground flex-1 min-w-0 truncate basis-full sm:basis-auto break-all">{entity.context}</p>
+                        )}
                         
                         {/* Priority badge */}
                         {entity.priority && (
@@ -1966,68 +2098,60 @@ export function MeetingTranscriptIngestion() {
                         <div className="mt-3 pt-3 border-t border-dashed border-border/50 space-y-2">
                           <div className="bg-muted/30 p-3 rounded-lg">
                             <p className="text-xs font-medium text-muted-foreground mb-1">Descrição Detalhada</p>
-                            <p className="text-sm leading-relaxed">{entity.description}</p>
+                            <textarea
+                              value={entity.description || ""}
+                              onChange={(e) => handleUpdateEntityField(entity.id, "description", e.target.value)}
+                              className="text-sm leading-relaxed w-full bg-transparent border border-border/50 rounded p-2 focus:ring-1 focus:ring-primary focus:border-primary resize-y min-h-[60px]"
+                              rows={3}
+                            />
                           </div>
                           
                           {/* Related info grid */}
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                            {/* Assignee - editável para actionItem */}
-                            {(entity.type === "actionItem" || entity.assignee) && (
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                            {/* Responsável - combo para task/decision/risk/insight */}
+                            {["task", "decision", "risk", "insight"].includes(entity.type) && (
                               <div className="bg-blue-50 dark:bg-blue-950/30 p-2 rounded">
                                 <p className="text-muted-foreground mb-1">Responsável</p>
-                                {entity.type === "actionItem" ? (
-                                  <select
-                                    value={entity.assignee && orgNodes.some((n) => n.name === entity.assignee) ? entity.assignee : ""}
-                                    onChange={(e) => handleUpdateEntityField(entity.id, "assignee", e.target.value)}
-                                    className="w-full px-2 py-1 text-xs border rounded bg-white dark:bg-gray-900"
-                                    title="Somente colaboradores internos podem ser responsáveis"
-                                  >
-                                    <option value="">Selecionar...</option>
-                                    {orgNodes.map((n) => (
-                                      <option key={n.id} value={n.name}>
-                                        {n.name}
-                                      </option>
-                                    ))}
-                                  </select>
-                                ) : (
-                                  <p className="font-medium">{entity.assignee}</p>
-                                )}
+                                <select
+                                  value={(() => {
+                                    const val = entity.type === "task" ? entity.assignee : entity.relatedPerson;
+                                    return val && orgNodes.some((n) => n.name === val) ? val : "";
+                                  })()}
+                                  onChange={(e) => {
+                                    const field = entity.type === "task" ? "assignee" : "relatedPerson";
+                                    handleUpdateEntityField(entity.id, field, e.target.value);
+                                  }}
+                                  className="w-full px-2 py-1 text-xs border rounded bg-white dark:bg-gray-900"
+                                >
+                                  <option value="">Selecionar...</option>
+                                  {orgNodes.map((n) => (
+                                    <option key={n.id} value={n.name}>
+                                      {n.name}
+                                    </option>
+                                  ))}
+                                </select>
                               </div>
                             )}
-                            {/* Deadline - editável para actionItem */}
-                            {(entity.type === "actionItem" || entity.deadline) && (
+                            {/* Prazo - editável para Tarefa */}
+                            {entity.type === "task" && (
                               <div className="bg-orange-50 dark:bg-orange-950/30 p-2 rounded">
                                 <p className="text-muted-foreground mb-1">Prazo</p>
-                                {entity.type === "actionItem" ? (
-                                  <input
-                                    type="date"
-                                    value={entity.deadline || ""}
-                                    onChange={(e) => handleUpdateEntityField(entity.id, "deadline", e.target.value)}
-                                    className="w-full px-2 py-1 text-xs border rounded bg-white dark:bg-gray-900"
-                                  />
-                                ) : (
-                                  <p className="font-medium">{entity.deadline}</p>
-                                )}
+                                <input
+                                  type="date"
+                                  value={entity.deadline || ""}
+                                  onChange={(e) => handleUpdateEntityField(entity.id, "deadline", e.target.value)}
+                                  className="w-full px-2 py-1 text-xs border rounded bg-white dark:bg-gray-900"
+                                />
                               </div>
                             )}
-                            {entity.relatedPerson && entity.type !== "actionItem" && (
-                              <div className="bg-blue-50 dark:bg-blue-950/30 p-2 rounded">
-                                <p className="text-muted-foreground">Pessoa Relacionada</p>
-                                <p className="font-medium">{entity.relatedPerson}</p>
-                              </div>
-                            )}
-                            {entity.relatedArea && (
-                              <div className="bg-purple-50 dark:bg-purple-950/30 p-2 rounded">
-                                <p className="text-muted-foreground">Área</p>
-                                <p className="font-medium">{entity.relatedArea}</p>
-                              </div>
-                            )}
+                            {/* Impacto */}
                             {entity.impact && (
                               <div className="bg-amber-50 dark:bg-amber-950/30 p-2 rounded">
                                 <p className="text-muted-foreground">Impacto</p>
                                 <p className="font-medium">{entity.impact}</p>
                               </div>
                             )}
+                            {/* Prioridade */}
                             {entity.priority && (
                               <div className={cn(
                                 "p-2 rounded",
@@ -2036,9 +2160,15 @@ export function MeetingTranscriptIngestion() {
                                 entity.priority === "low" && "bg-green-50 dark:bg-green-950/30"
                               )}>
                                 <p className="text-muted-foreground">Prioridade</p>
-                                <p className="font-medium">
-                                  {entity.priority === "high" ? "🔴 Alta" : entity.priority === "medium" ? "🟡 Média" : "🟢 Baixa"}
-                                </p>
+                                <select
+                                  value={entity.priority || "medium"}
+                                  onChange={(e) => handleUpdateEntityField(entity.id, "priority", e.target.value)}
+                                  className="w-full px-2 py-1 text-xs border rounded bg-white dark:bg-gray-900"
+                                >
+                                  <option value="high">🔴 Alta</option>
+                                  <option value="medium">🟡 Média</option>
+                                  <option value="low">🟢 Baixa</option>
+                                </select>
                               </div>
                             )}
                           </div>
@@ -2057,8 +2187,10 @@ export function MeetingTranscriptIngestion() {
                 <Button 
                   onClick={handleSaveToGraph}
                   disabled={validatedCount === 0}
+                  title={validatedCount === 0 ? "Valide pelo menos uma entidade para salvar" : `Salvar ${validatedCount} de ${result.entities.length} entidades validadas`}
                 >
-                  Salvar {validatedCount} Entidades no Grafo
+                  <Save className="h-4 w-4 mr-2" />
+                  Salvar {validatedCount} de {result.entities.length} Entidades
                 </Button>
               </div>
             </div>
