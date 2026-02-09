@@ -7,7 +7,7 @@ import { ONBOARDING_STEPS, useOnboardingStore } from "@/store/onboarding-store";
 import { useInstitutionConfig } from "@/hooks/useInstitutionConfig";
 import { cn } from "@/lib/utils";
 
-export type ViewType = "onboarding" | "processes" | "knowledge" | "navigator" | "validation";
+export type ViewType = "onboarding" | "processes" | "knowledge" | "navigator" | "navigator_v2" | "validation";
 
 interface SidebarProps {
   onClose?: () => void;
@@ -17,6 +17,7 @@ interface SidebarProps {
 
 const MENU_ITEMS: { id: ViewType; label: string; icon: React.ReactNode; badge?: number }[] = [
   { id: "navigator", label: "Visão Estratégica", icon: <Network className="w-4 h-4" /> },
+  { id: "navigator_v2", label: "Cockpit Executivo", icon: <Network className="w-4 h-4" /> },
   { id: "knowledge", label: "Conhecimento", icon: <BookOpen className="w-4 h-4" /> },
   { id: "validation", label: "Validação", icon: <CheckCircle className="w-4 h-4" />, badge: 6 },
 ];

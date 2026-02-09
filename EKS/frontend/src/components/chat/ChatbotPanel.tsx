@@ -25,6 +25,7 @@ import {
 import { useChat } from "@/hooks/use-chat"
 import { useConversations } from "@/hooks/use-conversations"
 import { useAuthStore } from "@/store/authStore"
+import { useChatContextStore } from "@/store/chatContextStore"
 import { getChatWelcome } from "@/services/api"
 import { MarkdownRenderer } from "./MarkdownRenderer"
 import { ConversationHistory } from "./ConversationHistory"
@@ -33,6 +34,7 @@ import { AudioRecorder } from "./AudioRecorder"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { EntityType } from "@/types/chat"
 import { cn } from "@/lib/utils"
+import { X, CheckCircle2, AlertTriangle, Lightbulb, CheckSquare, Target, FileText } from "lucide-react"
 
 interface ChatbotPanelProps {
   isExpanded?: boolean
@@ -53,6 +55,7 @@ export function ChatbotPanel({
   const isExpanded = isMobile ? true : (isExpandedProp ?? false)
 
   const { user } = useAuthStore()
+  const { contextItems, removeContextItem, clearContext } = useChatContextStore()
   const sessionIdRef = useRef<string>(`session-${Date.now()}`)
   const welcomeInFlightRef = useRef(false)
   const [isStartingChat, setIsStartingChat] = useState(false)
@@ -64,6 +67,7 @@ export function ChatbotPanel({
   const [cursorPosition, setCursorPosition] = useState<{ start: number; end: number } | null>(null)
   const [selectedEntities, setSelectedEntities] = useState<Record<string, string>>({})
   const [messageFeedback, setMessageFeedback] = useState<Record<string, 'positive' | 'negative' | null>>({})
+  const [isDraggingOver, setIsDraggingOver] = useState(false)
   
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -206,8 +210,125 @@ export function ChatbotPanel({
   }
 
   const handleSendMessage = async (content: string) => {
-    await sendMessage(content)
+    const { getContextForLLM } = useChatContextStore.getState()
+    const contextText = getContextForLLM()
+    const fullContent = contextText ? `${contextText}\n\n---\n\n${content}` : content
+    await sendMessage(fullContent)
     setInputValue("")
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    // Verificar se o item arrastado é válido
+    const types = e.dataTransfer.types
+    if (types.includes("application/json")) {
+      e.dataTransfer.dropEffect = "move"
+    } else {
+      e.dataTransfer.dropEffect = "none"
+    }
+  }
+
+  const dragCounterRef = useRef(0)
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    dragCounterRef.current--
+    
+    // Só desativa quando realmente saiu de todos os elementos filhos
+    if (dragCounterRef.current === 0) {
+      setIsDraggingOver(false)
+    }
+  }
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    dragCounterRef.current++
+    
+    // Verificar se o item arrastado é válido
+    const types = e.dataTransfer.types
+    if (types.includes("application/json")) {
+      setIsDraggingOver(true)
+    }
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    dragCounterRef.current = 0
+    setIsDraggingOver(false)
+
+    try {
+      const data = JSON.parse(e.dataTransfer.getData("application/json"))
+      if (data.type && data.title) {
+        const { addContextItem } = useChatContextStore.getState()
+        addContextItem({
+          id: data.id || `context-${Date.now()}`,
+          type: data.type,
+          title: data.title,
+          description: data.description || "",
+          metadata: data.metadata || {},
+        })
+      }
+    } catch (error) {
+      console.error("Failed to parse dropped data:", error)
+    }
+  }
+
+  // Handler global para detectar quando o drag termina
+  useEffect(() => {
+    const handleDragEnd = () => {
+      dragCounterRef.current = 0
+      setIsDraggingOver(false)
+    }
+
+    document.addEventListener("dragend", handleDragEnd)
+    return () => {
+      document.removeEventListener("dragend", handleDragEnd)
+    }
+  }, [])
+
+  const getContextItemIcon = (type: string) => {
+    switch (type) {
+      case "decision":
+        return <CheckCircle2 className="w-3.5 h-3.5" />
+      case "risk":
+        return <AlertTriangle className="w-3.5 h-3.5" />
+      case "insight":
+        return <Lightbulb className="w-3.5 h-3.5" />
+      case "task":
+        return <CheckSquare className="w-3.5 h-3.5" />
+      case "project":
+        return <FolderKanban className="w-3.5 h-3.5" />
+      case "okr":
+        return <Target className="w-3.5 h-3.5" />
+      default:
+        return <FileText className="w-3.5 h-3.5" />
+    }
+  }
+
+  const getContextItemLabel = (type: string) => {
+    switch (type) {
+      case "decision":
+        return "Decisão"
+      case "risk":
+        return "Risco"
+      case "insight":
+        return "Insight"
+      case "task":
+        return "Tarefa"
+      case "project":
+        return "Projeto"
+      case "okr":
+        return "OKR"
+      default:
+        return type
+    }
   }
 
   const handleAudioRecorded = async (audioBlob: Blob) => {
@@ -285,7 +406,13 @@ export function ChatbotPanel({
           </div>
 
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-4" ref={scrollAreaRef}>
+          <div 
+            className="flex-1 overflow-y-auto p-4" 
+            ref={scrollAreaRef}
+            onDragEnter={handleDragEnter}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+          >
             <div className="space-y-4">
               {messages.map((message) => (
                 <div
@@ -372,7 +499,89 @@ export function ChatbotPanel({
           </div>
 
           {/* Input Area Mobile */}
-          <div className="p-4 border-t border-border bg-card">
+          <div 
+            className="border-t border-border bg-card"
+            onDragEnter={handleDragEnter}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            {/* Área de Drop Mobile (quando arrastando) - sempre visível quando arrastando */}
+            {isDraggingOver && (
+              <div className="px-4 py-4 bg-primary/10 border-b-2 border-primary animate-pulse">
+                <div className="flex items-center justify-center gap-2 text-primary font-semibold">
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span className="text-sm">Solte aqui para adicionar ao contexto</span>
+                </div>
+              </div>
+            )}
+
+            {/* Área de Contexto Mobile */}
+            {(contextItems.length > 0 || isDraggingOver) && (
+              <div className={cn(
+                "px-4 pt-3 pb-2 border-b border-border/50 transition-colors",
+                contextItems.length > 0 ? "bg-muted/30" : "bg-transparent",
+                isDraggingOver && "bg-primary/5"
+              )}>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                      Contexto Ativo
+                    </span>
+                    {contextItems.length > 0 && (
+                      <Badge variant="secondary" className="text-xs px-1.5 py-0">
+                        {contextItems.length}
+                      </Badge>
+                    )}
+                    {isDraggingOver && contextItems.length === 0 && (
+                      <Badge variant="outline" className="text-xs px-1.5 py-0 border-primary text-primary">
+                        Solte para adicionar
+                      </Badge>
+                    )}
+                  </div>
+                  {contextItems.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearContext}
+                      className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Limpar
+                    </Button>
+                  )}
+                </div>
+                {contextItems.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {contextItems.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-background border border-border text-xs group"
+                      >
+                        <div className="text-muted-foreground">
+                          {getContextItemIcon(item.type)}
+                        </div>
+                        <span className="font-medium text-foreground truncate max-w-[120px]">
+                          {item.title}
+                        </span>
+                        <button
+                          onClick={() => removeContextItem(item.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : isDraggingOver && (
+                  <div className="text-xs text-muted-foreground italic py-1">
+                    Arraste elementos aqui para incluí-los no contexto da conversa
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Input Mobile */}
+            <div className="p-4">
             <div className="flex gap-2 items-end">
               <textarea
                 ref={textareaRef}
@@ -401,6 +610,7 @@ export function ChatbotPanel({
               >
                 <Send className="h-4 w-4" />
               </Button>
+            </div>
             </div>
           </div>
         </div>
@@ -486,7 +696,13 @@ export function ChatbotPanel({
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 pb-0" ref={scrollAreaRef}>
+            <div 
+              className="flex-1 overflow-y-auto p-4 pb-0" 
+              ref={scrollAreaRef}
+              onDragEnter={handleDragEnter}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+            >
               <div className="space-y-4">
                 {messages.map((message) => (
                   <div
@@ -602,7 +818,89 @@ export function ChatbotPanel({
               </div>
             </div>
 
-            <div className="p-4 border-t border-border mt-auto bg-card flex-shrink-0">
+            <div 
+              className="border-t border-border mt-auto bg-card flex-shrink-0"
+              onDragEnter={handleDragEnter}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              {/* Área de Drop (quando arrastando) - sempre visível quando arrastando */}
+              {isDraggingOver && (
+                <div className="px-4 py-4 bg-primary/10 border-b-2 border-primary animate-pulse">
+                  <div className="flex items-center justify-center gap-2 text-primary font-semibold">
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span className="text-sm">Solte aqui para adicionar ao contexto</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Área de Contexto */}
+              {(contextItems.length > 0 || isDraggingOver) && (
+                <div className={cn(
+                  "px-4 pt-3 pb-2 border-b border-border/50 transition-colors",
+                  contextItems.length > 0 ? "bg-muted/30" : "bg-transparent",
+                  isDraggingOver && "bg-primary/5"
+                )}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                        Contexto Ativo
+                      </span>
+                      {contextItems.length > 0 && (
+                        <Badge variant="secondary" className="text-xs px-1.5 py-0">
+                          {contextItems.length}
+                        </Badge>
+                      )}
+                      {isDraggingOver && contextItems.length === 0 && (
+                        <Badge variant="outline" className="text-xs px-1.5 py-0 border-primary text-primary">
+                          Solte para adicionar
+                        </Badge>
+                      )}
+                    </div>
+                    {contextItems.length > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={clearContext}
+                        className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        Limpar
+                      </Button>
+                    )}
+                  </div>
+                  {contextItems.length > 0 ? (
+                    <div className="flex flex-wrap gap-1.5">
+                      {contextItems.map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-background border border-border text-xs group"
+                        >
+                          <div className="text-muted-foreground">
+                            {getContextItemIcon(item.type)}
+                          </div>
+                          <span className="font-medium text-foreground truncate max-w-[120px]">
+                            {item.title}
+                          </span>
+                          <button
+                            onClick={() => removeContextItem(item.id)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : isDraggingOver && (
+                    <div className="text-xs text-muted-foreground italic py-1">
+                      Arraste elementos aqui para incluí-los no contexto da conversa
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Área de Input */}
+              <div className="p-4">
               <div className="flex gap-2 items-end w-full">
                 <Tooltip content="Anexar arquivo (em breve)">
                   <Button
@@ -701,6 +999,7 @@ export function ChatbotPanel({
                 >
                   <Send className="h-4 w-4" />
                 </Button>
+              </div>
               </div>
             </div>
           </div>

@@ -359,7 +359,7 @@ export function MeetingTranscriptIngestion() {
             const seriesTitles = meetingsResponse.data
               .filter((m: any) => m.recurrence === 'recurring' && m.title)
               .map((m: any) => m.title as string);
-            const uniqueSeries = [...new Set(seriesTitles)].sort();
+            const uniqueSeries = Array.from(new Set<string>(seriesTitles)).sort();
             setExistingRecurringSeries(uniqueSeries);
             console.log(`[Ingestion] Recurring series loaded: ${uniqueSeries.length} series`);
           }
@@ -2014,6 +2014,7 @@ export function MeetingTranscriptIngestion() {
                                     role: "",
                                     organization: "",
                                     email: "",
+                                    partnerType: "operational",
                                     notes: "",
                                   });
                                   setExpandedEditEntity(entity);

@@ -8,6 +8,7 @@ import { Canvas } from "@/components/canvas/Canvas";
 import { ProcessesView } from "@/components/canvas/ProcessesView";
 import { KnowledgeBase } from "@/components/canvas/KnowledgeBase";
 import { GraphNavigator } from "@/components/canvas/GraphNavigator";
+import { GraphNavigatorV2 } from "@/components/canvas/GraphNavigatorV2";
 import { ValidationFeed } from "@/components/canvas/ValidationFeed";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -100,6 +101,7 @@ export default function Home() {
               {currentView === "knowledge" && <KnowledgeBase />}
               {currentView === "validation" && <ValidationFeed />}
               {currentView === "navigator" && <GraphNavigator />}
+              {currentView === "navigator_v2" && <GraphNavigatorV2 />}
               {currentView === "processes" && <ProcessesView onClose={() => setCurrentView("processes")} />}
             </div>
 
