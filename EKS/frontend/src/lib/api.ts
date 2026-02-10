@@ -625,6 +625,25 @@ class ApiClient {
     return this.request<any>(`/ontology/graph${query}`);
   }
 
+  // ===== Ontology Health =====
+
+  async getOntologyHealth(): Promise<ApiResponse<any>> {
+    return this.request<any>('/ontology/health');
+  }
+
+  async getOntologyHealthSupernodes(limit?: number): Promise<ApiResponse<any>> {
+    const query = limit ? `?limit=${limit}` : '';
+    return this.request<any>(`/ontology/health/supernodes${query}`);
+  }
+
+  async getOntologyHealthCompleteness(): Promise<ApiResponse<any>> {
+    return this.request<any>('/ontology/health/completeness');
+  }
+
+  async getOntologyHealthTemporal(): Promise<ApiResponse<any>> {
+    return this.request<any>('/ontology/health/temporal');
+  }
+
   // ===== External Participants =====
 
   async getExternalParticipants(filters?: {

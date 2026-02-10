@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { neo4jConnection } from '../config/neo4j';
 import { logger } from '../utils/logger';
+import neo4j from 'neo4j-driver';
 
 const router = Router();
 
@@ -742,5 +743,373 @@ function getRelationshipDescription(type: string): string {
   };
   return descriptions[type] || `Relacionamento do tipo ${type}`;
 }
+
+// ============================================================================
+// ONTOLOGICAL HEALTH ENDPOINTS
+// ============================================================================
+
+/**
+ * GET /ontology/health
+ * Dashboard summary — vital signs of the graph
+ */
+router.get('/health', async (req: Request, res: Response) => {
+  const session = neo4jConnection.getSession();
+
+  try {
+    // Basic counts
+    const countsResult = await session.run(`
+      MATCH (n)
+      WITH count(n) AS nodes
+      MATCH ()-[r]->()
+      WITH nodes, count(r) AS rels
+      RETURN nodes, rels, 
+             CASE WHEN nodes > 0 THEN toFloat(rels) / nodes ELSE 0 END AS relsPerNode,
+             CASE WHEN nodes > 0 THEN (2.0 * rels) / nodes ELSE 0 END AS avgTotalDegree
+    `);
+
+    const counts = countsResult.records[0];
+    const totalNodes = counts?.get('nodes')?.toNumber?.() || counts?.get('nodes') || 0;
+    const totalRels = counts?.get('rels')?.toNumber?.() || counts?.get('rels') || 0;
+    const relsPerNode = counts?.get('relsPerNode') || 0;
+    const avgTotalDegree = counts?.get('avgTotalDegree') || 0;
+
+    // Degree distribution (p50, p90, max)
+    const degreeResult = await session.run(`
+      MATCH (n)
+      WITH n, COUNT { (n)--() } AS deg
+      RETURN
+        avg(toFloat(deg)) AS avgDegree,
+        percentileCont(toFloat(deg), 0.5) AS p50,
+        percentileCont(toFloat(deg), 0.9) AS p90,
+        max(toFloat(deg)) AS maxDegree,
+        min(toFloat(deg)) AS minDegree
+    `);
+
+    const degRec = degreeResult.records[0];
+    const p50 = degRec?.get('p50') || 0;
+    const p90 = degRec?.get('p90') || 0;
+    const maxDegree = degRec?.get('maxDegree') || 0;
+    const minDegree = degRec?.get('minDegree') || 0;
+    const avgDegree = degRec?.get('avgDegree') || 0;
+
+    // Orphan nodes (degree = 0)
+    const orphanResult = await session.run(`
+      MATCH (n) WHERE NOT (n)--() RETURN count(n) AS orphans
+    `);
+    const orphans = orphanResult.records[0]?.get('orphans')?.toNumber?.() || 0;
+
+    // Degree histogram
+    const histResult = await session.run(`
+      MATCH (n)
+      WITH COUNT { (n)--() } AS deg
+      RETURN deg AS degree, count(*) AS count
+      ORDER BY deg
+    `);
+    const histogram = histResult.records.map(r => ({
+      degree: r.get('degree')?.toNumber?.() || r.get('degree') || 0,
+      count: r.get('count')?.toNumber?.() || r.get('count') || 0,
+    }));
+
+    // Health score (0-10)
+    const orphanPct = totalNodes > 0 ? (orphans / totalNodes) * 100 : 0;
+    const p90p50Ratio = p50 > 0 ? p90 / p50 : 0;
+    let healthScore = 10;
+    // Penalize high orphan %
+    if (orphanPct > 30) healthScore -= 3;
+    else if (orphanPct > 10) healthScore -= 1.5;
+    // Penalize extreme concentration
+    if (p90p50Ratio > 10) healthScore -= 2;
+    else if (p90p50Ratio > 5) healthScore -= 1;
+    // Penalize low connectivity
+    if (relsPerNode < 0.5) healthScore -= 2;
+    else if (relsPerNode < 1) healthScore -= 1;
+    // Penalize very high max degree
+    if (maxDegree > avgDegree * 10) healthScore -= 1;
+    healthScore = Math.max(0, Math.min(10, healthScore));
+
+    res.json({
+      success: true,
+      data: {
+        totalNodes,
+        totalRelationships: totalRels,
+        relsPerNode: Math.round(relsPerNode * 100) / 100,
+        avgTotalDegree: Math.round(avgTotalDegree * 100) / 100,
+        degree: {
+          avg: Math.round(avgDegree * 100) / 100,
+          p50,
+          p90,
+          max: maxDegree,
+          min: minDegree,
+          p90p50Ratio: Math.round(p90p50Ratio * 100) / 100,
+        },
+        orphans,
+        orphanPercent: Math.round(orphanPct * 10) / 10,
+        healthScore: Math.round(healthScore * 10) / 10,
+        histogram,
+      },
+    });
+  } catch (error) {
+    logger.error('Ontology health error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch ontology health',
+    });
+  } finally {
+    await session.close();
+  }
+});
+
+/**
+ * GET /ontology/health/supernodes
+ * Top N most connected nodes
+ */
+router.get('/health/supernodes', async (req: Request, res: Response) => {
+  const session = neo4jConnection.getSession();
+  const limit = parseInt(req.query.limit as string) || 15;
+
+  try {
+    const result = await session.run(`
+      MATCH (n)
+      WITH n, COUNT { (n)--() } AS deg
+      WHERE deg > 0
+      RETURN labels(n)[0] AS label, n.name AS name, n.id AS id, deg AS degree
+      ORDER BY deg DESC
+      LIMIT $limit
+    `, { limit: neo4j.int(limit) });
+
+    const supernodes = result.records.map(r => ({
+      label: r.get('label') || 'Unknown',
+      name: r.get('name') || r.get('id') || '(sem nome)',
+      degree: r.get('degree')?.toNumber?.() || r.get('degree') || 0,
+    }));
+
+    // Get p90 threshold
+    const thresholdResult = await session.run(`
+      MATCH (n)
+      WITH COUNT { (n)--() } AS deg
+      RETURN percentileCont(toFloat(deg), 0.9) AS p90
+    `);
+    const p90Threshold = thresholdResult.records[0]?.get('p90') || 0;
+
+    res.json({
+      success: true,
+      data: {
+        supernodes: supernodes.map(s => ({
+          ...s,
+          isAboveP90: s.degree > p90Threshold,
+        })),
+        p90Threshold,
+      },
+    });
+  } catch (error) {
+    logger.error('Ontology supernodes error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch supernodes',
+    });
+  } finally {
+    await session.close();
+  }
+});
+
+/**
+ * GET /ontology/health/completeness
+ * Property completeness per label
+ */
+router.get('/health/completeness', async (req: Request, res: Response) => {
+  const session = neo4jConnection.getSession();
+
+  try {
+    // Get all labels and their property keys from schema
+    const schemaResult = await session.run(`
+      CALL db.schema.nodeTypeProperties() YIELD nodeLabels, propertyName, propertyTypes
+      RETURN nodeLabels, collect(DISTINCT propertyName) AS properties
+    `);
+
+    // For each label, check actual fill rate
+    const completenessData: Array<{
+      label: string;
+      totalNodes: number;
+      properties: Array<{ name: string; filledCount: number; fillPercent: number }>;
+      overallCompleteness: number;
+    }> = [];
+
+    // Get label counts
+    const labelCountsResult = await session.run(`
+      CALL db.labels() YIELD label
+      CALL {
+        WITH label
+        MATCH (n) WHERE label IN labels(n)
+        RETURN count(n) AS cnt
+      }
+      RETURN label, cnt
+      ORDER BY cnt DESC
+    `);
+
+    for (const record of labelCountsResult.records) {
+      const label = record.get('label');
+      const cnt = record.get('cnt')?.toNumber?.() || record.get('cnt') || 0;
+      if (cnt === 0) continue;
+
+      // Get properties for this label
+      const propsResult = await session.run(`
+        CALL db.schema.nodeTypeProperties() YIELD nodeLabels, propertyName
+        WHERE $label IN nodeLabels
+        RETURN DISTINCT propertyName
+      `, { label });
+
+      const propertyNames = propsResult.records.map(r => r.get('propertyName')).filter(Boolean);
+      if (propertyNames.length === 0) continue;
+
+      // Check fill rate for each property
+      const propStats: Array<{ name: string; filledCount: number; fillPercent: number }> = [];
+      
+      for (const prop of propertyNames) {
+        const fillResult = await session.run(`
+          MATCH (n) WHERE $label IN labels(n) AND n[$prop] IS NOT NULL
+          RETURN count(n) AS filled
+        `, { label, prop });
+        const filled = fillResult.records[0]?.get('filled')?.toNumber?.() || 0;
+        propStats.push({
+          name: prop,
+          filledCount: filled,
+          fillPercent: cnt > 0 ? Math.round((filled / cnt) * 100) : 0,
+        });
+      }
+
+      const overallCompleteness = propStats.length > 0
+        ? Math.round(propStats.reduce((sum, p) => sum + p.fillPercent, 0) / propStats.length)
+        : 0;
+
+      completenessData.push({
+        label,
+        totalNodes: cnt,
+        properties: propStats.sort((a, b) => a.fillPercent - b.fillPercent),
+        overallCompleteness,
+      });
+    }
+
+    res.json({
+      success: true,
+      data: completenessData.sort((a, b) => a.overallCompleteness - b.overallCompleteness),
+    });
+  } catch (error) {
+    logger.error('Ontology completeness error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch completeness',
+    });
+  } finally {
+    await session.close();
+  }
+});
+
+/**
+ * GET /ontology/health/temporal
+ * Temporal metrics: growth, freshness, dormant relationships
+ */
+router.get('/health/temporal', async (req: Request, res: Response) => {
+  const session = neo4jConnection.getSession();
+
+  try {
+    // Nodes created in last 7 and 30 days
+    const growthResult = await session.run(`
+      MATCH (n)
+      WHERE n.createdAt IS NOT NULL
+      RETURN
+        count(CASE WHEN n.createdAt > datetime() - duration('P7D') THEN 1 END) AS newNodes7d,
+        count(CASE WHEN n.createdAt > datetime() - duration('P30D') THEN 1 END) AS newNodes30d,
+        count(n) AS totalWithDate
+    `);
+
+    const growth = growthResult.records[0];
+    const newNodes7d = growth?.get('newNodes7d')?.toNumber?.() || 0;
+    const newNodes30d = growth?.get('newNodes30d')?.toNumber?.() || 0;
+
+    // Growth by label (last 30 days)
+    const growthByLabelResult = await session.run(`
+      MATCH (n)
+      WHERE n.createdAt IS NOT NULL AND n.createdAt > datetime() - duration('P30D')
+      RETURN labels(n)[0] AS label, count(*) AS count
+      ORDER BY count DESC
+      LIMIT 10
+    `);
+
+    const growthByLabel = growthByLabelResult.records.map(r => ({
+      label: r.get('label') || 'Unknown',
+      count: r.get('count')?.toNumber?.() || 0,
+    }));
+
+    // Oldest nodes without update
+    const staleResult = await session.run(`
+      MATCH (n)
+      WHERE n.createdAt IS NOT NULL
+      WITH n, labels(n)[0] AS label, n.name AS name,
+           CASE WHEN n.updatedAt IS NOT NULL THEN n.updatedAt ELSE n.createdAt END AS lastUpdate
+      RETURN label, name, lastUpdate,
+             duration.between(lastUpdate, datetime()).days AS daysSinceUpdate
+      ORDER BY daysSinceUpdate DESC
+      LIMIT 10
+    `);
+
+    const staleNodes = staleResult.records.map(r => ({
+      label: r.get('label') || 'Unknown',
+      name: r.get('name') || '(sem nome)',
+      daysSinceUpdate: r.get('daysSinceUpdate')?.toNumber?.() || r.get('daysSinceUpdate') || 0,
+    }));
+
+    // Average age by label
+    const ageResult = await session.run(`
+      MATCH (n)
+      WHERE n.createdAt IS NOT NULL
+      WITH labels(n)[0] AS label, duration.between(n.createdAt, datetime()).days AS age
+      RETURN label, count(*) AS total, toFloat(avg(age)) AS avgAgeDays
+      ORDER BY avgAgeDays DESC
+    `);
+
+    const ageByLabel = ageResult.records.map(r => ({
+      label: r.get('label') || 'Unknown',
+      total: r.get('total')?.toNumber?.() || 0,
+      avgAgeDays: Math.round(r.get('avgAgeDays') || 0),
+    }));
+
+    // Recent activity (last 20 relationships created)
+    const recentResult = await session.run(`
+      MATCH (a)-[r]->(b)
+      WHERE r.createdAt IS NOT NULL OR a.createdAt IS NOT NULL
+      WITH type(r) AS relType, labels(a)[0] AS fromLabel, a.name AS fromName,
+           labels(b)[0] AS toLabel, b.name AS toName,
+           COALESCE(r.createdAt, a.createdAt) AS date
+      RETURN relType, fromLabel, fromName, toLabel, toName, date
+      ORDER BY date DESC
+      LIMIT 15
+    `);
+
+    const recentActivity = recentResult.records.map(r => ({
+      relType: r.get('relType'),
+      from: { label: r.get('fromLabel'), name: r.get('fromName') || '?' },
+      to: { label: r.get('toLabel'), name: r.get('toName') || '?' },
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        growth: { newNodes7d, newNodes30d },
+        growthByLabel,
+        staleNodes,
+        ageByLabel,
+        recentActivity,
+      },
+    });
+  } catch (error) {
+    logger.error('Ontology temporal error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch temporal metrics',
+    });
+  } finally {
+    await session.close();
+  }
+});
 
 export default router;
