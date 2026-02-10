@@ -353,6 +353,44 @@ export function ExecutiveDecisionsView() {
         </div>
       </div>
 
+      {/* Tiles de Resumo */}
+      <div className="px-6 pt-5 pb-0">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-1">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <CheckCircle2 className="w-4 h-4" />
+              <span className="text-xs font-medium">Total</span>
+            </div>
+            <div className="text-2xl font-bold">{stats.total}</div>
+            <span className="text-[10px] text-muted-foreground">decisões relevantes</span>
+          </div>
+          <div className="rounded-xl border border-amber-300 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 p-4 flex flex-col gap-1">
+            <div className="flex items-center gap-2 text-amber-600">
+              <Clock className="w-4 h-4" />
+              <span className="text-xs font-medium">Aguardando Validação</span>
+            </div>
+            <div className="text-2xl font-bold text-amber-700 dark:text-amber-400">{stats.awaitingValidation}</div>
+            <span className="text-[10px] text-amber-600/70">precisam da sua atenção</span>
+          </div>
+          <div className="rounded-xl border border-orange-300 dark:border-orange-800 bg-orange-50/50 dark:bg-orange-950/20 p-4 flex flex-col gap-1">
+            <div className="flex items-center gap-2 text-orange-600">
+              <AlertCircle className="w-4 h-4" />
+              <span className="text-xs font-medium">Sem Implementação</span>
+            </div>
+            <div className="text-2xl font-bold text-orange-700 dark:text-orange-400">{stats.withoutImplementation}</div>
+            <span className="text-[10px] text-orange-600/70">validadas sem ação vinculada</span>
+          </div>
+          <div className="rounded-xl border border-red-300 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20 p-4 flex flex-col gap-1">
+            <div className="flex items-center gap-2 text-red-600">
+              <TrendingUp className="w-4 h-4" />
+              <span className="text-xs font-medium">Críticas</span>
+            </div>
+            <div className="text-2xl font-bold text-red-700 dark:text-red-400">{stats.byContext.critical}</div>
+            <span className="text-[10px] text-red-600/70">alto impacto organizacional</span>
+          </div>
+        </div>
+      </div>
+
       {/* Content */}
       <div className="p-6">
         {sortedDecisions.length === 0 ? (

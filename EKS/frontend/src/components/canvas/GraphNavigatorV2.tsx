@@ -23,6 +23,9 @@ import {
 import { ExecutiveConsolidatedView } from "./ExecutiveConsolidatedView";
 import { ExecutiveDecisionsView } from "./ExecutiveDecisionsView";
 import { ExecutiveRisksView } from "./ExecutiveRisksView";
+import { ExecutiveOKRsView } from "./ExecutiveOKRsView";
+import { ExecutiveProjectsView } from "./ExecutiveProjectsView";
+import { ExecutiveInsightsView } from "./ExecutiveInsightsView";
 
 interface GraphNode {
   id: string;
@@ -76,13 +79,6 @@ const STRATEGIC_NODES: GraphNode[] = [
     label: "Insights Prioritários", 
     icon: <Lightbulb className="w-5 h-5" />, 
     description: "Descobertas de alto impacto", 
-    variant: "muted" 
-  },
-  { 
-    id: "mudancas", 
-    label: "Mudanças Recentes", 
-    icon: <TrendingUp className="w-5 h-5" />, 
-    description: "O que mudou desde a última vez", 
     variant: "muted" 
   },
 ];
@@ -300,6 +296,12 @@ export function GraphNavigatorV2() {
             <ExecutiveDecisionsView />
           ) : selectedNode?.id === "riscos" ? (
             <ExecutiveRisksView />
+          ) : selectedNode?.id === "okrs-risco" ? (
+            <ExecutiveOKRsView />
+          ) : selectedNode?.id === "projetos-criticos" ? (
+            <ExecutiveProjectsView />
+          ) : selectedNode?.id === "insights-prioritarios" ? (
+            <ExecutiveInsightsView />
           ) : (
             <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground">
               <div className="text-center">

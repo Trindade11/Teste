@@ -503,6 +503,52 @@ export function ExecutiveRisksView() {
         </div>
       </div>
 
+      {/* Tiles de Resumo */}
+      <div className="px-6 pt-5 pb-0">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-1">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <AlertTriangle className="w-4 h-4" />
+              <span className="text-xs font-medium">Total</span>
+            </div>
+            <div className="text-2xl font-bold">{stats.total}</div>
+            <span className="text-[10px] text-muted-foreground">riscos identificados</span>
+          </div>
+          <div className="rounded-xl border border-red-300 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20 p-4 flex flex-col gap-1">
+            <div className="flex items-center gap-2 text-red-600">
+              <Flame className="w-4 h-4" />
+              <span className="text-xs font-medium">Críticos</span>
+            </div>
+            <div className="text-2xl font-bold text-red-700 dark:text-red-400">{stats.critical}</div>
+            <span className="text-[10px] text-red-600/70">ação imediata necessária</span>
+          </div>
+          <div className="rounded-xl border border-orange-300 dark:border-orange-800 bg-orange-50/50 dark:bg-orange-950/20 p-4 flex flex-col gap-1">
+            <div className="flex items-center gap-2 text-orange-600">
+              <AlertTriangle className="w-4 h-4" />
+              <span className="text-xs font-medium">Alta Severidade</span>
+            </div>
+            <div className="text-2xl font-bold text-orange-700 dark:text-orange-400">{stats.high}</div>
+            <span className="text-[10px] text-orange-600/70">demandam acompanhamento</span>
+          </div>
+          <div className="rounded-xl border border-amber-300 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 p-4 flex flex-col gap-1">
+            <div className="flex items-center gap-2 text-amber-600">
+              <Shield className="w-4 h-4" />
+              <span className="text-xs font-medium">Sem Mitigação</span>
+            </div>
+            <div className="text-2xl font-bold text-amber-700 dark:text-amber-400">{stats.withoutMitigation}</div>
+            <span className="text-[10px] text-amber-600/70">sem plano de resposta</span>
+          </div>
+          <div className="rounded-xl border border-purple-300 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/20 p-4 flex flex-col gap-1">
+            <div className="flex items-center gap-2 text-purple-600">
+              <Clock className="w-4 h-4" />
+              <span className="text-xs font-medium">Aguardando Validação</span>
+            </div>
+            <div className="text-2xl font-bold text-purple-700 dark:text-purple-400">{stats.awaitingValidation}</div>
+            <span className="text-[10px] text-purple-600/70">precisam da sua atenção</span>
+          </div>
+        </div>
+      </div>
+
       {/* Content */}
       <div className="p-6">
         {sortedRisks.length === 0 ? (
