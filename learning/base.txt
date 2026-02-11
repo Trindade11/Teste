@@ -1,0 +1,351 @@
+Formação Avançada
+Ontology Engineering & Enterprise Knowledge Systems (EKS)
+Objetivo da Formação
+
+Capacitar você a estruturar, formalizar e operar um Enterprise Knowledge System completo, fundamentado em ontologias formais, knowledge graphs, arquitetura semântica e integração com IA.
+
+O resultado esperado não é apenas conhecimento teórico, mas:
+
+Ontologia corporativa formal
+
+Arquitetura EKS documentada
+
+Sistema operacional semântico implementado
+
+Framework metodológico proprietário
+
+Estrutura Macro da Formação
+
+A progressão segue esta lógica:
+
+Epistemologia → Formalização → Arquitetura → Operação → Estratégia
+
+MÓDULO 1 — Fundamentos Epistemológicos e Representação do Conhecimento
+Objetivo
+
+Compreender o que é conhecimento formalizável dentro de uma organização.
+
+1.1 Epistemologia aplicada ao contexto corporativo
+
+O que é conhecimento organizacional?
+
+Conhecimento explícito vs tácito
+
+Estrutura de validação e confiabilidade
+
+Camada epistemológica no EKS
+
+1.2 Lógica Formal
+
+Lógica proposicional
+
+Lógica de predicados
+
+Introdução às lógicas descritivas (base do OWL)
+
+1.3 Representação do Conhecimento
+
+Modelos baseados em regras
+
+Redes semânticas
+
+Frames
+
+Ontologias como estrutura formal
+
+Entregável do Módulo
+
+Documento: “Fundamentos Epistemológicos do Meu EKS”
+
+Modelo conceitual preliminar do sistema
+
+MÓDULO 2 — Ontologias Formais e Modelagem Semântica
+Objetivo
+
+Transformar conhecimento organizacional em estrutura formal computável.
+
+2.1 Taxonomia vs Ontologia vs Knowledge Graph
+
+Classes
+
+Instâncias
+
+Relações
+
+Axiomas
+
+Restrições
+
+Herança
+
+2.2 OWL, RDF(S), SKOS
+
+Modelo de tripla
+
+Propriedades de objeto vs propriedades de dado
+
+Domínio e alcance
+
+Cardinalidade
+
+Inferência
+
+2.3 Validação Ontológica
+
+SHACL
+
+Consistência
+
+Verificação de integridade semântica
+
+2.4 Ontology Design Patterns
+
+Part-of
+
+Agent-role
+
+Event
+
+Temporal patterns
+
+Entregável do Módulo
+
+Ontologia formal do seu domínio corporativo:
+
+Pessoa
+
+Papel
+
+Departamento
+
+Projeto
+
+Produto/Serviço
+
+Estratégia
+
+OKR
+
+KPI
+
+Tarefa
+
+Documento
+
+Cliente
+
+Versionamento documentado
+
+MÓDULO 3 — Knowledge Graph Corporativo
+Objetivo
+
+Operacionalizar a ontologia dentro de um sistema vivo.
+
+3.1 Arquitetura Conceitual (ANSI/SPARC aplicada ao EKS)
+
+Camada conceitual
+
+Camada lógica
+
+Camada física
+
+3.2 Estrutura mínima de um Enterprise Knowledge Graph
+
+Núcleo estratégico
+
+Núcleo operacional
+
+Núcleo relacional (pessoas e papéis)
+
+Núcleo documental
+
+3.3 Temporalidade e Evolução
+
+Relações temporais
+
+Estado vs evento
+
+Versionamento semântico
+
+3.4 Camada de Confiança
+
+Validação humana (HITL)
+
+Score de confiabilidade
+
+Histórico de revisão
+
+Entregável do Módulo
+
+Diagrama completo do Enterprise Knowledge Graph
+
+Modelo de versionamento ontológico
+
+MÓDULO 4 — Arquitetura de Enterprise Knowledge System
+Objetivo
+
+Integrar ontologia, dados estruturados, documentos e IA.
+
+4.1 Pipeline de Ingestão
+
+Documento → Segmentação → Extração de entidade
+
+Ancoragem semântica
+
+Criação de relações
+
+Indexação vetorial contextualizada
+
+4.2 Arquitetura Híbrida
+
+Banco de grafos
+
+Banco documental
+
+Vector store
+
+Camada de abstração semântica
+
+4.3 Agentes Orientados por Ontologia
+
+Agente de onboarding
+
+Agente de curadoria
+
+Agente estratégico
+
+Agente de apoio executivo
+
+4.4 Interface Cognitiva
+
+Texto estruturado como principal meio de exposição
+
+Contexto semântico como base de geração
+
+Pergunta → expansão contextual → inferência
+
+Entregável do Módulo
+
+Documento arquitetural completo do seu EKS
+
+Modelo de agente com dependência ontológica explícita
+
+MÓDULO 5 — Governança Ontológica Corporativa
+Objetivo
+
+Transformar o EKS em infraestrutura organizacional permanente.
+
+5.1 Ontologia como ativo estratégico
+
+Ciclo de vida ontológico
+
+Processo de evolução
+
+Comitê semântico
+
+5.2 Métricas Estruturais
+
+Densidade relacional
+
+Centralidade de entidades estratégicas
+
+Cobertura do domínio
+
+Grau de validação
+
+5.3 Controle de Acesso Semântico
+
+RBAC baseado em entidades
+
+Permissões por tipo de nó
+
+Restrições por contexto organizacional
+
+Entregável do Módulo
+
+Modelo de governança formal
+
+Framework de maturidade ontológica
+
+MÓDULO 6 — Enterprise Knowledge System como Sistema Estratégico
+Objetivo
+
+Elevar o EKS ao nível de sistema decisório corporativo.
+
+6.1 EKS como infraestrutura de decisão
+
+Estratégia conectada a execução
+
+OKRs conectados a tarefas
+
+Riscos mapeados como entidades
+
+Conexão entre decisão e evidência
+
+6.2 Produtos e Serviços no Grafo
+
+Produto como entidade estratégica
+
+Relação com cliente
+
+Relação com projeto
+
+Relação com capacidade organizacional
+
+6.3 Multiagentes Corporativos
+
+Orquestração
+
+Fluxos orientados por contexto
+
+Supervisão humana
+
+6.4 EKS como Memória Organizacional
+
+Persistência
+
+Recuperação contextual
+
+Aprendizado institucional
+
+Entregável Final
+
+Caso aplicado completo no seu projeto atual
+
+Whitepaper técnico do seu modelo EKS
+
+Framework metodológico proprietário
+
+Estrutura Operacional de Estudo
+
+Para cada módulo:
+
+Documento teórico estruturado (mínimo 10 páginas)
+
+Diagrama formal
+
+Implementação prática no seu EKS
+
+Registro de decisões de modelagem
+
+Análise crítica de trade-offs
+
+Resultado Esperado
+
+Ao final da formação você terá:
+
+Ontologia corporativa formalizada
+
+Knowledge Graph operacional
+
+Arquitetura EKS documentada
+
+Framework próprio de governança
+
+Modelo replicável
+
+E poderá se posicionar tecnicamente como:
+
+Ontology Engineer & Enterprise Knowledge Systems Architect
+
+Com base em estrutura formal, implementação real e produção metodológica própria.
