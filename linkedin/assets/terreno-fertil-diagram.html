@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terreno Fértil - Knowledge Engineering de Negócio</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8fff8;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .title {
+            color: #1b5e20;
+            margin-bottom: 30px;
+        }
+        .diagram {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .instructions {
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .instructions h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        .instructions ol {
+            color: #1b5e20;
+        }
+        .button {
+            background: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🌱 Terreno Fértil — Knowledge Engineering de Negócio</h1>
+        
+        <div class="diagram">
+            <div class="mermaid">
+                flowchart TD
+                    ROOT[🌱 Terreno Fértil<br/>Knowledge Engineering de Negócio]
+                    
+                    ROOT --> N1["1️⃣ CAPTURA DO REAL<br/>O que foi decidido, por quê, premissas"]
+                    ROOT --> N2["2️⃣ EXTERNALIZAÇÃO DO TÁCITO<br/>Estratégia na cabeça → artefato explícito"]
+                    ROOT --> N3["3️⃣ CURADORIA E VALIDAÇÃO<br/>Humano valida o mundo da IA"]
+                    ROOT --> N4["4️⃣ ESTRUTURAÇÃO SEMÂNTICA<br/>Dar forma ao significado"]
+                    ROOT --> N5["5️⃣ CICLO DE VIDA<br/>Memória viva: versões, atualização"]
+                    
+                    style ROOT fill:#2e7d32,color:#ffffff,stroke:#1b5e20,stroke-width:3px
+                    style N1 fill:#66bb6a,color:#ffffff,stroke:#388e3c
+                    style N2 fill:#66bb6a,color:#ffffff,stroke:#388e3c
+                    style N3 fill:#66bb6a,color:#ffffff,stroke:#388e3c
+                    style N4 fill:#66bb6a,color:#ffffff,stroke:#388e3c
+                    style N5 fill:#66bb6a,color:#ffffff,stroke:#388e3c
+            </div>
+        </div>
+
+        <button class="button" onclick="downloadImage()">📸 Baixar como PNG</button>
+        <button class="button" onclick="copyToClipboard()">📋 Copiar Código Mermaid</button>
+
+        <div class="instructions">
+            <h3>📖 Instruções:</h3>
+            <ol>
+                <li><strong>Para baixar como imagem:</strong> Clique no botão "Baixar como PNG" acima</li>
+                <li><strong>Alternativa manual:</strong> 
+                    <ul>
+                        <li>Clique com o botão direito no diagrama</li>
+                        <li>Selecione "Salvar imagem como..."</li>
+                        <li>Salve como: <code>terreno-fertil-knowledge-engineering.png</code></li>
+                    </ul>
+                </li>
+                <li><strong>Para usar no Mermaid Live:</strong> 
+                    <ul>
+                        <li>Clique em "Copiar Código Mermaid"</li>
+                        <li>Acesse: <a href="https://mermaid.live" target="_blank">https://mermaid.live</a></li>
+                        <li>Cole o código e exporte como PNG</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+
+        function downloadImage() {
+            // Seleciona o elemento SVG
+            const svg = document.querySelector('.mermaid svg');
+            if (!svg) {
+                alert('Diagrama não encontrado. Aguarde o carregamento.');
+                return;
+            }
+
+            // Converte SVG para data URL
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+            const svgUrl = URL.createObjectURL(svgBlob);
+
+            // Cria um elemento de imagem para converter para PNG
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Define o tamanho (1200x800 para boa qualidade)
+                canvas.width = 1200;
+                canvas.height = 800;
+                
+                // Desenha a imagem no canvas
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                // Converte para PNG e baixa
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'terreno-fertil-knowledge-engineering.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 'image/png');
+                
+                URL.revokeObjectURL(svgUrl);
+            };
+            img.src = svgUrl;
+        }
+
+        function copyToClipboard() {
+            const code = `flowchart TD
+    ROOT[🌱 Terreno Fértil<br/>Knowledge Engineering de Negócio]
+    
+    ROOT --> N1["1️⃣ CAPTURA DO REAL<br/>O que foi decidido, por quê, premissas"]
+    ROOT --> N2["2️⃣ EXTERNALIZAÇÃO DO TÁCITO<br/>Estratégia na cabeça → artefato explícito"]
+    ROOT --> N3["3️⃣ CURADORIA E VALIDAÇÃO<br/>Humano valida o mundo da IA"]
+    ROOT --> N4["4️⃣ ESTRUTURAÇÃO SEMÂNTICA<br/>Dar forma ao significado"]
+    ROOT --> N5["5️⃣ CICLO DE VIDA<br/>Memória viva: versões, atualização"]
+    
+    style ROOT fill:#2e7d32,color:#ffffff,stroke:#1b5e20,stroke-width:3px
+    style N1 fill:#66bb6a,color:#ffffff,stroke:#388e3c
+    style N2 fill:#66bb6a,color:#ffffff,stroke:#388e3c
+    style N3 fill:#66bb6a,color:#ffffff,stroke:#388e3c
+    style N4 fill:#66bb6a,color:#ffffff,stroke:#388e3c
+    style N5 fill:#66bb6a,color:#ffffff,stroke:#388e3c`;
+            
+            navigator.clipboard.writeText(code).then(function() {
+                alert('✅ Código Mermaid copiado para a área de transferência!');
+            }).catch(function(err) {
+                console.error('Erro ao copiar: ', err);
+                alert('❌ Erro ao copiar código. Selecione manualmente o código acima.');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -44,6 +44,10 @@ def convert_md_to_html(md_file):
     with open(md_file, 'r', encoding='utf-8') as f:
         md_content = f.read()
     
+    # Processar blocos Mermaid antes de converter para HTML
+    # Substituir ```mermaid por <div class="mermaid"> para que o Mermaid.js possa renderizar
+    md_content = re.sub(r'```mermaid\s*\n(.*?)\n```', r'<div class="mermaid">\n\1\n</div>', md_content, flags=re.DOTALL)
+    
     # Converter Mermaid para HTML que será renderizado
     # Vamos usar a biblioteca mermaid.js via CDN
     html_template = """<!DOCTYPE html>
@@ -55,7 +59,7 @@ def convert_md_to_html(md_file):
     <style>
         body {{
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 900px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 20px;
             line-height: 1.6;
@@ -105,13 +109,30 @@ def convert_md_to_html(md_file):
             background-color: white;
             margin: 20px 0;
             text-align: center;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 10px;
+            overflow: hidden;
+            page-break-inside: avoid;
+        }}
+        .mermaid svg {{
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 500px;
         }}
     </style>
 </head>
 <body>
 {content}
 <script>
-    mermaid.initialize({{ startOnLoad: true, theme: 'default' }});
+    mermaid.initialize({{
+        startOnLoad: true,
+        theme: 'default',
+        fontSize: 12,
+        flowchart: {{ useMaxWidth: true, htmlLabels: true, curve: 'basis' }},
+        sequence: {{ useMaxWidth: true }},
+        gantt: {{ useMaxWidth: true, fontSize: 11 }}
+    }});
 </script>
 </body>
 </html>"""
@@ -138,8 +159,9 @@ def convert_html_to_pdf(html_file, pdf_file):
         # Gerar PDF
         page.pdf(
             path=str(pdf_file),
+            landscape=True,
             format="A4",
-            margin={"top": "20mm", "right": "15mm", "bottom": "20mm", "left": "15mm"},
+            margin={"top": "15mm", "right": "15mm", "bottom": "15mm", "left": "15mm"},
             print_background=True
         )
         
