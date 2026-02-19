@@ -1668,52 +1668,46 @@ Se cada núcleo fosse um departamento isolado, teríamos apenas quatro bancos de
 **Visualizando a Interconexão dos 4 Núcleos:**
 
 ```mermaid
-graph TD
-    subgraph Strategic["🎯 NÚCLEO ESTRATÉGICO<br/>'Por que fazemos?'"]
-        Obj[Objetivo:<br/>Modernização<br/>Tecnológica]
-        OKR[OKR:<br/>Migrar 80% da stack<br/>até Q4]
+flowchart TD
+    subgraph Strategic["NUCLEO ESTRATEGICO - Por que fazemos?"]
+        Obj["Objetivo: Modernizacao Tecnologica"]
+        OKR["OKR: Migrar 80% da stack ate Q4"]
     end
     
-    subgraph Operational["⚙️ NÚCLEO OPERACIONAL<br/>'O que fazemos?'"]
-        Proj[Projeto:<br/>Migração para<br/>Microservices]
-        Task[Tarefa:<br/>Implementar<br/>API Gateway]
-        Decision[Decisão:<br/>Adotar Neo4j]
+    subgraph Operational["NUCLEO OPERACIONAL - O que fazemos?"]
+        Proj["Projeto: Migracao para Microservices"]
+        Task["Tarefa: Implementar API Gateway"]
+        Decision["Decisao: Adotar Neo4j"]
     end
     
-    subgraph Relational["👥 NÚCLEO RELACIONAL<br/>'Quem faz?'"]
-        Ana[Ana Silva<br/>Tech Lead]
-        Rodrigo[Rodrigo Trindade<br/>Arquiteto]
-        Skills[Skills:<br/>Neo4j, Cloud,<br/>Microservices]
+    subgraph Relational["NUCLEO RELACIONAL - Quem faz?"]
+        Ana["Ana Silva - Tech Lead"]
+        Rodrigo["Rodrigo Trindade - Arquiteto"]
+        Skills["Skills: Neo4j, Cloud, Microservices"]
     end
     
-    subgraph Documentary["📚 NÚCLEO DOCUMENTAL<br/>'Como foi decidido/documentado?'"]
-        Doc[Documento:<br/>Arquitetura<br/>v2.0]
-        Meeting[Reunião:<br/>Planning<br/>15/01/2026]
-        Chunk[Chunk:<br/>"Seção 3.2:<br/>Escolha do BD"]
+    subgraph Documentary["NUCLEO DOCUMENTAL - Como foi documentado?"]
+        Doc["Documento: Arquitetura v2.0"]
+        Meeting["Reuniao: Planning 15/01/2026"]
+        Chunk["Chunk: Secao 3.2 - Escolha do BD"]
     end
     
-    %% Conexões Estratégico ↔ Operacional
     Obj -->|REQUIRES| Proj
     OKR -->|MEASURED_BY| Task
     Decision -->|SUPPORTS| Obj
     
-    %% Conexões Operacional ↔ Relacional
     Proj -->|MANAGED_BY| Ana
     Task -->|ASSIGNED_TO| Rodrigo
     Decision -->|MADE_BY| Rodrigo
     
-    %% Conexões Relacional ↔ Skills
     Ana -->|HAS_SKILL| Skills
     Rodrigo -->|HAS_SKILL| Skills
     
-    %% Conexões Documental ↔ Outros Núcleos
     Doc -->|ABOUT| Proj
     Meeting -->|DISCUSSED| Decision
     Chunk -->|MENTIONS| Ana
     Chunk -->|RELATES_TO| Task
     Decision -->|EXTRACTED_FROM| Meeting
-    
-    %% Conexões Cross-Núcleo (a magia acontece aqui)
     Meeting -->|PARTICIPANTS| Ana
     Meeting -->|PARTICIPANTS| Rodrigo
     Doc -->|AUTHOR| Rodrigo
@@ -2045,6 +2039,12 @@ Onde:
 | Decisão estratégica | 0.005 | ~140 dias |
 | Informação sobre pessoa | 0.001 | ~700 dias |
 | Fato histórico | 0.0001 | ~7000 dias |
+
+
+
+
+
+
 
 **Visualizando o Freshness Decay ao Longo do Tempo:**
 
@@ -3875,9 +3875,7 @@ flowchart LR
 
 **Exemplo de proposta:**
 
-> **Curad
-
-or Agent detectou:**
+> **Curator Agent detectou:**
 >
 > Nos últimos 30 dias você:
 > - Criou 5 documentos sobre Neo4j
@@ -6610,27 +6608,32 @@ Diferente de chain-of-thought (linear), o Master Agent pode criar conversas em g
 
 ```mermaid
 flowchart TD
-    M[Master Agent:<br/>"Vou investigar"]
+    M["Master Agent: Vou investigar"]
     
-    M --> S[Strategic Agent:<br/>"Qual era a meta?"]
-    S --> M1[Master:<br/>"Meta era 20% crescimento"]
+    M --> S["Strategic Agent: Qual era a meta?"]
+    S --> M1["Master: Meta era 20% crescimento"]
     
-    M1 --> T[Tactical Agent:<br/>"Quais projetos contribuem?"]
-    T --> M2[Master:<br/>"3 projetos, 1 atrasado"]
+    M1 --> T["Tactical Agent: Quais projetos contribuem?"]
+    T --> M2["Master: 3 projetos, 1 atrasado"]
     
-    M2 --> O[Operational Agent:<br/>"Por que Projeto X está atrasado?"]
-    O --> M3[Master:<br/>"Gargalo: aprovações de design"]
+    M2 --> O["Operational Agent: Por que Projeto X esta atrasado?"]
+    O --> M3["Master: Gargalo - aprovacoes de design"]
     
-    M3 --> MN[Managerial Agent:<br/>"Há problema de recursos?"]
-    MN --> M4[Master:<br/>"Equipe de design sobrecarregada"]
+    M3 --> MN["Managerial Agent: Ha problema de recursos?"]
+    MN --> M4["Master: Equipe de design sobrecarregada"]
     
-    M4 --> Synthesis[Master sintetiza todos os níveis]
+    M4 --> Synthesis["Master sintetiza todos os niveis"]
     
     style M fill:#fff3e0,color:#000
     style S fill:#e1f5ff,color:#000
     style T fill:#e8f5e9,color:#000
     style O fill:#ffebee,color:#000
     style MN fill:#f3e5f5,color:#000
+    style M1 fill:#fffde7,color:#000
+    style M2 fill:#fffde7,color:#000
+    style M3 fill:#fffde7,color:#000
+    style M4 fill:#fffde7,color:#000
+    style Synthesis fill:#e8f5e9,color:#000
 ```
 
 **Resposta Final (sintetizada pelo Master Agent):**
@@ -7415,10 +7418,10 @@ quadrantChart
     quadrant-4 Prevenir
     
     Sobrecarga: [0.3, 0.8]
-    Poluição Semântica: [0.7, 0.6]
+    Poluicao Semantica: [0.7, 0.6]
     IA Ornamental: [0.8, 0.4]
     Curadoria Centralizada: [0.9, 0.7]
-    Inércia Organizacional: [0.6, 0.9]
+    Inercia Organizacional: [0.6, 0.9]
 ```
 
 ## 25.8 Vantagem Comparativa: Humano vs IA
