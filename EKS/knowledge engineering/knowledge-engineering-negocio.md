@@ -1,387 +1,403 @@
-# Knowledge Engineering de Negócio: O Novo Paradigma da Interação Humano–IA Corporativa
+# Knowledge Engineering de Negócio
 
-> **Autor:** Rodrigo Trindade  
-> **Data:** Fevereiro 2026  
-> **Versão:** 1.1  
-> **Perspectiva:** Sociotécnica e epistemológica de gestão do conhecimento aplicada à IA corporativa  
+> **Documento conceitual** — Formalização da tese de que o diferencial competitivo na era da IA corporativa não é *prompt engineering*, mas a capacidade humana de capturar, validar e estruturar semanticamente o conhecimento que a organização produz e decide.
 
----
-
-## Sumário Executivo
-
-> **O diferencial competitivo não é saber perguntar para a IA (prompt engineering), mas construir e manter o substrato de realidade — curado, semântico e governado — sobre o qual a IA opera.**
-
-A IA substitui progressivamente o trabalho operacional (inclusive cognitivo). O que ela **não pode fazer** é legitimar intenção estratégica, decidir direção ou assumir responsabilidade. Isso redefine o papel humano como **governador de intenção e curador de realidade corporativa**.
-
-Essa mudança representa a transição do "trabalho" tradicional para o **trabalho de contexto** (*context work*): transformar a realidade operacional e estratégica da empresa em **artefatos informacionais confiáveis**, com semântica e governança, que permitam uma IA proativa e útil.
+**Projeto**: EKS — Enterprise Knowledge System  
+**Autor**: Rodrigo Trindade  
+**Versão**: 1.0  
+**Data**: 2025-02-19  
+**Origem**: Conversa exploratória (chat01.txt)
 
 ---
 
-## 1. Fundamentos: "Terreno Fértil" para a IA
+## 1. Tese Central
 
-### 1.1 O Problema Real
+> **"O gargalo real não é promptar. É construir o mundo onde a IA opera."**
 
-A narrativa dominante foca em **como perguntar** (prompt engineering). A tese aqui inverte a lógica:
+Mais do que aprender a formular perguntas para a IA, profissionais e organizações precisam aprender a **gerar terreno fértil** — produzir, validar e direcionar conteúdo relevante que reflita o que acontece no mundo real da empresa.
 
-> O gargalo real não é "promptar" — é **produzir, validar e manter o substrato de realidade** que a IA usa para raciocinar e agir.
+Isso desloca o eixo de valor:
 
-### 1.2 O Pipeline de Construção de Evidência
+| Visão convencional | Visão Knowledge Engineering de Negócio |
+|----|-----|
+| Saber perguntar (prompt engineering) | Saber construir a realidade curada onde a IA opera |
+| IA reativa a comandos | IA proativa baseada em dados curados |
+| Dados técnicos conectados | Dados **semanticamente** estruturados |
+| Human-in-the-loop técnico | **Business Human-in-the-Loop** |
 
-| Etapa | Descrição |
-|-------|-----------|
-| **1. Captura do Real** | O que aconteceu, o que foi decidido, por quê, com quais premissas e trade-offs. Fontes: reuniões, e-mails, alinhamentos, exceções. |
-| **2. Externalização do Tácito** | Converter "o que está na cabeça" em artefato explícito: racional, premissas, hipóteses, contexto político-operacional. |
-| **3. Curadoria e Validação** | O humano valida o mundo que a IA vai usar como base, filtrando ruído, desatualização, **vaidade corporativa** e fragmentos contraditórios. |
-| **4. Estruturação Semântica** | Conceitos estáveis, relações explícitas e metadados de proveniência (quem afirmou, quando, com qual confiança). |
-| **5. Ciclo de Vida** | Memória viva: versões, cadência de atualização, obsolescência, resolução de conflitos. |
+---
 
-### 1.3 A Cadeia de Transformação
+## 2. O Conceito: Terreno Fértil
 
-"Extrair informação" não é scraping. É **instituir um processo de externalização + validação** que transforma:
+"Terreno fértil" é a metáfora para o **substrato informacional confiável** que permite à IA raciocinar e agir com precisão no contexto corporativo. Construí-lo exige um pipeline humano de cinco estágios:
+
+### 2.1 Captura do Real
+
+Registrar o que aconteceu, o que foi decidido, por quê, com quais premissas, riscos e trade-offs. Fontes primárias: reuniões, e-mails, mensagens, alinhamentos, exceções operacionais.
+
+### 2.2 Externalização do Tácito
+
+A estratégia real — o "por que fazemos isso" — raramente está em bancos estruturados. Está na **cabeça das pessoas** e em rastros narrativos. O trabalho crítico é **converter conhecimento tácito em explícito** sem destruir nuance.
+
+### 2.3 Curadoria e Validação Orientada a Negócio
+
+Não é o human-in-the-loop técnico (aprovar resposta do modelo). É o **human-in-the-loop de realidade**: o humano valida o mundo que a IA vai usar como base, garantindo que ela não opere sobre ruído, desatualização, vaidade corporativa ou fragmentos contraditórios.
+
+### 2.4 Estruturação Semântica (não apenas técnica)
+
+Não basta "conectar dados". É preciso dar forma ao significado:
+
+- **Conceitos estáveis**: entidades, papéis, iniciativas, decisões, políticas, métricas
+- **Relações explícitas**: dependências, ownership, impacto estratégico, exceções
+- **Metadados de proveniência**: quem afirmou, quando, em que contexto, com qual confiança
+
+### 2.5 Ciclo de Vida e Atualização
+
+Terreno fértil não é acervo estático. É **memória viva**: versões, cadência de atualização, obsolescência, divergências e resolução de conflitos.
+
+```mermaid
+flowchart LR
+    A[Captura do Real] --> B[Externalização do Tácito]
+    B --> C[Curadoria e Validação]
+    C --> D[Estruturação Semântica]
+    D --> E[Ciclo de Vida]
+    E -->|feedback| A
+    
+    style A fill:#e3f2fd,stroke:#1565c0
+    style B fill:#e8f5e9,stroke:#2e7d32
+    style C fill:#fff3e0,stroke:#e65100
+    style D fill:#f3e5f5,stroke:#6a1b9a
+    style E fill:#fce4ec,stroke:#c62828
+```
+
+---
+
+## 3. Business Human-in-the-Loop (BHITL)
+
+O conceito proposto vai além do HITL tradicional (aprovar outputs de modelo). Trata-se de três funções distintas:
+
+### 3.1 Governança de Sentido (Sensemaking)
+
+O humano decide o que é relevante, o que é verdade operacionalmente, o que é exceção, o que é política, o que é hipótese e o que virou decisão.
+
+### 3.2 Curadoria como Controle de Risco
+
+Reduz alucinação por falta de ancoragem, reduz decisão baseada em informação vencida e permite auditoria ("por que a IA recomendou isso?").
+
+### 3.3 Humano como Mantenedor do Modelo de Realidade
+
+A IA não substitui — ela amplia. Mas precisa de uma base curada. O humano é o **mantenedor do modelo de realidade corporativa**.
+
+> **Síntese**: BHITL desloca a ideia de "aprovar outputs" para **"produzir inputs confiáveis e semanticamente acionáveis"**.
+
+---
+
+## 4. O Limite da IA: Inferência ≠ Mandato
+
+Agentes de IA tendem a substituir trabalhos operacionais — inclusive operacional-cognitivo (síntese, propostas, drafts de decisão, criação de conteúdo). Porém, existe um limite fundamental:
+
+> **A IA pode inferir para onde a empresa *parece* estar indo. Não pode decidir para onde ela *deve* ir.**
+
+Três razões estruturais:
+
+1. **Intenção estratégica é normativa**, não descritiva — envolve valores, trade-offs, apetite a risco
+2. **Empresa não tem mente única** — intenção é acordo institucional negociado; sem ato de decisão explícito, a IA só extrapola padrões
+3. **Accountability** — decisões estratégicas exigem autoria e responsabilidade; previsão não substitui direito de decisão (*decision rights*)
+
+Isso define o conceito de **Human-in-the-Loop de Intenção**: o humano não está ali para corrigir resposta, está para **definir direção e assumir compromissos**.
+
+```mermaid
+flowchart TD
+    subgraph IA["Domínio da IA"]
+        O1[Operacional-Execução]
+        O2[Operacional-Cognitivo]
+        O3[Inferência e Correlação]
+    end
+    
+    subgraph HUMANO["Domínio Humano Insubstituível"]
+        H1[Intenção Estratégica]
+        H2[Decisão e Compromisso]
+        H3[Legitimação e Accountability]
+        H4[Curadoria de Realidade]
+    end
+    
+    O3 -.->|propõe opções| H1
+    H1 -->|define direção| H2
+    H2 -->|registra decisão| H4
+    H4 -->|alimenta contexto curado| O1
+    H4 -->|alimenta contexto curado| O2
+    
+    style IA fill:#e3f2fd,stroke:#1565c0
+    style HUMANO fill:#fff3e0,stroke:#e65100
+```
+
+---
+
+## 5. Onde Mora a Estratégia (e por que a IA não captura sozinha)
+
+Os ativos estratégicos são majoritariamente **narrativos e tácitos**. Bancos estruturados guardam transações; **não guardam intenção, premissa, decisão, contexto político-operacional e racionalidade**.
+
+| Fonte | O que contém | Estado atual |
+|-------|-------------|-------------|
+| E-mails e threads | Negociação e alinhamento | Disperso, não rastreável |
+| Reuniões | Decisão e racional | Perdido após encerramento |
+| Cabeça das pessoas | Estratégia, premissas, exceções | Tácito, vulnerável a turnover |
+
+"Extrair informação" aqui não é scraping. É **instituir um processo de externalização + validação** que transforma:
 
 - **Conversa** → decisão rastreável
 - **Decisão** → vínculo com objetivo / risco / ação
 - **Ação** → evidência de execução e aprendizado
 
-### 1.4 Princípio Central
-
-> **IA boa em empresa é uma função da qualidade do "mundo" que você constrói para ela**, não da "pergunta bonita".
-
 ---
 
-## 2. O Novo Human-in-the-Loop: Governança de Intenção
+## 6. Os 10 Skills do Profissional de Alto Impacto
 
-### 2.1 HITL Técnico vs HITL de Negócio
+Se agentes assumem o operacional (inclusive cognitivo), a habilidade humana diferencial migra para **governar intenção + construir realidade curada**.
 
-| Dimensão | HITL Técnico | HITL de Negócio (proposto) |
-|----------|-------------|---------------------------|
-| **Foco** | Aprovar/corrigir respostas | Produzir inputs confiáveis e acionáveis |
-| **Papel** | Revisor | Governador de sentido (sensemaking) |
-| **Escopo** | Output individual | Modelo de realidade corporativa |
-| **Resultado** | Resposta melhorada | Base curada para IA proativa |
+### 6.1 Engenharia de Intenção e Decisão
+Formular direção: objetivos, trade-offs, restrições, apetite a risco, critérios de sucesso e *decision rights*. A IA propõe opções; o humano define o que é "certo" para a empresa.
 
-### 2.2 Três Facetas do Business HITL
+### 6.2 Externalização do Tácito (Sensemaking)
+Transformar "o que está na cabeça" em artefato explícito: racional, premissas, hipóteses, exceções e contexto político-operacional.
 
-1. **Governança de sentido:** O humano decide o que é relevante, verdade operacional, exceção, política, hipótese ou decisão.
-2. **Curadoria como controle de risco:** Reduz alucinação por falta de ancoragem e permite auditoria.
-3. **Mantenedor do modelo de realidade:** A IA amplia, mas precisa de base curada para ampliar na direção certa.
+### 6.3 Curadoria de Evidência e Relevância (Reality Stewardship)
+Selecionar, validar e versionar fontes; distinguir fato, interpretação, hipótese e decisão.
 
-### 2.3 Human-in-the-Loop de Intenção
+### 6.4 Estruturação Semântica Aplicada (Knowledge Engineering de Negócio)
+Criar e manter modelos de entidades/relacionamentos (decisões ↔ projetos ↔ riscos ↔ KPIs ↔ pessoas), com proveniência e temporalidade.
 
-A IA pode **inferir** para onde a empresa *parece* ir, mas não pode **decidir** para onde *deve* ir:
-
-- **Intenção é normativa, não descritiva** — envolve valores, trade-offs e "o que a empresa quer ser"
-- **Empresa não tem mente única** — intenção é acordo institucional negociado
-- **Accountability** — decisões exigem autoria e responsabilidade; previsão não substitui decision rights
-
----
-
-## 3. Vantagem Comparativa e Futuro do Trabalho
-
-| Humanos são superiores em | IA é superior em |
-|--------------------------|-----------------|
-| Atribuir significado | Escala e síntese |
-| Validar contexto | Recuperação e correlação |
-| Julgar relevância | Monitoramento |
-| Negociar conflitos | Ação proativa |
-| Externalizar racional | Execução repetível |
-| Legitimar decisão | Velocidade |
-
-O trabalho migra para **funções de stewardship**: gerar evidência, registrar decisão, manter coerência semântica, reduzir ambiguidade e alinhar o "mapa" ao território.
-
-### 3.1 Dois Tipos de Trabalho Operacional Substituído
-
-A substituição do operacional pela IA inclui duas classes distintas:
-
-| Classe | Exemplos |
-|--------|----------|
-| **Operacional-execução** | Coletar info, atualizar sistemas, gerar relatórios, abrir tickets, compor e-mails padrão, consolidar backlog, monitorar indicadores |
-| **Operacional-cognitivo** | Síntese, proposta de alternativas, drafts de decisão, "reflexão assistida", criação de conteúdo utilitário, disparar automações |
-
-Ambas são viáveis para IA porque são **otimização local sob regras e histórico**: existe objetivo definido, "como fazer" esperado, e critério de "bom o suficiente".
-
-### 3.2 O Limite Estrutural: Otimizar vs Reorientar
-
-Sem externalização e curadoria humana, a IA fica ótima em **otimizar o que já existe**, mas fraca em **reorientar o sistema** — porque reorientar requer intenção explícita, não apenas correlação histórica.
-
-> **Risco de cristalização:** Modelos podem "adivinhar" probabilisticamente o que você tende a decidir se tiverem histórico suficiente. Mas isso continua sendo previsão, não direção — e pode inclusive **cristalizar vieses e inércia organizacional** ("a empresa sempre fez assim").
-
-### Síntese da Tese
-
-> IA substitui execução e parte da cognição operacional; humanos viram a **camada soberana de intenção, sentido e decisão** — e o trabalho crítico é construir a realidade curada onde a IA opera.
-
----
-
-## 4. As 10 Competências do Profissional de Alto Impacto na Era da IA
-
-**Prompt engineering é interface.** O profissional de alto impacto é uma combinação de: *arquiteto de intenção + curador de realidade + designer de workflows + avaliador de qualidade + líder de governança.*
-
-### 4.1 Engenharia de Intenção e Decisão
-
-Capacidade de formular direção: objetivos, trade-offs, restrições, apetite a risco, critérios de sucesso e decision rights. A IA propõe opções; o humano **define o que é "certo" para a empresa** e assume a decisão.
-
-### 4.2 Externalização do Tácito (Sensemaking)
-
-Transformar "o que está na cabeça" em artefato explícito: racional, premissas, hipóteses, exceções e contexto político-operacional. Impede a IA de operar só por padrão histórico e inércia.
-
-### 4.3 Curadoria de Evidência e Relevância (Reality Stewardship)
-
-Selecionar, validar e versionar fontes; distinguir fato, interpretação, hipótese e decisão. Sem isso, a IA fica "produtiva" mas frágil — respostas convincentes sobre base podre.
-
-### 4.4 Estruturação Semântica Aplicada (Knowledge Engineering de Negócio)
-
-Criar e manter **modelos de entidades e relacionamentos** (decisões ↔ projetos ↔ riscos ↔ KPIs ↔ pessoas), com proveniência e temporalidade. Não é "conectar dados" — é **dar forma ao significado**.
-
-### 4.5 Design de Workflows Agênticos (Orquestração)
-
+### 6.5 Design de Workflows Agênticos (Orquestração)
 Quebrar processos em etapas delegáveis, definir checkpoints humanos, handoffs, gatilhos e ferramentas. Desenhar loops: "IA faz → humano decide → IA executa".
 
-### 4.6 Alfabetização de Avaliação (Evaluation Literacy)
+### 6.6 Alfabetização de Avaliação (Evaluation Literacy)
+Construir critérios objetivos de qualidade: acurácia factual, utilidade, completude, risco, custo, tempo, aderência a políticas. Sem isso, a empresa cai em *demo-driven adoption*.
 
-Construir critérios objetivos de qualidade: acurácia factual, utilidade, completude, risco, custo, tempo, aderência a políticas. Sem isso, a empresa cai em "demo-driven adoption" — parece bom, mas não sustenta produção.
+### 6.7 Governança, Risco e Compliance
+Entender privacidade, segurança, vazamento de contexto, controle de acesso, rastreabilidade, auditoria e responsabilidade — o equivalente moderno de "controle interno" aplicado a agentes.
 
-### 4.7 Governança, Risco e Compliance
+### 6.8 Liderança Socio-Técnica
+Coordenar pessoas para produzir contexto e decisão rastreável: rituais, cadência, padrões de registro, acordos de "o que entra na memória corporativa".
 
-Entender privacidade, segurança, vazamento de contexto, controle de acesso, rastreabilidade, auditoria e responsabilidade. Equivalente moderno de "controle interno", aplicado a agentes de IA.
+### 6.9 Comunicação de Alta Densidade (especialmente por Voz)
+Voz é vantagem real quando se domina **fala estruturada**. A habilidade não é "falar com a IA", é narrar intenção + evidência + decisão em blocos claros, para virar registro acionável (transcrição, sumarização, extração de entidades/decisões).
 
-### 4.8 Liderança Sociotécnica (Mudança de Comportamento)
-
-Coordenar pessoas para **produzir contexto e decisão rastreável**: rituais, cadência, padrões de registro, acordos sobre "o que entra na memória corporativa". Sem esta camada, não existe IA proativa — existe automação sem rumo.
-
-### 4.9 Comunicação de Alta Densidade (especialmente por Voz)
-
-A voz é vantagem real quando se domina **fala estruturada**. A habilidade não é "falar com a IA", é **narrar intenção + evidência + decisão em blocos claros**, para virar registro acionável (transcrição, sumarização, extração de entidades/decisões). Acelera brutalmente a criação de "terreno fértil".
-
-### 4.10 Pensamento de Produto e de Sistemas
-
+### 6.10 Pensamento de Produto e de Sistemas
 Ligar conhecimento → decisão → execução → métrica → aprendizado. IA boa em empresa é um **sistema de feedback**; quem entende loops e métricas evita "IA ornamental".
 
----
-
-## 5. Desdobramento por Nível Hierárquico
-
-Cada nível hierárquico representa um **loop de interação humano–IA** com natureza distinta:
-
-- **Estratégico:** governa *intenção* (para onde vamos) + legitimidade da decisão
-- **Tático:** traduz intenção em *sistema executável* (prioridades, cadência, critérios, workflows)
-- **Operacional:** produz *evidência e realidade curada* (o que aconteceu) + execução assistida
-
-### 5.1 Nível Estratégico (C-level, diretoria, liderança de unidade)
-
-**Função humana irredutível:** Definir e sustentar intenção — direção, trade-offs, apetite a risco, critérios de sucesso e decision rights. A IA pode sugerir cenários; não pode legitimar "o que a empresa quer ser".
-
-#### Skills Centrais
-
-| Skill | Descrição |
-|-------|-----------|
-| **Engenharia de intenção** | Converter ambiguidade em objetivo, restrições, princípios, trade-offs aceitáveis e decisões tomadas. Distinguir "previsão" de "mandato". |
-| **Governança de conhecimento** | Definir o que entra no "sistema de verdade" corporativo. Patrocinar política de evidência: fato vs hipótese vs opinião vs decisão. |
-| **Avaliação executiva** | Julgar utilidade e risco: impacto estratégico, risco reputacional, custo de erro. Aprovar padrões de auditoria. |
-| **Narrativa estratégica** | Transformar sinais e fatos em narrativa acionável. Alinhar múltiplos stakeholders. |
-
-#### Interação Típica com IA
-
-- "Mostre opções, consequências e riscos com base em evidências curadas."
-- "Monitore o ambiente e me alerte sobre desvios relevantes *segundo meus critérios*."
-- "Mantenha coerência entre decisões e objetivos, sinalizando contradições."
-
-#### Protocolo de Voz Estratégico (2–4 min)
-
-A voz estratégica não é "conversa" — é **ato executivo estruturado** para virar registro, decisão e governança.
-
-| Bloco | Conteúdo |
-|-------|----------|
-| **1. Direção** | O que queremos mover e por quê agora |
-| **2. Critério** | Como vamos julgar certo vs errado (trade-offs, risco, qualidade) |
-| **3. Sinais/Evidências** | 3–5 fatos com fonte/âncora |
-| **4. Decisão / não-decisão** | O que foi decidido, o que está aberto |
-| **5. Mandatos** | Guardrails + o que agentes podem executar sem nova aprovação |
-
-**Artefatos derivados:** Registro de decisão (com racional e premissas), atualização de OKRs, alterações em guardrails, critérios de alerta.
-
----
-
-### 5.2 Nível Tático (gestores, PMs, líderes de área, arquitetos, coordenadores)
-
-**Função humana irredutível:** Transformar intenção em execução consistente — desenhar o sistema de trabalho (cadência, priorização, critérios, checkpoints) e manter alinhamento entre áreas.
-
-#### Skills Centrais
-
-| Skill | Descrição |
-|-------|-----------|
-| **Tradução estratégia → execução** | Converter direção em iniciativas, dependências, hipóteses testáveis, métricas e Definition of Done. Evitar "execução sem tese". |
-| **Design de workflows agênticos** | Quebrar processos em etapas delegáveis com inputs obrigatórios, checkpoints humanos, critérios de aceitação e escalonamento. |
-| **Evaluation literacy tática** | Criar baterias de teste: exemplos, casos de borda, thresholds, política de erro aceitável. Medir qualidade operacionalmente. |
-| **Curadoria e gestão de conhecimento** | Definir padrões de registro: reuniões → decisões → tarefas → riscos → vínculo com objetivos. Resolver conflitos de versão. |
-
-#### Interação Típica com IA
-
-- "Desenhe o fluxo e gere artefatos; eu valido critérios e dono."
-- "Crie variações e simule impactos; eu escolho e priorizo."
-- "Monitore execução e faça triagem de riscos; escale quando cruzar guardrails."
-
-#### Protocolo de Voz Tático (60–120s)
-
-Voz tática é **briefing operacional de alta qualidade** para delegar a agentes e humanos com mínimo ruído.
-
-| Bloco | Conteúdo |
-|-------|----------|
-| **1. Contexto mínimo** | Projeto / área / por que agora |
-| **2. Escopo** | O que entra e o que não entra |
-| **3. Critério de pronto** | DoD + qualidade + risco |
-| **4. Restrições e dependências** | Tempo, compliance, sistemas, pessoas |
-| **5. Plano de execução** | Etapas + checkpoints humanos + gatilhos de escalonamento |
-
-**Artefatos derivados:** Plano de execução, histórias/tarefas com critérios, runbooks, playbooks, conjunto de avaliação, políticas de exceção.
-
----
-
-### 5.3 Nível Operacional (ICs, analistas, especialistas, suporte)
-
-**Função humana irredutível:** Produzir realidade confiável (captura + validação + contexto) e conduzir execução diária com agentes, tratando exceções.
-
-#### Skills Centrais
-
-| Skill | Descrição |
-|-------|-----------|
-| **Externalização do tácito no detalhe certo** | Registrar "o que aconteceu" com contexto e consequência, sem virar romance. Diferenciar fato vs interpretação vs hipótese vs decisão. |
-| **Higiene de informação e proveniência** | Ancorar evidência: onde está, qual versão, data, quem validou. Marcar confiança e sinalizar lacunas. |
-| **Execução assistida por agentes** | Delegar micro-tarefas para IA (rascunhos, sínteses, checagens, automações). Validar outputs com critérios claros. |
-| **Gestão de exceções** | Detectar quando "saiu do script" e escalar com contexto suficiente para decisão. |
-
-#### Interação Típica com IA
-
-- "Transforme este evento em registro estruturado + próximos passos."
-- "Consolide e compare versões; destaque inconsistências."
-- "Sugira opções; eu valido com evidência e contexto local."
-
-#### Protocolo de Voz Operacional (30–60s)
-
-Voz operacional é **log estruturado**: rápido, objetivo, auditável.
-
-| Bloco | Conteúdo |
-|-------|----------|
-| **1. Evento** | O que ocorreu |
-| **2. Impacto** | Por que importa (risco, custo, cliente, prazo) |
-| **3. Evidência** | Onde está / qual fonte / data |
-| **4. Hipótese** | O que você acha que explica (marcando como hipótese) |
-| **5. Ação e dono** | O que foi feito / próximo passo / quem assume |
-
-**Artefatos derivados:** Registro de evento/decisão local, atualização de tarefa, nota de risco, lição aprendida, evidência anexada.
-
----
-
-## 6. Visão Unificadora: O Que Muda por Nível
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    MODELO DE INTERAÇÃO HUMANO–IA                    │
-├──────────────┬──────────────────────┬───────────────────────────────┤
-│    NÍVEL     │   DOMÍNIO HUMANO     │    O QUE PRODUZ (VOZ)        │
-├──────────────┼──────────────────────┼───────────────────────────────┤
-│ ESTRATÉGICO  │ Intenção (normativo) │ Mandato + guardrails          │
-│              │ Critérios + direção  │ Decisões + racional           │
-├──────────────┼──────────────────────┼───────────────────────────────┤
-│ TÁTICO       │ Tradução + sistema   │ Workflow + critérios          │
-│              │ Orquestração         │ Planos + DoD                  │
-├──────────────┼──────────────────────┼───────────────────────────────┤
-│ OPERACIONAL  │ Evidência + realidade│ Sinal + registro estruturado  │
-│              │ Captura + validação  │ Exceções + lições aprendidas  │
-└──────────────┴──────────────────────┴───────────────────────────────┘
+```mermaid
+mindmap
+  root((Skills do Profissional de Alto Impacto))
+    Governar Intenção
+      Engenharia de Intenção
+      Externalização do Tácito
+      Liderança Socio-Técnica
+    Construir Realidade
+      Curadoria de Evidência
+      Estruturação Semântica
+      Comunicação por Voz
+    Orquestrar IA
+      Design de Workflows
+      Avaliação de Qualidade
+      Governança e Compliance
+    Fechar o Loop
+      Pensamento de Sistemas
+      Métricas e Feedback
 ```
 
-A **voz** é acelerador em todos os níveis — mas cada nível tem formato distinto porque cada um produz um tipo diferente de "contexto fértil":
+---
 
-- **Estratégico** produz **mandato**
-- **Tático** produz **workflow e critérios**
-- **Operacional** produz **evidência e sinal**
+## 7. Vantagem Comparativa: Humano vs IA
+
+| Humano é superior em | IA é superior em |
+|---|---|
+| Atribuir significado | Escala de processamento |
+| Validar contexto | Síntese e recuperação |
+| Julgar relevância | Correlação e monitoramento |
+| Negociar conflitos | Ação proativa automatizada |
+| Externalizar racional | Consistência e velocidade |
+
+O trabalho migra para **funções de stewardship** (curadoria/guarda) do conhecimento corporativo: gerar evidência, registrar decisão, manter coerência semântica, reduzir ambiguidade e manter o "mapa" alinhado ao território.
 
 ---
 
-## 7. Diagrama Conceitual
+## 8. Síntese Final
+
+**Prompt engineering** é interface.
+
+O novo profissional de alto impacto é uma combinação de:
+
+> **Arquiteto de Intenção + Curador de Realidade + Designer de Workflows + Avaliador de Qualidade + Líder de Governança**
+
+A IA corporativa é um **sistema socio-técnico dependente de curadoria humana de realidade**. O diferencial não é prompt engineering, mas **Knowledge Engineering de Negócio**: captura, validação e estruturação semântica do que a empresa sabe e decide.
+
+---
+
+## 9. Conexão com o EKS
+
+O EKS (Enterprise Knowledge System) é a **materialização tecnológica** desta tese:
+
+| Conceito deste documento | Implementação no EKS |
+|---|---|
+| Terreno Fértil | Grafo semântico Neo4j como substrato curado |
+| Externalização do Tácito | Knowledge Pipeline (captura via chat, voz, documentos) |
+| Curadoria BHITL | Graph Curation + User Memory Decision |
+| Estruturação Semântica | Ontologia EKS (BIG + IDG + entidades de negócio) |
+| Ciclo de Vida | Memória Multi-Nível (Short/Medium/Long term) |
+| IA Proativa | Agentes multi-especializados (PLA, PIA, Router) |
+| Governança | Observability Dashboard + rastreabilidade de decisões |
+
+---
+
+## 10. Métricas de Maturidade
+
+Para que o Knowledge Engineering de Negócio não se torne apenas conceito, é preciso medir sua efetividade através de KPIs concretos.
+
+### 10.1 KPIs de Terreno Fértil
+
+| Métrica | O que mede | Meta inicial | Como medir |
+|---------|------------|--------------|------------|
+| **Taxa de Externalização do Tácito** | % de decisões estratégicas registradas | 60% | Contagem de decisões rastreáveis vs total de decisões críticas |
+| **Tempo de Captura → Estruturação** | Velocidade do pipeline de conhecimento | < 48h | Timestamp desde captura até estruturação semântica |
+| **Cobertura de Fontes** | % de fontes estratégicas mapeadas | 80% | E-mails, reuniões, documentos vs universo total |
+| **Frequência de Atualização** | Cadência de refresh do substrato | Diária/Semanal | Logs de atualização do grafo de conhecimento |
+
+### 10.2 KPIs de Qualidade
+
+| Métrica | O que mede | Meta inicial | Como medir |
+|---------|------------|--------------|------------|
+| **Acurácia Factual** | % de informações verificáveis | 95% | Verificação cruzada com fontes primárias |
+| **Relevância Contextual** | % de respostas úteis ao negócio | 85% | Avaliação humana por amostragem |
+| **Consistência Semântica** | % de conceitos sem contradição | 90% | Análise de inconsistências no grafo |
+| **Proveniência Completa** | % de informações com metadados | 80% | Verificação de quem/onde/quando/confiança |
+
+### 10.3 KPIs de Adoção e Impacto
+
+| Métrica | O que mede | Meta inicial | Como medir |
+|---------|------------|--------------|------------|
+| **Taxa de Curadoria Ativa** | % de usuários curando conteúdo | 40% | Logs de interações de curadoria |
+| **Redução de Retrabalho** | Tempo economizado em buscas | 30% | Comparação tempo antes/depois |
+| **Velocidade de Decisão** | Tempo da decisão → execução | 25% | Métricas de processo organizacional |
+| **Satisfação do Usuário** | Percepção de valor | 4.0/5.0 | Pesquisas NPS/CSAT |
+
+### 10.4 Dashboard de Maturidade
 
 ```mermaid
-flowchart TB
-    subgraph HUMANO["🧠 DOMÍNIO HUMANO"]
-        INT["Intenção Estratégica<br/>Direção · Trade-offs · Valores"]
-        CUR["Curadoria de Realidade<br/>Validação · Semântica · Proveniência"]
-        EXT["Externalização do Tácito<br/>Decisões · Premissas · Contexto"]
-    end
-
-    subgraph TERRENO["🌱 TERRENO FÉRTIL (Knowledge Base Curada)"]
-        SEM["Estrutura Semântica<br/>Entidades · Relações · Temporalidade"]
-        GOV["Governança<br/>Versões · Auditoria · Confiança"]
-    end
-
-    subgraph IA["🤖 DOMÍNIO DA IA"]
-        EXEC["Execução Operacional<br/>Automação · Síntese · Monitoramento"]
-        PROAT["IA Proativa<br/>Alertas · Recomendações · Correlações"]
-    end
-
-    INT -->|define direção| SEM
-    CUR -->|valida e versiona| GOV
-    EXT -->|registra| SEM
-    SEM --> EXEC
-    GOV --> EXEC
-    EXEC -->|gera sinais| CUR
-    PROAT -->|sugere, não decide| INT
-    EXEC --> PROAT
-
-    style HUMANO fill:#e8f4e8,stroke:#2d7d2d
-    style TERRENO fill:#fff3cd,stroke:#856404
-    style IA fill:#d1ecf1,stroke:#0c5460
+flowchart TD
+    A[Métricas de Terreno Fértil] --> D[Score de Maturidade]
+    B[Métricas de Qualidade] --> D
+    C[Métricas de Adoção] --> D
+    
+    D --> E{Nível de Maturidade}
+    E -->|< 40%| F[Reativo]
+    E -->|40-70%| G[Estruturado]
+    E -->|> 70%| H[Proativo]
+    
+    style F fill:#ffcdd2,stroke:#c62828
+    style G fill:#fff3e0,stroke:#e65100
+    style H fill:#e8f5e9,stroke:#2e7d32
 ```
 
 ---
 
-## 8. Glossário
+## 11. Riscos e Armadilhas
 
-| Termo | Definição |
-|-------|-----------|
-| **Terreno Fértil** | Substrato de dados curados, semanticamente estruturados e governados que permite à IA operar com precisão e relevância. |
-| **Business HITL** | Human-in-the-loop de negócio: humano que valida a realidade (não apenas outputs) que a IA utiliza. |
-| **HITL de Intenção** | Papel humano de definir direção estratégica e assumir compromissos — função que a IA não pode substituir. |
-| **Knowledge Engineering de Negócio** | Disciplina de captura, validação e estruturação semântica do conhecimento corporativo para consumo por IA. |
-| **Reality Stewardship** | Curadoria ativa e contínua da base de conhecimento: seleção, validação, versionamento, resolução de conflitos. |
-| **Externalização do Tácito** | Processo de converter conhecimento implícito (na cabeça das pessoas) em artefatos explícitos e acionáveis. |
-| **Estruturação Semântica** | Organização de dados por significado (entidades, relações, proveniência), não apenas por estrutura técnica. |
-| **Decision Rights** | Autoridade formal para tomar e assumir responsabilidade por decisões — não delegável à IA. |
-| **Evaluation Literacy** | Capacidade de construir critérios objetivos para avaliar qualidade de outputs de IA. |
-| **Protocolo de Voz** | Formato estruturado de comunicação oral, otimizado por nível hierárquico, para gerar registros acionáveis. |
-| **Context Work** | Trabalho de contexto: transformar a realidade operacional e estratégica em artefatos informacionais confiáveis para consumo por IA. |
-| **Demo-Driven Adoption** | Antipadrão em que a empresa adota IA porque "parece bom" em demonstração, sem critérios de avaliação que sustentem produção. |
-| **IA Ornamental** | IA sem conexão com loops de feedback e métricas reais — presente no discurso, ausente no impacto. |
-| **Execução sem Tese** | Antipadrão tático em que a IA entrega muito, mas sem coerência com hipótese de negócio ou objetivo estratégico. |
-| **Vaidade Corporativa** | Viés informacional onde dados refletem narrativa desejada, não realidade operacional — risco para base curada. |
+Implementar Knowledge Engineering de Negócio sem atenção aos riscos pode criar mais problemas que soluções.
+
+### 11.1 Risco de "Curadoria Centralizada"
+
+**Descrição**: Concentrar poder de curadoria em poucas pessoas cria bottleneck e ponto único de falha.
+
+**Sintomas**:
+- Decisões paralisadas esperando validação do "curador-chefe"
+- Conhecimento filtrado por viés individual
+- Turnover do curador = perda de memória organizacional
+
+**Mitigação**:
+- Modelo distribuído de curadoria (múltiplos curadores por domínio)
+- Sistema de reputação e confiança entre curadores
+- Protocolos de handoff e backup
+
+### 11.2 Risco de "IA Ornamental"
+
+**Descrição**: Sistema existe tecnicamente mas não agrega valor real ao negócio.
+
+**Sintomas**:
+- Baixa taxa de uso após implementação
+- Respostas genéricas ou irrelevantes
+- Processos paralelos (pessoais vs sistema)
+
+**Mitigação**:
+- KPIs de impacto direto (redução de retrabalho, velocidade de decisão)
+- Integração com workflows existentes
+- Feedback loop contínuo com usuários
+
+### 11.3 Risco de "Poluição Semântica"
+
+**Descrição**: Conceitos mal definidos ou inconsistentes geram ruído e desconfiança no sistema.
+
+**Sintomas**:
+- Contradições no grafo de conhecimento
+- Decisões baseadas em informação desatualizada
+- Perda de confiança nas recomendações da IA
+
+**Mitigação**:
+- Ontologia rigorosa com definições claras
+- Versionamento de conceitos e depreciação controlada
+- Auditorias periódicas de consistência semântica
+
+### 11.4 Risco de "Inércia Organizacional"
+
+**Descrição**: Resistência cultural a externalizar conhecimento tácito.
+
+**Sintomas**:
+- Pessoas continuam usando canais informais
+- Falta de incentivos para registrar conhecimento
+- Medo de "perder poder" ao compartilhar informação
+
+**Mitigação**:
+- Incentivos alinhados à curadoria (bonificação, reconhecimento)
+- Demonstração clara de valor pessoal e organizacional
+- Processos graduais de adoção com quick wins
+
+### 11.5 Risco de "Sobrecarga de Informação"
+
+**Descrição**: Capturar tudo sem filtro gera ruído que dificulta encontrar o relevante.
+
+**Sintomas**:
+- Buscas retornam milhares de resultados irrelevantes
+- Tempo crescente para encontrar informação correta
+- Abandono do sistema por complexidade
+
+**Mitigação**:
+- Filtros de relevância por contexto e perfil
+- Sistema de priorização e importância
+- Mecanismos de sumarização automática
+
+### 11.6 Matriz de Risco vs Impacto
+
+```mermaid
+quadrantChart
+    title Matriz de Riscos
+    x-axis Baixo Impacto --> Alto Impacto
+    y-axis Baixa Probabilidade --> Alta Probabilidade
+    
+    quadrant-1 Monitorar
+    quadrant-2 Aceitar
+    quadrant-3 Mitigar
+    quadrant-4 Prevenir
+    
+    Sobrecarga: [0.3, 0.8]
+    Poluição Semântica: [0.7, 0.6]
+    IA Ornamental: [0.8, 0.4]
+    Curadoria Centralizada: [0.9, 0.7]
+    Inércia Organizacional: [0.6, 0.9]
+```
 
 ---
 
-## 9. Conexão com o EKS (Enterprise Knowledge System)
+## Referências
 
-Este documento fundamenta conceitualmente o **por quê** do EKS existir:
-
-- O EKS é a **infraestrutura técnica e semântica** que materializa o "terreno fértil"
-- A ontologia do EKS mapeia exatamente as entidades descritas aqui: decisões, projetos, riscos, KPIs, pessoas, premissas
-- O grafo de conhecimento é o mecanismo de **estruturação semântica com proveniência e temporalidade**
-- Os agentes do EKS implementam os **workflows agênticos** com checkpoints humanos
-- A memória corporativa do EKS operacionaliza o **ciclo de vida** (versões, atualização, obsolescência)
-
-> O EKS é a resposta de engenharia para a tese descrita neste documento: se o diferencial é a qualidade do "mundo" construído para a IA, então precisamos de um sistema que capture, estruture, governe e evolua esse mundo.
-
----
-
-## 10. Rubricas de Avaliação por Nível (Referência para Currículo)
-
-As competências descritas podem ser mensuradas por rubricas objetivas, permitindo transformar este framework em programa de desenvolvimento profissional:
-
-| Rubrica | Estratégico | Tático | Operacional |
-|---------|------------|--------|-------------|
-| **Clareza de intenção** | Direção formulada com trade-offs e critérios explícitos | Hipóteses testáveis vinculadas a objetivos | Registro com distinção fato/hipótese/decisão |
-| **Densidade informacional** | Narrativa com sinais ancorados e racional | Briefing completo em 60–120s | Log estruturado em 30–60s |
-| **Rastreabilidade** | Decisões com proveniência e premissas | DoD com critérios e dependências mapeadas | Evidência com fonte, versão e data |
-| **Qualidade de DoD** | Critérios de sucesso estratégico definidos | Baterias de teste e thresholds configurados | Validação de outputs com critérios claros |
-| **Taxa de retrabalho por output de IA** | Baixa (guardrails bem definidos) | Controlada (workflows com checkpoints) | Mínima (delegação com critérios objetivos) |
-
----
-
-*Documento gerado a partir de reflexão estruturada sobre o futuro do trabalho com IA corporativa. Fevereiro 2026.*
+- **Origem**: Conversa exploratória registrada em `chat01.txt`
+- **Projeto**: [EKS — Enterprise Knowledge System](../README.md)
+- **Conceitos relacionados**: Context Engineering, GraphRAG, Ontologia Corporativa

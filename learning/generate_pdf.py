@@ -22,11 +22,35 @@ def check_dependencies():
         return True
 
 def render_mermaid_diagrams(md_content):
-    """Substitui blocos Mermaid por imagens renderizadas ou HTML"""
-    # Por enquanto, vamos manter os blocos Mermaid como estão
-    # e usar uma extensão do markdown que suporte Mermaid
-    # ou converter para HTML que será renderizado pelo navegador
-    return md_content
+    """Identifica e marca diagramas que precisam de tratamento especial"""
+    # Tipos de diagramas que geralmente precisam de mais espaço horizontal
+    landscape_types = ['gantt', 'quadrantChart', 'gitgraph']
+    wide_types = ['flowchart', 'sequenceDiagram']
+    
+    def process_mermaid_block(match):
+        content = match.group(1)
+        
+        # Detectar tipo de diagrama
+        diagram_type = None
+        for line in content.split('\n'):
+            line = line.strip()
+            if line in landscape_types:
+                diagram_type = 'landscape'
+                break
+            elif line in wide_types:
+                diagram_type = 'wide'
+                break
+        
+        # Adicionar classe CSS apropriada
+        if diagram_type == 'landscape':
+            return f'<div class="mermaid landscape-diagram">\n{content}\n</div>'
+        elif diagram_type == 'wide':
+            return f'<div class="mermaid wide-diagram">\n{content}\n</div>'
+        else:
+            return f'<div class="mermaid">\n{content}\n</div>'
+    
+    # Processar todos os blocos Mermaid
+    return re.sub(r'```mermaid\s*\n(.*?)\n```', process_mermaid_block, md_content, flags=re.DOTALL)
 
 def convert_md_to_html(md_file):
     """Converte Markdown para HTML"""
@@ -44,9 +68,8 @@ def convert_md_to_html(md_file):
     with open(md_file, 'r', encoding='utf-8') as f:
         md_content = f.read()
     
-    # Processar blocos Mermaid antes de converter para HTML
-    # Substituir ```mermaid por <div class="mermaid"> para que o Mermaid.js possa renderizar
-    md_content = re.sub(r'```mermaid\s*\n(.*?)\n```', r'<div class="mermaid">\n\1\n</div>', md_content, flags=re.DOTALL)
+    # Processar blocos Mermaid com tratamento inteligente
+    md_content = render_mermaid_diagrams(md_content)
     
     # Converter Mermaid para HTML que será renderizado
     # Vamos usar a biblioteca mermaid.js via CDN
@@ -115,10 +138,26 @@ def convert_md_to_html(md_file):
             overflow: hidden;
             page-break-inside: avoid;
         }}
+        /* Para diagramas complexos, usar página inteira */
+        .mermaid.landscape-diagram {{
+            page-break-after: always;
+            page-break-before: always;
+            transform: rotate(90deg);
+            transform-origin: center center;
+            position: relative;
+            width: 297mm; /* A4 width */
+            height: 210mm; /* A4 height */
+            margin: -29.7mm 0; /* Compensar rotação */
+        }}
         .mermaid svg {{
             max-width: 100% !important;
             height: auto !important;
-            max-height: 500px;
+            max-height: 400px; /* Reduzido para retrato */
+        }}
+        /* Para diagramas muito largos */
+        .mermaid.wide-diagram svg {{
+            max-height: 600px;
+            width: 100% !important;
         }}
     </style>
 </head>
@@ -159,9 +198,9 @@ def convert_html_to_pdf(html_file, pdf_file):
         # Gerar PDF
         page.pdf(
             path=str(pdf_file),
-            landscape=True,
+            landscape=False,  # Retrato
             format="A4",
-            margin={"top": "15mm", "right": "15mm", "bottom": "15mm", "left": "15mm"},
+            margin={"top": "20mm", "right": "20mm", "bottom": "20mm", "left": "20mm"},
             print_background=True
         )
         

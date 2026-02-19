@@ -29,11 +29,7 @@ Por que funciona: Conceito novo, nomenclatura própria (seu estilo), posiciona a
 "30 segundos de fala estruturada valem mais que 30 minutos de prompt."
 
 Por que funciona: Original, prático, pouca gente fala disso, diferenciador forte
-6. "Estratégico, Tático, Operacional — 3 loops de interação com IA"
-"Cada nível da empresa precisa de um tipo diferente de conversa com a IA."
-
-Por que funciona: Frameworks visuais performam bem, formato tabela
-7. "IA Ornamental vs IA que opera"
+6. "IA Ornamental vs IA que opera"
 "Demo-driven adoption é o novo teatro corporativo."
 
 Por que funciona: Provoca, termos novos, toca em dor de C-level
@@ -45,6 +41,6 @@ Cria um post-âncora para uma série
 Tem o contraste binário que é sua marca (prompt engineering vs knowledge engineering)
 Se alinha com seu melhor post (EKS vs Agentes Pontuais)
 Introduz um termo novo forte: "Knowledge Engineering de Negócio"
-Os outros 6 temas viram posts futuros, criando uma série coerente.
+Os outros 5 temas viram posts futuros, criando uma série coerente.
 
 Qual tema quer que eu desenvolva? Ou quer combinar dois deles em um único post?

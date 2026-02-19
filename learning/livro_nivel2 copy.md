@@ -236,17 +236,6 @@ Vamos começar.
 - 24.2 Checklist por nível: o que implementar em cada etapa
 - 24.3 Próximos passos para o projeto EKS
 
-**Capítulo 25: Knowledge Engineering de Negócio — O Fator Humano**
-- 25.0 Tese central: o gargalo não é promptar
-- 25.1 O conceito de terreno fértil — pipeline humano de 5 estágios
-- 25.2 Business Human-in-the-Loop (BHITL) — evolução do HITL técnico
-- 25.3 O limite da IA: inferência não é mandato
-- 25.4 Onde mora a estratégia (e por que a IA não captura sozinha)
-- 25.5 Os 10 skills do profissional de alto impacto
-- 25.6 Métricas de maturidade do fator humano
-- 25.7 Riscos e armadilhas do fator humano
-- 25.8 Vantagem comparativa: humano vs IA
-
 ---
 
 # PARTE I: FUNDAMENTOS — O QUE É CONHECIMENTO ORGANIZACIONAL?
@@ -7050,406 +7039,11 @@ gantt
 
 ---
 
-# Capítulo 25: Knowledge Engineering de Negócio — O Fator Humano
-
-*Ao longo dos capítulos anteriores, construímos uma máquina sofisticada: ontologias, grafos, agentes, pipelines, métricas, governança. Mas toda essa infraestrutura depende de um ingrediente que nenhuma tecnologia pode fabricar sozinha: **conhecimento humano curado**. Este capítulo aborda o fator mais crítico — e mais negligenciado — na construção de um EKS: a capacidade humana de capturar, validar e estruturar semanticamente o que a organização sabe e decide. Sem isso, o sistema mais avançado opera sobre areia.*
-
-## 25.0 Tese Central: O Gargalo Não É Promptar
-
-> **"O gargalo real não é promptar. É construir o mundo onde a IA opera."**
-
-Existe uma narrativa dominante no mercado de que o diferencial competitivo na era da IA é saber formular boas perguntas — o chamado *prompt engineering*. Essa visão é incompleta. Perguntas brilhantes feitas a um sistema alimentado com dados fragmentados, desatualizados ou semanticamente pobres produzem respostas igualmente pobres.
-
-O verdadeiro diferencial é **Knowledge Engineering de Negócio**: a capacidade organizacional de gerar, validar e estruturar o substrato informacional sobre o qual a IA opera.
-
-Isso desloca o eixo de valor:
-
-| Visão convencional | Visão Knowledge Engineering de Negócio |
-|----|-----|
-| Saber perguntar (prompt engineering) | Saber construir a realidade curada onde a IA opera |
-| IA reativa a comandos | IA proativa baseada em dados curados |
-| Dados técnicos conectados | Dados **semanticamente** estruturados |
-| Human-in-the-loop técnico | **Business Human-in-the-Loop** |
-
-Para o EKS, isso significa que a qualidade do grafo de conhecimento — e, portanto, a qualidade de todas as respostas, insights e recomendações — depende diretamente da qualidade do trabalho humano que o alimenta.
-
-## 25.1 O Conceito de Terreno Fértil
-
-"Terreno fértil" é a metáfora para o **substrato informacional confiável** que permite à IA raciocinar e agir com precisão no contexto corporativo. Sem terreno fértil, o EKS é um motor potente sem combustível.
-
-Construir terreno fértil exige um pipeline humano de cinco estágios:
-
-### Estágio 1: Captura do Real
-
-Registrar o que aconteceu, o que foi decidido, por quê, com quais premissas, riscos e trade-offs. Fontes primárias: reuniões, e-mails, mensagens, alinhamentos, exceções operacionais.
-
-No contexto do EKS, isso alimenta diretamente o pipeline de ingestão (Capítulo 14) — mas a **qualidade da captura** é responsabilidade humana, não do sistema.
-
-### Estágio 2: Externalização do Tácito
-
-A estratégia real — o "por que fazemos isso" — raramente está em bancos estruturados. Está na **cabeça das pessoas** e em rastros narrativos. O trabalho crítico é **converter conhecimento tácito em explícito** sem destruir nuance.
-
-Lembre-se das classes de memória do Capítulo 15: a memória avaliativa ("o fornecedor X atrasou 3 vezes") e a memória procedural ("como realmente fazemos aprovação de orçamento") são majoritariamente tácitas. Sem externalização deliberada, elas se perdem com o turnover.
-
-### Estágio 3: Curadoria e Validação Orientada a Negócio
-
-Não é o human-in-the-loop técnico que vimos no Capítulo 22 (aprovar resposta do modelo). É o **human-in-the-loop de realidade**: o humano valida o mundo que a IA vai usar como base, garantindo que ela não opere sobre ruído, desatualização, vaidade corporativa ou fragmentos contraditórios.
-
-### Estágio 4: Estruturação Semântica (não apenas técnica)
-
-Não basta "conectar dados". É preciso dar forma ao significado:
-
-- **Conceitos estáveis**: entidades, papéis, iniciativas, decisões, políticas, métricas
-- **Relações explícitas**: dependências, ownership, impacto estratégico, exceções
-- **Metadados de proveniência**: quem afirmou, quando, em que contexto, com qual confiança
-
-Isso é exatamente o que a ontologia do EKS (Capítulo 17) formaliza — mas a **decisão de quais conceitos importam** é humana.
-
-### Estágio 5: Ciclo de Vida e Atualização
-
-Terreno fértil não é acervo estático. É **memória viva**: versões, cadência de atualização, obsolescência, divergências e resolução de conflitos. Conecta-se diretamente ao freshness decay e à revalidação automática do Capítulo 18.
-
-```mermaid
-flowchart LR
-    A["1. Captura do Real"] --> B["2. Externalização do Tácito"]
-    B --> C["3. Curadoria e Validação"]
-    C --> D["4. Estruturação Semântica"]
-    D --> E["5. Ciclo de Vida"]
-    E -->|feedback| A
-    
-    style A fill:#e3f2fd,stroke:#1565c0,color:#000
-    style B fill:#e8f5e9,stroke:#2e7d32,color:#000
-    style C fill:#fff3e0,stroke:#e65100,color:#000
-    style D fill:#f3e5f5,stroke:#6a1b9a,color:#000
-    style E fill:#fce4ec,stroke:#c62828,color:#000
-```
-
-**Valor para Negócios:** Cada estágio deste pipeline tem um responsável humano. O EKS automatiza o processamento, mas a **geração de matéria-prima confiável** é trabalho de pessoas. Organizações que investem apenas em tecnologia sem investir neste pipeline humano acabam com um sistema tecnicamente sofisticado mas semanticamente vazio.
-
-## 25.2 Business Human-in-the-Loop (BHITL)
-
-O Capítulo 22 apresentou o conceito de HITL (Human-in-the-Loop) como supervisão técnica: aprovar outputs do modelo, validar decisões financeiras, resolver conflitos de informação. O **Business Human-in-the-Loop** vai além — é uma evolução conceitual com três funções distintas:
-
-### Função 1: Governança de Sentido (Sensemaking)
-
-O humano decide o que é relevante, o que é verdade operacionalmente, o que é exceção, o que é política, o que é hipótese e o que virou decisão.
-
-No grafo, isso se traduz em **classificação de nós**: um chunk extraído de uma reunião contém uma decisão ou apenas uma discussão? Um risco mencionado é real ou hipotético? Essa distinção é semântica e exige julgamento humano.
-
-### Função 2: Curadoria como Controle de Risco
-
-Reduz alucinação por falta de ancoragem, reduz decisão baseada em informação vencida e permite auditoria ("por que a IA recomendou isso?").
-
-Conecta-se diretamente ao Trust Score (Capítulo 16): quando um humano valida uma informação, o score de confiança sobe. Quando ninguém valida há meses, o score decai. O BHITL é o mecanismo que **mantém o Trust Score alto**.
-
-### Função 3: Humano como Mantenedor do Modelo de Realidade
-
-A IA não substitui — ela amplia. Mas precisa de uma base curada. O humano é o **mantenedor do modelo de realidade corporativa**.
-
-> **Síntese**: BHITL desloca a ideia de "aprovar outputs" para **"produzir inputs confiáveis e semanticamente acionáveis"**.
-
-```mermaid
-flowchart TD
-    subgraph HITL_Tecnico["HITL Técnico (Cap. 22)"]
-        T1["Aprovar resposta do modelo"]
-        T2["Validar decisão financeira"]
-        T3["Resolver conflito de dados"]
-    end
-    
-    subgraph BHITL["Business Human-in-the-Loop"]
-        B1["Governança de Sentido<br/>O que é relevante? O que é verdade?"]
-        B2["Curadoria de Realidade<br/>O mundo que a IA usa é confiável?"]
-        B3["Manutenção do Modelo<br/>A representação reflete a realidade?"]
-    end
-    
-    HITL_Tecnico -->|evolui para| BHITL
-    
-    B1 --> Grafo["Grafo de Conhecimento<br/>com Trust Score alto"]
-    B2 --> Grafo
-    B3 --> Grafo
-    
-    style HITL_Tecnico fill:#e3f2fd,stroke:#1565c0,color:#000
-    style BHITL fill:#fff3e0,stroke:#e65100,color:#000
-    style Grafo fill:#e8f5e9,stroke:#2e7d32,color:#000
-```
-
-## 25.3 O Limite da IA: Inferência Não É Mandato
-
-Ao longo deste livro, vimos o poder dos agentes de IA: eles inferem, correlacionam, recomendam, alertam. Mas existe um limite fundamental que nenhuma evolução tecnológica elimina:
-
-> **A IA pode inferir para onde a empresa *parece* estar indo. Não pode decidir para onde ela *deve* ir.**
-
-Três razões estruturais:
-
-1. **Intenção estratégica é normativa, não descritiva** — envolve valores, trade-offs, apetite a risco. O Strategic Agent (Capítulo 22) pode mostrar que "estamos 15% abaixo da meta de receita", mas não pode decidir se a resposta é "cortar custos" ou "investir mais agressivamente"
-
-2. **Empresa não tem mente única** — intenção é acordo institucional negociado. Sem ato de decisão explícito, a IA só extrapola padrões. O Business Intent Graph (Capítulo 20) registra intenções *depois* que humanos as definem
-
-3. **Accountability** — decisões estratégicas exigem autoria e responsabilidade. Previsão não substitui direito de decisão (*decision rights*)
-
-Isso define o conceito de **Human-in-the-Loop de Intenção**: o humano não está ali para corrigir resposta — está para **definir direção e assumir compromissos**.
-
-```mermaid
-flowchart TD
-    subgraph IA["Domínio da IA"]
-        O1["Operacional-Execução<br/>Automatizar tarefas"]
-        O2["Operacional-Cognitivo<br/>Síntese, drafts, propostas"]
-        O3["Inferência e Correlação<br/>Padrões, riscos, tendências"]
-    end
-    
-    subgraph HUMANO["Domínio Humano Insubstituível"]
-        H1["Intenção Estratégica<br/>Para onde vamos?"]
-        H2["Decisão e Compromisso<br/>O que fazemos?"]
-        H3["Legitimação e Accountability<br/>Quem responde?"]
-        H4["Curadoria de Realidade<br/>O que é verdade?"]
-    end
-    
-    O3 -.->|propõe opções| H1
-    H1 -->|define direção| H2
-    H2 -->|registra decisão| H4
-    H4 -->|alimenta contexto curado| O1
-    H4 -->|alimenta contexto curado| O2
-    
-    style IA fill:#e3f2fd,stroke:#1565c0,color:#000
-    style HUMANO fill:#fff3e0,stroke:#e65100,color:#000
-```
-
-**Valor para Negócios:** Para executivos, esta é talvez a mensagem mais importante do livro: o EKS não substitui liderança — ele **amplifica** liderança. Mas só amplifica o que existe. Se a organização não tem clareza de intenção, não registra decisões e não cuida do substrato informacional, o EKS amplifica confusão.
-
-## 25.4 Onde Mora a Estratégia (e por que a IA não captura sozinha)
-
-Os ativos estratégicos são majoritariamente **narrativos e tácitos**. Bancos estruturados guardam transações; **não guardam intenção, premissa, decisão, contexto político-operacional e racionalidade**.
-
-| Fonte | O que contém | Estado atual na maioria das empresas |
-|-------|-------------|--------------------------------------|
-| E-mails e threads | Negociação e alinhamento | Disperso, não rastreável |
-| Reuniões | Decisão e racional | Perdido após encerramento |
-| Cabeça das pessoas | Estratégia, premissas, exceções | Tácito, vulnerável a turnover |
-
-"Extrair informação" aqui não é scraping. É **instituir um processo de externalização + validação** que transforma:
-
-- **Conversa** → decisão rastreável (nó `:Decision` no grafo)
-- **Decisão** → vínculo com objetivo / risco / ação (relações no BIG)
-- **Ação** → evidência de execução e aprendizado (memória avaliativa)
-
-**Query: Decisões estratégicas sem registro formal**
-
-*Uma das consultas mais reveladoras para gestores: identifica objetivos estratégicos que não possuem nenhuma decisão formal registrada — indicando que a estratégia existe "na cabeça" mas não no sistema:*
-
-```cypher
-MATCH (obj:Objective)
-WHERE obj.status = "active"
-  AND NOT EXISTS { (obj)<-[:SUPPORTS|BASED_ON]-(:Decision) }
-RETURN obj.title AS objetivo_sem_decisao_formal,
-       obj.owner AS responsavel
-ORDER BY obj.priority DESC;
-```
-
-## 25.5 Os 10 Skills do Profissional de Alto Impacto
-
-Se agentes assumem o operacional (inclusive cognitivo), a habilidade humana diferencial migra para **governar intenção + construir realidade curada**. Estes são os dez skills que definem o profissional capaz de operar — e potencializar — um EKS:
-
-### 1. Engenharia de Intenção e Decisão
-Formular direção: objetivos, trade-offs, restrições, apetite a risco, critérios de sucesso e *decision rights*. A IA propõe opções; o humano define o que é "certo" para a empresa.
-
-### 2. Externalização do Tácito (Sensemaking)
-Transformar "o que está na cabeça" em artefato explícito: racional, premissas, hipóteses, exceções e contexto político-operacional.
-
-### 3. Curadoria de Evidência e Relevância (Reality Stewardship)
-Selecionar, validar e versionar fontes; distinguir fato, interpretação, hipótese e decisão.
-
-### 4. Estruturação Semântica Aplicada (Knowledge Engineering de Negócio)
-Criar e manter modelos de entidades/relacionamentos (decisões ↔ projetos ↔ riscos ↔ KPIs ↔ pessoas), com proveniência e temporalidade.
-
-### 5. Design de Workflows Agênticos (Orquestração)
-Quebrar processos em etapas delegáveis, definir checkpoints humanos, handoffs, gatilhos e ferramentas. Desenhar loops: "IA faz → humano decide → IA executa".
-
-### 6. Alfabetização de Avaliação (Evaluation Literacy)
-Construir critérios objetivos de qualidade: acurácia factual, utilidade, completude, risco, custo, tempo, aderência a políticas. Sem isso, a empresa cai em *demo-driven adoption*.
-
-### 7. Governança, Risco e Compliance
-Entender privacidade, segurança, vazamento de contexto, controle de acesso, rastreabilidade, auditoria e responsabilidade — o equivalente moderno de "controle interno" aplicado a agentes.
-
-### 8. Liderança Socio-Técnica
-Coordenar pessoas para produzir contexto e decisão rastreável: rituais, cadência, padrões de registro, acordos de "o que entra na memória corporativa".
-
-### 9. Comunicação de Alta Densidade (especialmente por Voz)
-Voz é vantagem real quando se domina **fala estruturada**. A habilidade não é "falar com a IA", é narrar intenção + evidência + decisão em blocos claros, para virar registro acionável (transcrição, sumarização, extração de entidades/decisões).
-
-### 10. Pensamento de Produto e de Sistemas
-Ligar conhecimento → decisão → execução → métrica → aprendizado. IA boa em empresa é um **sistema de feedback**; quem entende loops e métricas evita "IA ornamental".
-
-```mermaid
-mindmap
-  root((Skills do Profissional de Alto Impacto))
-    Governar Intenção
-      Engenharia de Intenção
-      Externalização do Tácito
-      Liderança Socio-Técnica
-    Construir Realidade
-      Curadoria de Evidência
-      Estruturação Semântica
-      Comunicação por Voz
-    Orquestrar IA
-      Design de Workflows
-      Avaliação de Qualidade
-      Governança e Compliance
-    Fechar o Loop
-      Pensamento de Sistemas
-      Métricas e Feedback
-```
-
-## 25.6 Métricas de Maturidade do Fator Humano
-
-O Capítulo 24 apresentou métricas de maturidade do sistema técnico. Aqui complementamos com métricas que medem a maturidade do **fator humano** — sem as quais o sistema técnico não entrega valor.
-
-### KPIs de Terreno Fértil
-
-| Métrica | O que mede | Meta inicial | Como medir |
-|---------|------------|--------------|------------|
-| **Taxa de Externalização do Tácito** | % de decisões estratégicas registradas | 60% | Contagem de `:Decision` nodes vs total de decisões críticas estimadas |
-| **Tempo de Captura → Estruturação** | Velocidade do pipeline humano | < 48h | Timestamp desde captura até inserção no grafo |
-| **Cobertura de Fontes** | % de fontes estratégicas mapeadas | 80% | Fontes ingeridas vs universo total de fontes |
-| **Frequência de Atualização** | Cadência de refresh do substrato | Semanal | Logs de atualização do grafo |
-
-### KPIs de Qualidade de Curadoria
-
-| Métrica | O que mede | Meta inicial | Como medir |
-|---------|------------|--------------|------------|
-| **Acurácia Factual** | % de informações verificáveis | 95% | Verificação cruzada com fontes primárias |
-| **Relevância Contextual** | % de respostas úteis ao negócio | 85% | Avaliação humana por amostragem |
-| **Consistência Semântica** | % de conceitos sem contradição | 90% | Análise de inconsistências no grafo |
-| **Proveniência Completa** | % de informações com metadados | 80% | Verificação de quem/onde/quando/confiança |
-
-### KPIs de Adoção e Impacto
-
-| Métrica | O que mede | Meta inicial | Como medir |
-|---------|------------|--------------|------------|
-| **Taxa de Curadoria Ativa** | % de usuários curando conteúdo | 40% | Logs de interações de curadoria |
-| **Redução de Retrabalho** | Tempo economizado em buscas | 30% | Comparação tempo antes/depois |
-| **Velocidade de Decisão** | Tempo da decisão → execução | -25% | Métricas de processo organizacional |
-| **Satisfação do Usuário** | Percepção de valor | 4.0/5.0 | Pesquisas NPS/CSAT |
-
-**Query: Score de maturidade do fator humano**
-
-*Calcula um score agregado de maturidade baseado na qualidade da curadoria humana — quanto maior, mais confiável é o substrato sobre o qual a IA opera:*
-
-```cypher
-MATCH (n)
-WHERE n.trust_score IS NOT NULL
-WITH avg(n.trust_score) AS avg_trust,
-     count(CASE WHEN n.validated_by IS NOT NULL THEN 1 END) * 1.0 / count(n) AS validation_rate,
-     count(CASE WHEN n.source IS NOT NULL THEN 1 END) * 1.0 / count(n) AS provenance_rate
-RETURN round(((avg_trust + validation_rate + provenance_rate) / 3.0) * 100, 1) AS human_maturity_score;
-```
-
-```mermaid
-flowchart TD
-    A["Métricas de Terreno Fértil"] --> D["Score de Maturidade<br/>do Fator Humano"]
-    B["Métricas de Qualidade"] --> D
-    C["Métricas de Adoção"] --> D
-    
-    D --> E{Nível de Maturidade}
-    E -->|"< 40%"| F["Reativo<br/>IA opera sobre dados fragmentados"]
-    E -->|"40-70%"| G["Estruturado<br/>Pipeline humano funcional"]
-    E -->|"> 70%"| H["Proativo<br/>Curadoria contínua e sistêmica"]
-    
-    style F fill:#ffcdd2,stroke:#c62828,color:#000
-    style G fill:#fff3e0,stroke:#e65100,color:#000
-    style H fill:#e8f5e9,stroke:#2e7d32,color:#000
-```
-
-## 25.7 Riscos e Armadilhas do Fator Humano
-
-Implementar Knowledge Engineering de Negócio sem atenção aos riscos pode criar mais problemas que soluções. Estes riscos complementam os riscos técnicos abordados nos capítulos anteriores.
-
-### Risco 1: Curadoria Centralizada
-
-**Descrição**: Concentrar poder de curadoria em poucas pessoas cria bottleneck e ponto único de falha.
-
-**Sintomas**: Decisões paralisadas esperando validação do "curador-chefe"; conhecimento filtrado por viés individual; turnover do curador = perda de memória organizacional.
-
-**Mitigação**: Modelo distribuído de curadoria (múltiplos curadores por domínio), sistema de reputação e confiança entre curadores, protocolos de handoff e backup.
-
-### Risco 2: IA Ornamental
-
-**Descrição**: Sistema existe tecnicamente mas não agrega valor real ao negócio.
-
-**Sintomas**: Baixa taxa de uso após implementação; respostas genéricas ou irrelevantes; processos paralelos (pessoais vs sistema).
-
-**Mitigação**: KPIs de impacto direto (redução de retrabalho, velocidade de decisão), integração com workflows existentes, feedback loop contínuo com usuários.
-
-### Risco 3: Poluição Semântica
-
-**Descrição**: Conceitos mal definidos ou inconsistentes geram ruído e desconfiança no sistema.
-
-**Sintomas**: Contradições no grafo de conhecimento; decisões baseadas em informação desatualizada; perda de confiança nas recomendações da IA.
-
-**Mitigação**: Ontologia rigorosa com definições claras (Capítulo 17), versionamento de conceitos e depreciação controlada, auditorias periódicas de consistência semântica (Capítulo 18).
-
-### Risco 4: Inércia Organizacional
-
-**Descrição**: Resistência cultural a externalizar conhecimento tácito.
-
-**Sintomas**: Pessoas continuam usando canais informais; falta de incentivos para registrar conhecimento; medo de "perder poder" ao compartilhar informação.
-
-**Mitigação**: Incentivos alinhados à curadoria (bonificação, reconhecimento), demonstração clara de valor pessoal e organizacional, processos graduais de adoção com quick wins.
-
-### Risco 5: Sobrecarga de Informação
-
-**Descrição**: Capturar tudo sem filtro gera ruído que dificulta encontrar o relevante.
-
-**Sintomas**: Buscas retornam milhares de resultados irrelevantes; tempo crescente para encontrar informação correta; abandono do sistema por complexidade.
-
-**Mitigação**: Filtros de relevância por contexto e perfil (Context Depth Controller, Capítulo 16), sistema de priorização e importância, mecanismos de sumarização automática.
-
-```mermaid
-quadrantChart
-    title Matriz de Riscos do Fator Humano
-    x-axis Baixo Impacto --> Alto Impacto
-    y-axis Baixa Probabilidade --> Alta Probabilidade
-    
-    quadrant-1 Monitorar
-    quadrant-2 Aceitar
-    quadrant-3 Mitigar
-    quadrant-4 Prevenir
-    
-    Sobrecarga: [0.3, 0.8]
-    Poluição Semântica: [0.7, 0.6]
-    IA Ornamental: [0.8, 0.4]
-    Curadoria Centralizada: [0.9, 0.7]
-    Inércia Organizacional: [0.6, 0.9]
-```
-
-## 25.8 Vantagem Comparativa: Humano vs IA
-
-Para fechar o capítulo, uma síntese clara de onde cada um é superior — e por que a colaboração é insubstituível:
-
-| Humano é superior em | IA é superior em |
-|---|---|
-| Atribuir significado | Escala de processamento |
-| Validar contexto | Síntese e recuperação |
-| Julgar relevância | Correlação e monitoramento |
-| Negociar conflitos | Ação proativa automatizada |
-| Externalizar racional | Consistência e velocidade |
-
-O trabalho humano migra para **funções de stewardship** (curadoria/guarda) do conhecimento corporativo: gerar evidência, registrar decisão, manter coerência semântica, reduzir ambiguidade e manter o "mapa" alinhado ao território.
-
-O novo profissional de alto impacto é uma combinação de:
-
-> **Arquiteto de Intenção + Curador de Realidade + Designer de Workflows + Avaliador de Qualidade + Líder de Governança**
-
-### Em resumo: Capítulo 25
-
-*A IA corporativa é um sistema socio-técnico dependente de curadoria humana de realidade. O diferencial competitivo não é prompt engineering, mas Knowledge Engineering de Negócio: a capacidade organizacional de capturar, validar e estruturar semanticamente o que a empresa sabe e decide. O conceito de "terreno fértil" — um substrato informacional confiável construído por humanos — é o que separa um EKS que entrega valor real de um sistema tecnicamente sofisticado mas semanticamente vazio. O Business Human-in-the-Loop evolui o HITL técnico para curadoria de realidade. E o limite fundamental permanece: a IA pode inferir para onde a empresa parece estar indo, mas não pode decidir para onde ela deve ir. Inferência não é mandato. O fator humano não é um complemento do EKS — é seu alicerce.*
-
----
-
 # Conclusão: Da Teoria à Transformação
 
-Ao longo desta jornada, percorremos um caminho que vai muito além da tecnologia. Começamos com questões filosóficas fundamentais — *o que é conhecimento? Como representamos o que sabemos?* — passamos por sistemas concretos com agentes inteligentes, métricas de saúde e dashboards de governança, e terminamos onde tudo começa: no **fator humano** — a capacidade de capturar, validar e estruturar o que a organização sabe e decide.
+Ao longo desta jornada, percorremos um caminho que vai muito além da tecnologia. Começamos com questões filosóficas fundamentais — *o que é conhecimento? Como representamos o que sabemos?* — e chegamos a sistemas concretos, com agentes inteligentes, métricas de saúde e dashboards de governança.
 
-Mas o valor de tudo o que discutimos não está nas ferramentas. Não está no Neo4j, no LLM, no OWL ou nos agentes. E como vimos no Capítulo 25, também não está apenas na tecnologia — está na **colaboração entre humanos que curam realidade e máquinas que a amplificam**. O valor está na **transformação** que essa colaboração possibilita:
+Mas o valor de tudo o que discutimos não está nas ferramentas. Não está no Neo4j, no LLM, no OWL ou nos agentes. O valor está na **transformação** que essas ferramentas possibilitam:
 
 - **Decisões fundamentadas** em vez de intuitivas — porque cada decisão é rastreável até suas evidências
 - **Conhecimento acessível** em vez de esquecido — porque a memória organizacional é persistente
@@ -7458,16 +7052,15 @@ Mas o valor de tudo o que discutimos não está nas ferramentas. Não está no N
 
 ### Para profissionais de negócios
 
-Se você é um gestor, executivo ou profissional de negócios que chegou até aqui, parabéns. Você agora entende algo que poucos líderes compreendem: que o conhecimento organizacional não é apenas "informação guardada em algum lugar" — é um **ativo estratégico** que pode ser estruturado, gerenciado, medido e potencializado. E mais: que o diferencial competitivo não é *prompt engineering*, mas **Knowledge Engineering de Negócio** — a capacidade da sua organização de gerar terreno fértil para a IA operar. Você não precisa implementar um EKS pessoalmente, mas agora pode:
+Se você é um gestor, executivo ou profissional de negócios que chegou até aqui, parabéns. Você agora entende algo que poucos líderes compreendem: que o conhecimento organizacional não é apenas "informação guardada em algum lugar" — é um **ativo estratégico** que pode ser estruturado, gerenciado, medido e potencializado. Você não precisa implementar um EKS pessoalmente, mas agora pode:
 
 - Fazer as perguntas certas à sua equipe técnica
 - Avaliar propostas de sistemas de conhecimento com olhar crítico
 - Entender por que investir em gestão de conhecimento não é custo, mas infraestrutura
-- Reconhecer que seu papel como líder — definir intenção, registrar decisões, curar realidade — é o alicerce sobre o qual todo o sistema se sustenta
 
 ### Para profissionais técnicos
 
-Se você é um engenheiro, arquiteto ou cientista de dados, este livro lhe deu a base teórica que a maioria dos profissionais técnicos nunca recebe. A tecnologia muda rapidamente — Neo4j pode ser substituído por outro banco de grafos, LLMs evoluem a cada mês, frameworks aparecem e desaparecem. Mas os princípios permanecem: epistemologia formal, design ontológico, governança de conhecimento, temporalidade. E o Capítulo 25 adicionou uma dimensão que profissionais técnicos frequentemente subestimam: **o sistema só é tão bom quanto o substrato humano que o alimenta**. Construir a melhor arquitetura do mundo sobre dados fragmentados e não curados é construir sobre areia. Esses são os fundamentos que tornam qualquer implementação robusta.
+Se você é um engenheiro, arquiteto ou cientista de dados, este livro lhe deu a base teórica que a maioria dos profissionais técnicos nunca recebe. A tecnologia muda rapidamente — Neo4j pode ser substituído por outro banco de grafos, LLMs evoluem a cada mês, frameworks aparecem e desaparecem. Mas os princípios permanecem: epistemologia formal, design ontológico, governança de conhecimento, temporalidade. Esses são os fundamentos que tornam qualquer implementação robusta.
 
 ### O próximo passo
 
@@ -7477,13 +7070,12 @@ Se você chegou até aqui, já sabe mais sobre ontologias, knowledge graphs e si
 
 Comece pequeno:
 
-1. **Cultive o terreno** — Institua o hábito de registrar decisões, premissas e racionais (Capítulo 25)
-2. **Mapeie o domínio** — Quais são as entidades mais importantes da sua organização? (Pessoas, Projetos, Decisões, Clientes, Produtos...)
-3. **Conecte** — Quais relações existem entre essas entidades? (Quem gerencia quê? O que depende de quê?)
-4. **Popule** — Mesmo que manualmente, coloque dados reais no grafo
-5. **Pergunte** — Crie uma query que responda uma pergunta estratégica que ninguém conseguia responder antes
-6. **Mostre** — Apresente o resultado a um tomador de decisão
-7. **Itere** — Expanda, refine, governe, automatize
+1. **Mapeie o domínio** — Quais são as entidades mais importantes da sua organização? (Pessoas, Projetos, Decisões, Clientes, Produtos...)
+2. **Conecte** — Quais relações existem entre essas entidades? (Quem gerencia quê? O que depende de quê?)
+3. **Popule** — Mesmo que manualmente, coloque dados reais no grafo
+4. **Pergunte** — Crie uma query que responda uma pergunta estratégica que ninguém conseguia responder antes
+5. **Mostre** — Apresente o resultado a um tomador de decisão
+6. **Itere** — Expanda, refine, governe, automatize
 
 A cada ciclo, o sistema fica mais valioso. O conhecimento está aí, dentro da sua organização, esperando para ser estruturado. Agora você sabe como.
 
@@ -7526,9 +7118,6 @@ Uma regra ou afirmação aceita como verdadeira dentro do sistema, usada para de
 Um modelo que registra dois momentos no tempo para cada informação: (1) quando o fato era verdadeiro no mundo real (`valid_time`) e (2) quando ele foi registrado no sistema (`transaction_time`). Imagine que um funcionário foi promovido em janeiro, mas o RH só registrou em março. O modelo bitemporal preserva as duas datas, permitindo reconstruir com precisão "o que sabíamos em cada momento".
 
 💡 **Exemplo prático:** Uma decisão crítica de pausar um projeto foi tomada em 10/12/2025 (valid_time), mas só foi documentada no sistema em 15/01/2026 (transaction_time). Meses depois, alguém pergunta: *"Quais decisões tínhamos em dezembro?"* O sistema pode responder de duas formas: (a) **Por valid_time**: "Sim, a decisão de pausar o projeto existia" (foi tomada em dezembro); (b) **Por transaction_time**: "Não, a decisão não estava no sistema em dezembro" (foi registrada em janeiro). Ambas as respostas são corretas, dependendo do que você quer saber — e o modelo bitemporal preserva as duas verdades.
-
-**Business Human-in-the-Loop (BHITL)**
-Evolução do Human-in-the-Loop tradicional que vai além de aprovar outputs técnicos. O BHITL foca em três funções: (1) Governança de Sentido — decidir o que é relevante e verdade operacionalmente; (2) Curadoria como Controle de Risco — validar o mundo que a IA usa como base; (3) Humano como Mantenedor do Modelo de Realidade — manter a representação alinhada ao território.
 
 **Business Intent Graph (GIN)**
 Uma estrutura que conecta todo o conhecimento do sistema aos objetivos estratégicos da empresa. Funciona como uma "espinha dorsal" que garante que cada informação, tarefa ou decisão possa ser rastreada até um objetivo de negócio. Se algo não se conecta a nenhum objetivo, é um sinal de que precisa ser revisado.
@@ -7577,9 +7166,6 @@ Uma representação numérica do significado de um texto. O sistema transforma p
 **Epistemologia**
 O ramo da filosofia que estuda a natureza, os limites e a validade do conhecimento. No contexto deste livro, epistemologia aplicada significa perguntar: "Como sabemos o que sabemos? Como distinguimos opinião de fato? Como representamos conhecimento de forma que um sistema possa usá-lo?".
 
-**Externalização do Tácito (Sensemaking)**
-O processo de converter conhecimento que vive "na cabeça das pessoas" em artefatos explícitos e estruturados. Inclui transformar estratégia, premissas, hipóteses, exceções e contexto político-operacional em formato que possa ser registrado, validado e consultado no sistema. É crítico porque a maior parte do conhecimento estratégico organizacional é tácita.
-
 **ETL (Extract, Transform, Load)**
 O processo de extrair dados de diversas fontes, transformá-los em um formato padronizado e carregá-los em um sistema de destino. No EKS, o pipeline de ingestão faz algo similar, mas vai além: ele também classifica, enriquece e conecta a informação ao grafo de conhecimento.
 
@@ -7621,9 +7207,6 @@ Uma estrutura interna do banco de dados que acelera buscas, como o índice remis
 
 **KPI (Key Performance Indicator)**
 Um indicador-chave de desempenho. No contexto do EKS, KPIs medem tanto o desempenho organizacional (coletado e rastreado pelo sistema) quanto a saúde do próprio sistema de conhecimento (cobertura ontológica, índice de confiança médio, taxa de uso).
-
-**Knowledge Engineering de Negócio**
-A capacidade organizacional de capturar, validar e estruturar semanticamente o que a empresa sabe e decide. Diferente de *prompt engineering* (saber perguntar), foca em construir o substrato informacional confiável ("terreno fértil") sobre o qual a IA opera. Inclui pipeline humano de 5 estágios: captura do real, externalização do tácito, curadoria, estruturação semântica e ciclo de vida.
 
 ### L
 
@@ -7750,9 +7333,6 @@ Qualquer pessoa ou grupo com interesse em um projeto, decisão ou sistema. No co
 
 **Taxonomia**
 Uma classificação hierárquica, como uma árvore de categorias. "Departamentos → Vendas → Vendas Internacionais" é uma taxonomia. Diferente de uma ontologia, uma taxonomia organiza apenas hierarquias (é-um-tipo-de, pertence-a), sem definir regras lógicas ou relacionamentos complexos.
-
-**Terreno Fértil**
-Metáfora para o substrato informacional confiável que permite à IA raciocinar e agir com precisão no contexto corporativo. É construído através de um pipeline humano de 5 estágios: captura do real, externalização do tácito, curadoria e validação, estruturação semântica, e ciclo de vida. Sem terreno fértil, mesmo o sistema de IA mais avançado opera sobre areia.
 
 **Token**
 A menor unidade de texto processada por um modelo de IA. Pode ser uma palavra inteira, parte de uma palavra ou um sinal de pontuação. Modelos de linguagem (LLMs) têm limites de tokens que podem processar de cada vez, razão pela qual documentos precisam ser divididos em chunks.
