@@ -113,7 +113,43 @@ interface GovernanceData {
   items: GovernanceItem[];
 }
 
-type HealthView = "dashboard" | "supernodes" | "properties" | "temporal" | "governance";
+interface SemanticFinding {
+  category: 'label' | 'relationship' | 'property' | 'taxonomy' | 'pattern';
+  severity: 'error' | 'warning' | 'info';
+  title: string;
+  detail: string;
+  recommendation?: string;
+}
+
+interface SemanticLabelDetail {
+  label: string;
+  count: number;
+  category: string;
+  description: string;
+  inMetaGraph: boolean;
+  declaredProperties: Array<{ name: string; type: string; required: boolean; description: string }>;
+  declaredRelationships: Array<{ type: string; direction: string; target: string; cardinality: string }>;
+  actualRelationships: Array<{ type: string; direction: string; target: string; count: number }>;
+}
+
+interface SemanticData {
+  summary: {
+    semanticScore: number;
+    metaGraphStatus: string;
+    schemaLabelsCount: number;
+    schemaRelsCount: number;
+    schemaPropsCount: number;
+    actualLabelsCount: number;
+    actualPatternsCount: number;
+    findingsCount: { errors: number; warnings: number; info: number };
+  };
+  findings: SemanticFinding[];
+  labelDetail: SemanticLabelDetail[];
+  categoryMap: Record<string, { declared: string[]; populated: string[]; empty: string[] }>;
+  actualPatterns: Array<{ from: string; type: string; to: string; count: number }>;
+}
+
+type HealthView = "dashboard" | "supernodes" | "properties" | "temporal" | "governance" | "semantic";
 
 // ============================================================================
 // COMPONENT
@@ -129,6 +165,8 @@ export function OntologyHealth() {
   const [completeness, setCompleteness] = useState<CompletenessItem[]>([]);
   const [temporal, setTemporal] = useState<TemporalData | null>(null);
   const [expandedLabels, setExpandedLabels] = useState<Set<string>>(new Set());
+  const [semantic, setSemantic] = useState<SemanticData | null>(null);
+  const [semanticLoading, setSemanticLoading] = useState(false);
 
   // ============================================================================
   // DATA LOADING
@@ -151,6 +189,16 @@ export function OntologyHealth() {
 
       const temporalRes = await api.getOntologyHealthTemporal();
       if (temporalRes.success) setTemporal(temporalRes.data);
+
+      try {
+        setSemanticLoading(true);
+        const semanticRes = await api.getSemanticAnalysis();
+        if (semanticRes.success) setSemantic(semanticRes.data);
+      } catch (semErr) {
+        console.warn('Semantic analysis failed:', semErr);
+      } finally {
+        setSemanticLoading(false);
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Falha ao carregar dados de saúde"
@@ -238,6 +286,11 @@ export function OntologyHealth() {
       id: "governance",
       label: "Governança",
       icon: <Shield className="h-4 w-4" />,
+    },
+    {
+      id: "semantic",
+      label: "Semântica",
+      icon: <Eye className="h-4 w-4" />,
     },
   ];
 
@@ -1247,6 +1300,292 @@ export function OntologyHealth() {
   };
 
   // ============================================================================
+  // RENDER: SEMANTIC ANALYSIS
+  // ============================================================================
+
+  const renderSemantic = () => {
+    if (semanticLoading) {
+      return (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      );
+    }
+    if (!semantic) {
+      return (
+        <Card className="p-6 text-center text-muted-foreground">
+          Dados de análise semântica não disponíveis
+        </Card>
+      );
+    }
+
+    const { summary, findings, labelDetail, categoryMap } = semantic;
+    const scoreColor = summary.semanticScore >= 80 ? "text-emerald-500" : summary.semanticScore >= 50 ? "text-yellow-500" : "text-red-500";
+    const scoreBg = summary.semanticScore >= 80 ? "bg-emerald-500/10 border-emerald-500/30" : summary.semanticScore >= 50 ? "bg-yellow-500/10 border-yellow-500/30" : "bg-red-500/10 border-red-500/30";
+
+    const severityIcon = (s: string) => {
+      if (s === "error") return <XCircle className="h-4 w-4 text-red-500 shrink-0" />;
+      if (s === "warning") return <AlertTriangle className="h-4 w-4 text-yellow-500 shrink-0" />;
+      return <Lightbulb className="h-4 w-4 text-blue-400 shrink-0" />;
+    };
+
+    const categoryLabels: Record<string, string> = {
+      organization: "Organização",
+      person: "Pessoas",
+      content: "Conteúdo",
+      strategy: "Estratégia",
+      process: "Processos",
+      memory: "Memória Cognitiva",
+      unknown: "Não Categorizado",
+    };
+
+    return (
+      <div className="space-y-6">
+        {/* Score + Summary */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className={cn("p-6 border-2 flex flex-col items-center justify-center", scoreBg)}>
+            <div className="text-xs text-muted-foreground mb-1">Score Semântico</div>
+            <div className={cn("text-4xl font-bold", scoreColor)}>{summary.semanticScore}</div>
+            <div className="text-xs text-muted-foreground mt-1">/100</div>
+          </Card>
+
+          <Card className="p-4 space-y-2">
+            <div className="text-xs font-medium text-muted-foreground">Meta-Grafo</div>
+            <div className="flex items-center gap-2">
+              {summary.metaGraphStatus === "active" ? (
+                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+              ) : (
+                <XCircle className="h-4 w-4 text-red-500" />
+              )}
+              <span className="text-sm">{summary.metaGraphStatus === "active" ? "Ativo" : "Não encontrado"}</span>
+            </div>
+            <div className="text-xs text-muted-foreground space-y-0.5">
+              <div>{summary.schemaLabelsCount} SchemaLabels</div>
+              <div>{summary.schemaRelsCount} SchemaRels</div>
+              <div>{summary.schemaPropsCount} SchemaProps</div>
+            </div>
+          </Card>
+
+          <Card className="p-4 space-y-2">
+            <div className="text-xs font-medium text-muted-foreground">Findings</div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                <XCircle className="h-3.5 w-3.5 text-red-500" />
+                <span className="text-sm font-bold">{summary.findingsCount.errors}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <AlertTriangle className="h-3.5 w-3.5 text-yellow-500" />
+                <span className="text-sm font-bold">{summary.findingsCount.warnings}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Lightbulb className="h-3.5 w-3.5 text-blue-400" />
+                <span className="text-sm font-bold">{summary.findingsCount.info}</span>
+              </div>
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {summary.actualLabelsCount} labels | {summary.actualPatternsCount} padrões de relação
+            </div>
+          </Card>
+        </div>
+
+        {/* Category Coverage */}
+        {Object.keys(categoryMap).length > 0 && (
+          <Card className="p-4">
+            <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+              <Target className="h-4 w-4" />
+              Cobertura por Categoria
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {Object.entries(categoryMap).map(([cat, data]) => {
+                const coverage = data.declared.length > 0
+                  ? Math.round((data.populated.length / data.declared.length) * 100)
+                  : 0;
+                return (
+                  <div key={cat} className="p-3 bg-muted/30 rounded-lg">
+                    <div className="text-xs font-medium">{categoryLabels[cat] || cat}</div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className={cn(
+                            "h-full rounded-full",
+                            coverage >= 80 ? "bg-emerald-500" : coverage >= 40 ? "bg-yellow-500" : "bg-red-500"
+                          )}
+                          style={{ width: `${coverage}%` }}
+                        />
+                      </div>
+                      <span className="text-xs font-bold w-8 text-right">{coverage}%</span>
+                    </div>
+                    <div className="text-[10px] text-muted-foreground mt-1">
+                      {data.populated.length}/{data.declared.length} labels populados
+                    </div>
+                    {data.empty.length > 0 && (
+                      <div className="text-[10px] text-muted-foreground">
+                        Vazios: {data.empty.join(", ")}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        )}
+
+        {/* Findings */}
+        {findings.length > 0 && (
+          <Card className="p-4">
+            <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
+              Findings ({findings.length})
+            </h3>
+            <div className="space-y-2 max-h-[400px] overflow-y-auto">
+              {findings.map((f, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    "p-3 rounded-lg border text-sm",
+                    f.severity === "error" ? "border-red-500/30 bg-red-500/5" :
+                    f.severity === "warning" ? "border-yellow-500/30 bg-yellow-500/5" :
+                    "border-blue-500/20 bg-blue-500/5"
+                  )}
+                >
+                  <div className="flex items-start gap-2">
+                    {severityIcon(f.severity)}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-xs">{f.title}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{f.detail}</div>
+                      {f.recommendation && (
+                        <div className="text-xs text-muted-foreground mt-1 flex items-start gap-1">
+                          <ArrowRight className="h-3 w-3 shrink-0 mt-0.5" />
+                          {f.recommendation}
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0">
+                      {f.category}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
+        {/* Label Detail - Expandable */}
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+            <CircleDot className="h-4 w-4" />
+            Labels do Grafo ({labelDetail.length})
+          </h3>
+          <div className="space-y-1">
+            {labelDetail.map((ld) => {
+              const isExpanded = expandedLabels.has(ld.label);
+              return (
+                <div key={ld.label} className="border rounded-lg overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => toggleLabel(ld.label)}
+                    className="w-full flex items-center gap-2 p-3 hover:bg-muted/50 transition-colors text-left"
+                  >
+                    {isExpanded ? (
+                      <ChevronDown className="h-4 w-4 shrink-0" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 shrink-0" />
+                    )}
+                    <span className="font-medium text-sm">{ld.label}</span>
+                    <span className="text-xs text-muted-foreground">({ld.count})</span>
+                    {ld.inMetaGraph ? (
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                    ) : (
+                      <AlertTriangle className="h-3.5 w-3.5 text-yellow-500 shrink-0" />
+                    )}
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground ml-auto">
+                      {ld.category}
+                    </span>
+                  </button>
+
+                  {isExpanded && (
+                    <div className="px-3 pb-3 space-y-3 border-t bg-muted/20">
+                      <div className="text-xs text-muted-foreground pt-2">{ld.description}</div>
+
+                      {/* Declared Properties */}
+                      {ld.declaredProperties.length > 0 && (
+                        <div>
+                          <div className="text-xs font-medium mb-1 flex items-center gap-1">
+                            <FileCheck className="h-3 w-3" /> Propriedades Declaradas
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
+                            {ld.declaredProperties.map((p) => (
+                              <div key={p.name} className="text-xs flex items-center gap-1 p-1 bg-background rounded">
+                                <span className="font-mono">{p.name}</span>
+                                <span className="text-muted-foreground">({p.type})</span>
+                                {p.required && <span className="text-red-500 text-[10px]">req</span>}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Declared Relationships */}
+                      {ld.declaredRelationships.length > 0 && (
+                        <div>
+                          <div className="text-xs font-medium mb-1 flex items-center gap-1">
+                            <ArrowRight className="h-3 w-3" /> Relações Declaradas
+                          </div>
+                          <div className="space-y-0.5">
+                            {ld.declaredRelationships.map((r, idx) => (
+                              <div key={idx} className="text-xs p-1 bg-background rounded flex items-center gap-1">
+                                {r.direction === "outgoing" ? (
+                                  <span className="text-emerald-500">→</span>
+                                ) : (
+                                  <span className="text-blue-500">←</span>
+                                )}
+                                <span className="font-mono">{r.type}</span>
+                                <span className="text-muted-foreground">
+                                  {r.direction === "outgoing" ? `→ ${r.target}` : `← ${r.target}`}
+                                </span>
+                                <span className="text-[10px] text-muted-foreground ml-auto">{r.cardinality}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Actual Relationships */}
+                      {ld.actualRelationships.length > 0 && (
+                        <div>
+                          <div className="text-xs font-medium mb-1 flex items-center gap-1">
+                            <Zap className="h-3 w-3" /> Relações Reais
+                          </div>
+                          <div className="space-y-0.5">
+                            {ld.actualRelationships.map((r, idx) => (
+                              <div key={idx} className="text-xs p-1 bg-background rounded flex items-center gap-1">
+                                {r.direction === "outgoing" ? (
+                                  <span className="text-emerald-500">→</span>
+                                ) : (
+                                  <span className="text-blue-500">←</span>
+                                )}
+                                <span className="font-mono">{r.type}</span>
+                                <span className="text-muted-foreground">
+                                  {r.direction === "outgoing" ? `→ ${r.target}` : `← ${r.target}`}
+                                </span>
+                                <span className="text-xs font-bold ml-auto">{r.count}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      </div>
+    );
+  };
+
+  // ============================================================================
   // MAIN RENDER
   // ============================================================================
 
@@ -1324,6 +1663,7 @@ export function OntologyHealth() {
           {activeView === "properties" && renderProperties()}
           {activeView === "temporal" && renderTemporal()}
           {activeView === "governance" && renderGovernance()}
+          {activeView === "semantic" && renderSemantic()}
         </>
       ) : null}
     </div>

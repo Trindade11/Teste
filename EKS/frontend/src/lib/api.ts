@@ -606,6 +606,10 @@ class ApiClient {
   }
 
   async getOntologyTaxonomy(): Promise<ApiResponse<any>> {
+    return this.request<any>('/ontology/taxonomy/dynamic');
+  }
+
+  async getOntologyTaxonomyStatic(): Promise<ApiResponse<any>> {
     return this.request<any>('/ontology/taxonomy');
   }
 
@@ -615,6 +619,10 @@ class ApiClient {
 
   async getOntologyIngestionSources(): Promise<ApiResponse<any>> {
     return this.request<any>('/ontology/ingestion-sources');
+  }
+
+  async getSemanticAnalysis(): Promise<ApiResponse<any>> {
+    return this.request<any>('/ontology/semantic-analysis');
   }
 
   async getOntologyGraph(limit?: number, nodeTypes?: string[]): Promise<ApiResponse<any>> {
@@ -642,6 +650,12 @@ class ApiClient {
 
   async getOntologyHealthTemporal(): Promise<ApiResponse<any>> {
     return this.request<any>('/ontology/health/temporal');
+  }
+
+  // ===== Ontological Tour =====
+
+  async getOntologicalTourSnapshot(): Promise<ApiResponse<any>> {
+    return this.request<any>('/ontology/tour/snapshot');
   }
 
   // ===== External Participants =====

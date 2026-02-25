@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useThemeStore } from "@/store/themeStore"
 import { useAuthStore } from "@/store/authStore"
-import { ArrowLeft, Save, Upload, RotateCcw, Palette, Image as ImageIcon, Database, User, Bot, Building2, FileText, Target, FolderKanban, Network, Shield, Activity } from "lucide-react"
+import { ArrowLeft, Save, Upload, RotateCcw, Palette, Image as ImageIcon, Database, User, Bot, Building2, FileText, Target, FolderKanban, Network, Shield, Activity, Compass } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { DataIngestion } from "@/components/admin/DataIngestion"
@@ -21,6 +21,7 @@ import { StrategicObjectives } from "@/components/settings/StrategicObjectives"
 import { ProjectIngestion } from "@/components/settings/ProjectIngestion"
 import { OntologyViewer } from "@/components/settings/OntologyViewer"
 import { OntologyHealth } from "@/components/settings/OntologyHealth"
+import { OntologicalTour } from "@/components/settings/OntologicalTour"
 import { MenuPermissionsManager } from "@/components/settings/MenuPermissionsManager"
 import { ExternalParticipantsManager } from "@/components/settings/ExternalParticipantsManager"
 import { useSettingsPermissionsStore } from "@/store/settingsPermissionsStore"
@@ -32,7 +33,7 @@ export default function SettingsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const logoInputRef = useRef<HTMLInputElement>(null)
 
-  const [activeSection, setActiveSection] = useState<'theme' | 'ingest' | 'meetings' | 'profile' | 'agents' | 'company' | 'strategy' | 'projects' | 'ontology' | 'ontology-health' | 'permissions' | 'external-participants'>('theme')
+  const [activeSection, setActiveSection] = useState<'theme' | 'ingest' | 'meetings' | 'profile' | 'agents' | 'company' | 'strategy' | 'projects' | 'ontology' | 'ontology-health' | 'ontological-tour' | 'permissions' | 'external-participants'>('theme')
   const { getVisibleMenus } = useSettingsPermissionsStore()
   const userRole = user?.role || 'user'
   const visibleMenus = getVisibleMenus(userRole)
@@ -339,6 +340,23 @@ export default function SettingsPage() {
                       </div>
                       <div className="text-xs mt-1">
                         Métricas, temporal e curadoria do grafo
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSection('ontological-tour')}
+                      className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                        activeSection === 'ontological-tour'
+                          ? 'bg-muted border-border text-foreground'
+                          : 'bg-background border-transparent text-muted-foreground hover:bg-muted/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Compass className="h-4 w-4" />
+                        <span className="text-sm font-medium">Tour Ontológico</span>
+                      </div>
+                      <div className="text-xs mt-1">
+                        Consciência do EKS — síntese e maturidade
                       </div>
                     </button>
                     <button
@@ -726,6 +744,9 @@ export default function SettingsPage() {
                     )}
                     {activeSection === 'ontology-health' && (
                       <OntologyHealth />
+                    )}
+                    {activeSection === 'ontological-tour' && (
+                      <OntologicalTour />
                     )}
                     {activeSection === 'profile' && (
                       <ProfileDataEditor />

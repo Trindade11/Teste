@@ -219,11 +219,15 @@ As the system, I want to track both when a fact was true in the world (valid_tim
 ### BIG Structure & Ontology
 
 - **REQ-BIG-001**: System MUST support hierarchical objective structure: Company → Area → Project → Objective
-- **REQ-BIG-002**: Every (:Objective) node MUST have: `title`, `description`, `owner_id`, `status` (active/archived), `created_at`, `target_date`
+- **REQ-BIG-002**: Every (:Objective) node MUST have: `title`, `description`, `owner_id`, `status` (active/archived), `created_at`, `start_date`, `target_date`
 - **REQ-BIG-003**: Every (:Objective) MUST link to at least one (:OKR) via [:MEASURED_BY] relationship
-- **REQ-BIG-004**: Every (:OKR) MUST have: `title`, `key_result_type` (quantitative/qualitative), `target_value`, `current_value`, `unit`, `deadline`
+- **REQ-BIG-004**: Every (:OKR) MUST have: `title`, `key_result_type` (quantitative/qualitative), `target_value`, `current_value`, `unit`, `start_date`, `deadline`
+- **REQ-BIG-004a**: OKR `start_date` MAY differ from parent Objective `start_date` (e.g. OKR starts 2 weeks after objective)
 - **REQ-BIG-005**: Every (:OKR) MAY link to multiple (:Metric) nodes via [:TRACKED_BY] for automated measurement
 - **REQ-BIG-006**: System MUST support objective versioning with [:SUPERSEDES] relationship between versions
+- **REQ-BIG-006a**: System MUST detect business cycles from `start_date`/`target_date` pairs on Objectives and `start_date`/`deadline` pairs on OKRs
+- **REQ-BIG-006b**: System SHOULD compute cycle velocity: `(current_value / target_value) / (elapsed_time / total_time)` — values < 1.0 indicate risk
+- **REQ-BIG-006c**: System SHOULD detect OKR temporal overflow: when OKR `deadline` exceeds parent Objective `target_date`
 
 ### 4 Memory Classes
 

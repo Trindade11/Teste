@@ -70,6 +70,7 @@ interface OKR {
   targetValue: number;
   currentValue: number;
   unit: string;
+  startDate: string;
   deadline: string;
   objectiveId: string;
   objectiveTitle: string;
@@ -88,6 +89,7 @@ interface Objective {
   title: string;
   description: string;
   status: 'active' | 'archived';
+  startDate: string;
   targetDate: string;
   ownerId: string;
   ownerName: string;
@@ -897,6 +899,7 @@ router.get('/okrs/list', async (req: Request, res: Response) => {
         targetValue: okr.targetValue || 0,
         currentValue: okr.currentValue || 0,
         unit: okr.unit || '',
+        startDate: okr.startDate || '',
         deadline: okr.deadline || '',
         objectiveId: record.get('objectiveId') || '',
         objectiveTitle: record.get('objectiveTitle') || '',
@@ -963,6 +966,7 @@ router.get('/objectives/list', async (req: Request, res: Response) => {
         title: obj.title,
         description: obj.description || '',
         status: obj.status || 'active',
+        startDate: obj.startDate || '',
         targetDate: obj.targetDate || '',
         ownerId: record.get('ownerId') || obj.ownerId || '',
         ownerName: record.get('ownerName') || '',
@@ -1001,6 +1005,7 @@ router.post('/okrs', authenticate, async (req: Request, res: Response) => {
       targetValue,
       currentValue = 0,
       unit,
+      startDate,
       deadline,
       objectiveId,
       ownerId,
@@ -1027,6 +1032,7 @@ router.post('/okrs', authenticate, async (req: Request, res: Response) => {
         targetValue: $targetValue,
         currentValue: $currentValue,
         unit: $unit,
+        startDate: $startDate,
         deadline: $deadline,
         ownerId: $ownerId,
         department: $department,
@@ -1048,6 +1054,7 @@ router.post('/okrs', authenticate, async (req: Request, res: Response) => {
         targetValue: targetValue || 0,
         currentValue,
         unit: unit || '',
+        startDate: startDate || '',
         deadline: deadline || '',
         ownerId: ownerId || '',
         department: department || '',
@@ -1110,6 +1117,7 @@ router.post('/objectives', authenticate, async (req: Request, res: Response) => 
     const {
       title,
       description,
+      startDate,
       targetDate,
       ownerId,
       department,
@@ -1133,6 +1141,7 @@ router.post('/objectives', authenticate, async (req: Request, res: Response) => 
         id: $id,
         title: $title,
         description: $description,
+        startDate: $startDate,
         targetDate: $targetDate,
         ownerId: $ownerId,
         department: $department,
@@ -1149,6 +1158,7 @@ router.post('/objectives', authenticate, async (req: Request, res: Response) => 
         id,
         title,
         description: description || '',
+        startDate: startDate || '',
         targetDate: targetDate || '',
         ownerId: ownerId || '',
         department: department || '',

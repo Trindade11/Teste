@@ -63,6 +63,37 @@ interface TaxonomyNode {
   properties: Record<string, unknown>;
 }
 
+interface DynamicTaxonomyLabel {
+  label: string;
+  count: number;
+  description: string;
+  empty: boolean;
+  undeclared: boolean;
+  children: DynamicTaxonomyLabel[];
+}
+
+interface DynamicTaxonomyCategory {
+  name: string;
+  displayName: string;
+  labels: DynamicTaxonomyLabel[];
+}
+
+interface TaxonomyGap {
+  label: string;
+  category: string;
+  issue: 'empty' | 'undeclared';
+  message: string;
+}
+
+interface DynamicTaxonomyData {
+  hasMetaGraph: boolean;
+  categories: DynamicTaxonomyCategory[];
+  gaps: TaxonomyGap[];
+  totalLabels: number;
+  totalInstances: number;
+  lastUpdated: string;
+}
+
 interface ThesaurusEntry {
   id: string;
   canonicalName: string;
@@ -145,7 +176,7 @@ export function OntologyViewer() {
 
   // Data states
   const [stats, setStats] = useState<OntologyStats | null>(null);
-  const [taxonomy, setTaxonomy] = useState<TaxonomyNode[]>([]);
+  const [taxonomy, setTaxonomy] = useState<DynamicTaxonomyData | null>(null);
   const [thesaurus, setThesaurus] = useState<ThesaurusEntry[]>([]);
   const [ingestionSources, setIngestionSources] = useState<IngestionSource[]>([]);
   const [schemaPatterns, setSchemaPatterns] = useState<SchemaPattern[]>([]);
@@ -174,10 +205,14 @@ export function OntologyViewer() {
       // Load taxonomy
       const taxonomyResponse = await api.getOntologyTaxonomy();
       if (taxonomyResponse.success) {
-        setTaxonomy(taxonomyResponse.data || []);
-        // Expand root nodes by default
-        const rootIds = new Set<string>((taxonomyResponse.data || []).map((n: TaxonomyNode) => n.id));
-        setExpandedNodes(rootIds);
+        setTaxonomy(taxonomyResponse.data || null);
+        // Expand all categories by default
+        if (taxonomyResponse.data?.categories) {
+          const categoryIds = new Set<string>(
+            taxonomyResponse.data.categories.map((cat: DynamicTaxonomyCategory) => cat.name)
+          );
+          setExpandedNodes(categoryIds);
+        }
       }
 
       // Load thesaurus
@@ -393,27 +428,151 @@ export function OntologyViewer() {
   // VIEW: TAXONOMY
   // ============================================================================
 
-  const renderTaxonomy = () => (
-    <div className="space-y-4">
-      <Card className="p-4 bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
-        <div className="flex items-start gap-3">
-          <TreePine className="h-5 w-5 text-blue-600 mt-0.5" />
-          <div>
-            <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-              Taxonomia Hierárquica
-            </p>
-            <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-              Visualização hierárquica dos conceitos organizacionais, estratégicos e de projetos.
-              Clique nos nós para expandir/recolher.
-            </p>
-          </div>
-        </div>
-      </Card>
+  const renderDynamicLabel = (label: DynamicTaxonomyLabel, depth: number = 0): JSX.Element => {
+    const hasChildren = label.children && label.children.length > 0;
+    const isExpanded = expandedNodes.has(`${label.label}-${depth}`);
+    const Icon = getNodeIcon(label.label);
+    const colorClass = getNodeColor(label.label);
 
-      <Card className="p-4">
-        {taxonomy.length > 0 ? (
-          <div className="space-y-1">
-            {taxonomy.map((node) => renderTaxonomyNode(node))}
+    return (
+      <div key={`${label.label}-${depth}`} className="select-none">
+        <div
+          className={cn(
+            "flex items-center gap-2 py-1.5 px-2 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors",
+            label.empty && "opacity-50",
+            label.undeclared && "border-l-2 border-orange-500"
+          )}
+          style={{ marginLeft: depth * 16 }}
+          onClick={() => hasChildren && toggleNode(`${label.label}-${depth}`)}
+        >
+          {hasChildren ? (
+            isExpanded ? (
+              <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            ) : (
+              <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            )
+          ) : (
+            <div className="w-4" />
+          )}
+
+          <div className={cn("p-1 rounded", colorClass)}>
+            <Icon className="h-3.5 w-3.5" />
+          </div>
+
+          <span className="text-sm font-medium truncate">{label.label}</span>
+
+          <span className="text-xs text-muted-foreground ml-auto flex items-center gap-2">
+            {label.count}
+            {label.empty && <span className="text-orange-500">vazio</span>}
+            {label.undeclared && <span className="text-orange-500">não declarado</span>}
+          </span>
+        </div>
+
+        {hasChildren && isExpanded && (
+          <div className="border-l border-border ml-4">
+            {label.children.map((child) => renderDynamicLabel(child, depth + 1))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderTaxonomy = () => {
+    if (!taxonomy) {
+      return (
+        <div className="text-center py-8">
+          <TreePine className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <p className="text-sm text-muted-foreground">
+            Carregando taxonomia...
+          </p>
+        </div>
+      );
+    }
+
+    const hasCategories = taxonomy.categories && taxonomy.categories.length > 0;
+
+    return (
+      <div className="space-y-4">
+        <Card className="p-4 bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
+          <div className="flex items-start gap-3">
+            <TreePine className="h-5 w-5 text-blue-600 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                Taxonomia Dinâmica
+              </p>
+              <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                Estrutura do grafo organizada por categorias do Meta-Grafo.
+                {!taxonomy.hasMetaGraph && " (Usando heurística - Meta-Grafo não encontrado)"}
+              </p>
+              <div className="flex gap-4 mt-2 text-xs text-blue-700 dark:text-blue-300">
+                <span>{taxonomy.totalLabels} tipos de nó</span>
+                <span>{taxonomy.totalInstances} instâncias</span>
+                {taxonomy.gaps.length > 0 && (
+                  <span className="text-orange-600">{taxonomy.gaps.length} gaps detectados</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Gaps Warning */}
+        {taxonomy.gaps.length > 0 && (
+          <Card className="p-4 bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-orange-600 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-orange-900 dark:text-orange-100">
+                  {taxonomy.gaps.length} Gap{taxonomy.gaps.length > 1 ? 's' : ''} Detectado{taxonomy.gaps.length > 1 ? 's' : ''}
+                </p>
+                <div className="mt-2 space-y-1">
+                  {taxonomy.gaps.slice(0, 3).map((gap) => (
+                    <div key={gap.label} className="text-xs text-orange-700 dark:text-orange-300">
+                      <span className="font-mono font-semibold">{gap.label}</span>: {gap.message}
+                    </div>
+                  ))}
+                  {taxonomy.gaps.length > 3 && (
+                    <div className="text-xs text-orange-600 dark:text-orange-400">
+                      +{taxonomy.gaps.length - 3} mais...
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Categories */}
+        {hasCategories ? (
+          <div className="space-y-3">
+            {taxonomy.categories.map((category) => {
+              const isExpanded = expandedNodes.has(category.name);
+              return (
+                <Card key={category.name} className="overflow-hidden">
+                  <div
+                    className="p-3 bg-muted/50 cursor-pointer hover:bg-muted transition-colors"
+                    onClick={() => toggleNode(category.name)}
+                  >
+                    <div className="flex items-center gap-2">
+                      {isExpanded ? (
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <Layers className="h-4 w-4 text-primary" />
+                      <span className="font-semibold">{category.displayName}</span>
+                      <span className="text-xs text-muted-foreground ml-auto">
+                        {category.labels.length} tipo{category.labels.length > 1 ? 's' : ''}
+                      </span>
+                    </div>
+                  </div>
+                  {isExpanded && (
+                    <div className="p-3 space-y-1">
+                      {category.labels.map((label) => renderDynamicLabel(label))}
+                    </div>
+                  )}
+                </Card>
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-8">
@@ -426,9 +585,9 @@ export function OntologyViewer() {
             </p>
           </div>
         )}
-      </Card>
-    </div>
-  );
+      </div>
+    );
+  };
 
   // ============================================================================
   // VIEW: THESAURUS

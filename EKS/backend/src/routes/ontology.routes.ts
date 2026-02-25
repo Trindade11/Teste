@@ -33,6 +33,28 @@ interface TaxonomyNode {
   properties: Record<string, unknown>;
 }
 
+interface DynamicTaxonomyLabel {
+  label: string;
+  count: number;
+  description: string;
+  empty: boolean;
+  undeclared: boolean;
+  children: DynamicTaxonomyLabel[];
+}
+
+interface DynamicTaxonomyCategory {
+  name: string;
+  displayName: string;
+  labels: DynamicTaxonomyLabel[];
+}
+
+interface TaxonomyGap {
+  label: string;
+  category: string;
+  issue: 'empty' | 'undeclared';
+  message: string;
+}
+
 interface ThesaurusEntry {
   id: string;
   canonicalName: string;
@@ -349,6 +371,290 @@ router.get('/taxonomy', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Failed to fetch taxonomy',
+    });
+  } finally {
+    await session.close();
+  }
+});
+
+/**
+ * GET /ontology/taxonomy/dynamic
+ * Get dynamic taxonomy based on Meta-Graph (SchemaLabel categories)
+ * This endpoint builds taxonomy from actual graph structure, not hardcoded branches
+ */
+router.get('/taxonomy/dynamic', async (req: Request, res: Response) => {
+  const session = neo4jConnection.getSession();
+
+  try {
+    // ── 1. Load SchemaLabel definitions from Meta-Graph ──
+    let schemaLabels: Array<{ name: string; category: string; description: string }> = [];
+    let hasMetaGraph = false;
+
+    try {
+      const schemaResult = await session.run(`
+        MATCH (sl:SchemaLabel)
+        RETURN sl.name AS name, sl.category AS category, sl.description AS description
+        ORDER BY sl.category, sl.name
+      `);
+      schemaLabels = schemaResult.records.map(r => ({
+        name: r.get('name'),
+        category: r.get('category') || 'unknown',
+        description: r.get('description') || '',
+      }));
+      hasMetaGraph = schemaLabels.length > 0;
+    } catch {
+      // Meta-Graph not bootstrapped yet
+    }
+
+    // ── 2. Get actual labels and counts from the graph ──
+    const actualLabelsResult = await session.run(`
+      CALL db.labels() YIELD label
+      CALL { WITH label MATCH (n) WHERE label IN labels(n) RETURN count(n) AS cnt }
+      RETURN label, cnt
+      ORDER BY cnt DESC
+    `);
+
+    const actualLabels = actualLabelsResult.records.map(r => ({
+      label: r.get('label') as string,
+      count: r.get('cnt')?.toNumber?.() || (r.get('cnt') as number),
+    }));
+
+    // Filter out meta-graph labels from taxonomy
+    const metaLabels = new Set(['SchemaLabel', 'SchemaRel', 'SchemaProp', 'QueryProfile', 'AccessPolicy', 'CypherTemplate', 'SchemaVersion']);
+    const dataLabels = actualLabels.filter(l => !metaLabels.has(l.label));
+
+    // ── 3. Build hierarchical relationships map ──
+    const hierarchicalRels = ['HAS_DEPARTMENT', 'HAS_AREA', 'PART_OF', 'BELONGS_TO_OBJECTIVE', 'HAS_CHUNK', 'HAS_TASK'];
+    const hierarchyMap = new Map<string, Array<{ parent: string; child: string; relType: string }>>();
+
+    for (const relType of hierarchicalRels) {
+      try {
+        const relResult = await session.run(`
+          MATCH (parent)-[r:${relType}]->(child)
+          RETURN DISTINCT labels(parent)[0] AS parentLabel, labels(child)[0] AS childLabel, type(r) AS relType
+        `);
+        
+        relResult.records.forEach(r => {
+          const parentLabel = r.get('parentLabel');
+          const childLabel = r.get('childLabel');
+          const rel = r.get('relType');
+          
+          if (!hierarchyMap.has(parentLabel)) {
+            hierarchyMap.set(parentLabel, []);
+          }
+          hierarchyMap.get(parentLabel)!.push({ parent: parentLabel, child: childLabel, relType: rel });
+        });
+      } catch {
+        // Relationship type might not exist
+      }
+    }
+
+    // ── 4. Build category map ──
+    const categoryMap = new Map<string, DynamicTaxonomyCategory>();
+    const categoryDisplayNames: Record<string, string> = {
+      organization: 'Estrutura Organizacional',
+      person: 'Pessoas',
+      content: 'Conhecimento & Conteúdo',
+      strategy: 'Estratégia (BIG)',
+      process: 'Processos & Tarefas',
+      memory: 'Conversas & Memória',
+      meta: 'Meta-Grafo',
+      unknown: 'Não Categorizado',
+    };
+
+    // Initialize categories from Meta-Graph
+    if (hasMetaGraph) {
+      schemaLabels.forEach(sl => {
+        if (!categoryMap.has(sl.category)) {
+          categoryMap.set(sl.category, {
+            name: sl.category,
+            displayName: categoryDisplayNames[sl.category] || sl.category,
+            labels: [],
+          });
+        }
+      });
+    }
+
+    // ── 5. Build label nodes with hierarchy ──
+    const gaps: TaxonomyGap[] = [];
+    const processedLabels = new Set<string>();
+
+    const buildLabelNode = (labelName: string, depth = 0): DynamicTaxonomyLabel | null => {
+      if (depth > 3 || processedLabels.has(labelName)) return null;
+      processedLabels.add(labelName);
+
+      const actualLabel = dataLabels.find(l => l.label === labelName);
+      const schemaLabel = schemaLabels.find(sl => sl.name === labelName);
+
+      const count = actualLabel?.count || 0;
+      const isEmpty = count === 0;
+      const isUndeclared = !schemaLabel && !!actualLabel;
+
+      // Track gaps
+      if (isEmpty && schemaLabel) {
+        gaps.push({
+          label: labelName,
+          category: schemaLabel.category,
+          issue: 'empty',
+          message: `Definido no Meta-Grafo (${schemaLabel.category}) mas sem instâncias no grafo`,
+        });
+      }
+
+      if (isUndeclared) {
+        gaps.push({
+          label: labelName,
+          category: 'unknown',
+          issue: 'undeclared',
+          message: `${count} instâncias no grafo mas não declarado no Meta-Grafo`,
+        });
+      }
+
+      // Build children from hierarchy
+      const children: DynamicTaxonomyLabel[] = [];
+      const childRels = hierarchyMap.get(labelName) || [];
+      
+      for (const rel of childRels) {
+        const childNode = buildLabelNode(rel.child, depth + 1);
+        if (childNode) {
+          children.push(childNode);
+        }
+      }
+
+      return {
+        label: labelName,
+        count,
+        description: schemaLabel?.description || getNodeDescription(labelName),
+        empty: isEmpty,
+        undeclared: isUndeclared,
+        children,
+      };
+    };
+
+    // ── 6. Populate categories with root labels ──
+    if (hasMetaGraph) {
+      // Use Meta-Graph as source of truth
+      schemaLabels.forEach(sl => {
+        const category = categoryMap.get(sl.category);
+        if (!category) return;
+
+        // Only add root labels (labels that are not children of others)
+        const isChild = Array.from(hierarchyMap.values()).some(rels =>
+          rels.some(r => r.child === sl.name)
+        );
+
+        if (!isChild) {
+          const labelNode = buildLabelNode(sl.name);
+          if (labelNode) {
+            category.labels.push(labelNode);
+          }
+        }
+      });
+
+      // Add undeclared labels to "unknown" category
+      const undeclaredLabels = dataLabels.filter(l =>
+        !schemaLabels.some(sl => sl.name === l.label) &&
+        !processedLabels.has(l.label)
+      );
+
+      if (undeclaredLabels.length > 0) {
+        if (!categoryMap.has('unknown')) {
+          categoryMap.set('unknown', {
+            name: 'unknown',
+            displayName: 'Não Categorizado',
+            labels: [],
+          });
+        }
+
+        const unknownCategory = categoryMap.get('unknown')!;
+        undeclaredLabels.forEach(ul => {
+          const labelNode = buildLabelNode(ul.label);
+          if (labelNode) {
+            unknownCategory.labels.push(labelNode);
+          }
+        });
+      }
+    } else {
+      // Fallback: group by heuristic if no Meta-Graph
+      const heuristicCategories: Record<string, string[]> = {
+        organization: ['Company', 'Department', 'Area', 'Organization'],
+        person: ['User', 'Person'],
+        content: ['Document', 'Chunk', 'Knowledge', 'DocSummary'],
+        strategy: ['Objective', 'OKR', 'Purpose', 'StrategicObjective'],
+        process: ['Process', 'Task', 'Plan', 'Action'],
+        memory: ['Conversation', 'Message'],
+      };
+
+      Object.entries(heuristicCategories).forEach(([category, labels]) => {
+        const categoryLabels: DynamicTaxonomyLabel[] = [];
+        
+        labels.forEach(labelName => {
+          if (dataLabels.some(l => l.label === labelName)) {
+            const labelNode = buildLabelNode(labelName);
+            if (labelNode) {
+              categoryLabels.push(labelNode);
+            }
+          }
+        });
+
+        if (categoryLabels.length > 0) {
+          categoryMap.set(category, {
+            name: category,
+            displayName: categoryDisplayNames[category] || category,
+            labels: categoryLabels,
+          });
+        }
+      });
+
+      // Add remaining labels to unknown
+      const categorizedLabels = new Set(Object.values(heuristicCategories).flat());
+      const unknownLabels = dataLabels.filter(l =>
+        !categorizedLabels.has(l.label) && !processedLabels.has(l.label)
+      );
+
+      if (unknownLabels.length > 0) {
+        const unknownCategory: DynamicTaxonomyLabel[] = [];
+        unknownLabels.forEach(ul => {
+          const labelNode = buildLabelNode(ul.label);
+          if (labelNode) {
+            unknownCategory.push(labelNode);
+          }
+        });
+
+        categoryMap.set('unknown', {
+          name: 'unknown',
+          displayName: 'Não Categorizado',
+          labels: unknownCategory,
+        });
+      }
+    }
+
+    // ── 7. Build final response ──
+    const categories = Array.from(categoryMap.values())
+      .filter(cat => cat.labels.length > 0)
+      .sort((a, b) => {
+        const order = ['organization', 'person', 'content', 'strategy', 'process', 'memory', 'unknown'];
+        return order.indexOf(a.name) - order.indexOf(b.name);
+      });
+
+    res.json({
+      success: true,
+      data: {
+        hasMetaGraph,
+        categories,
+        gaps: gaps.sort((a, b) => {
+          if (a.issue !== b.issue) return a.issue === 'undeclared' ? -1 : 1;
+          return a.label.localeCompare(b.label);
+        }),
+        totalLabels: dataLabels.length,
+        totalInstances: dataLabels.reduce((sum, l) => sum + l.count, 0),
+        lastUpdated: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    logger.error('Dynamic taxonomy error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch dynamic taxonomy',
     });
   } finally {
     await session.close();
@@ -1016,10 +1322,18 @@ router.get('/health/temporal', async (req: Request, res: Response) => {
     const growthResult = await session.run(`
       MATCH (n)
       WHERE n.createdAt IS NOT NULL
+        AND (NOT valueType(n.createdAt) = 'STRING' OR size(toString(n.createdAt)) > 4)
+      WITH CASE
+        WHEN valueType(n.createdAt) CONTAINS 'DATE' THEN n.createdAt
+        WHEN valueType(n.createdAt) = 'STRING' AND size(n.createdAt) > 4 THEN datetime(n.createdAt)
+        WHEN toInteger(n.createdAt) > 0 THEN datetime({ epochMillis: toInteger(n.createdAt) })
+        ELSE NULL
+      END AS createdAtDt
+      WHERE createdAtDt IS NOT NULL
       RETURN
-        count(CASE WHEN n.createdAt > datetime() - duration('P7D') THEN 1 END) AS newNodes7d,
-        count(CASE WHEN n.createdAt > datetime() - duration('P30D') THEN 1 END) AS newNodes30d,
-        count(n) AS totalWithDate
+        count(CASE WHEN createdAtDt > datetime() - duration('P7D') THEN 1 END) AS newNodes7d,
+        count(CASE WHEN createdAtDt > datetime() - duration('P30D') THEN 1 END) AS newNodes30d,
+        count(createdAtDt) AS totalWithDate
     `);
 
     const growth = growthResult.records[0];
@@ -1029,7 +1343,16 @@ router.get('/health/temporal', async (req: Request, res: Response) => {
     // Growth by label (last 30 days)
     const growthByLabelResult = await session.run(`
       MATCH (n)
-      WHERE n.createdAt IS NOT NULL AND n.createdAt > datetime() - duration('P30D')
+      WHERE n.createdAt IS NOT NULL
+        AND (NOT valueType(n.createdAt) = 'STRING' OR size(toString(n.createdAt)) > 4)
+      WITH n,
+        CASE
+          WHEN valueType(n.createdAt) CONTAINS 'DATE' THEN n.createdAt
+          WHEN valueType(n.createdAt) = 'STRING' AND size(n.createdAt) > 4 THEN datetime(n.createdAt)
+          WHEN toInteger(n.createdAt) > 0 THEN datetime({ epochMillis: toInteger(n.createdAt) })
+          ELSE NULL
+        END AS createdAtDt
+      WHERE createdAtDt IS NOT NULL AND createdAtDt > datetime() - duration('P30D')
       RETURN labels(n)[0] AS label, count(*) AS count
       ORDER BY count DESC
       LIMIT 10
@@ -1044,10 +1367,20 @@ router.get('/health/temporal', async (req: Request, res: Response) => {
     const staleResult = await session.run(`
       MATCH (n)
       WHERE n.createdAt IS NOT NULL
+        AND (NOT valueType(n.createdAt) = 'STRING' OR size(toString(n.createdAt)) > 4)
       WITH n, labels(n)[0] AS label, n.name AS name,
-           CASE WHEN n.updatedAt IS NOT NULL THEN n.updatedAt ELSE n.createdAt END AS lastUpdate
-      RETURN label, name, lastUpdate,
-             duration.between(lastUpdate, datetime()).days AS daysSinceUpdate
+           CASE WHEN n.updatedAt IS NOT NULL AND (NOT valueType(n.updatedAt) = 'STRING' OR size(toString(n.updatedAt)) > 4)
+                THEN n.updatedAt ELSE n.createdAt END AS lastUpdate
+      WITH label, name,
+        CASE
+          WHEN valueType(lastUpdate) CONTAINS 'DATE' THEN lastUpdate
+          WHEN valueType(lastUpdate) = 'STRING' AND size(lastUpdate) > 4 THEN datetime(lastUpdate)
+          WHEN toInteger(lastUpdate) > 0 THEN datetime({ epochMillis: toInteger(lastUpdate) })
+          ELSE NULL
+        END AS lastUpdateDt
+      WHERE lastUpdateDt IS NOT NULL
+      RETURN label, name, lastUpdateDt AS lastUpdate,
+             toInteger(duration.between(lastUpdateDt, datetime()).days) AS daysSinceUpdate
       ORDER BY daysSinceUpdate DESC
       LIMIT 10
     `);
@@ -1062,7 +1395,16 @@ router.get('/health/temporal', async (req: Request, res: Response) => {
     const ageResult = await session.run(`
       MATCH (n)
       WHERE n.createdAt IS NOT NULL
-      WITH labels(n)[0] AS label, duration.between(n.createdAt, datetime()).days AS age
+        AND (NOT valueType(n.createdAt) = 'STRING' OR size(toString(n.createdAt)) > 4)
+      WITH labels(n)[0] AS label,
+        CASE
+          WHEN valueType(n.createdAt) CONTAINS 'DATE' THEN n.createdAt
+          WHEN valueType(n.createdAt) = 'STRING' AND size(n.createdAt) > 4 THEN datetime(n.createdAt)
+          WHEN toInteger(n.createdAt) > 0 THEN datetime({ epochMillis: toInteger(n.createdAt) })
+          ELSE NULL
+        END AS createdAtDt
+      WHERE createdAtDt IS NOT NULL
+      WITH label, duration.between(createdAtDt, datetime()).days AS age
       RETURN label, count(*) AS total, toFloat(avg(age)) AS avgAgeDays
       ORDER BY avgAgeDays DESC
     `);
@@ -1106,6 +1448,398 @@ router.get('/health/temporal', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Failed to fetch temporal metrics',
+    });
+  } finally {
+    await session.close();
+  }
+});
+
+// ============================================================================
+// SEMANTIC ANALYSIS
+// ============================================================================
+
+interface SemanticFinding {
+  category: 'label' | 'relationship' | 'property' | 'taxonomy' | 'pattern';
+  severity: 'error' | 'warning' | 'info';
+  title: string;
+  detail: string;
+  recommendation?: string;
+}
+
+/**
+ * GET /ontology/semantic-analysis
+ * Validates the graph semantics against the Meta-Graph (SchemaLabel, SchemaRel, SchemaProp)
+ * Returns a semantic health report with score, findings, and recommendations
+ */
+router.get('/semantic-analysis', async (_req: Request, res: Response) => {
+  const session = neo4jConnection.getSession();
+
+  try {
+    const findings: SemanticFinding[] = [];
+
+    // ── 1. Load Meta-Graph definitions ──
+    let schemaLabels: Array<{ name: string; category: string; description: string }> = [];
+    let schemaRels: Array<{ type: string; from_label: string; to_label: string; cardinality: string }> = [];
+    let schemaProps: Array<{ owner: string; name: string; type: string; is_required: boolean; description: string }> = [];
+
+    try {
+      const slResult = await session.run(`
+        MATCH (sl:SchemaLabel)
+        RETURN sl.name AS name, sl.category AS category, sl.description AS description
+      `);
+      schemaLabels = slResult.records.map(r => ({
+        name: r.get('name'),
+        category: r.get('category') || 'unknown',
+        description: r.get('description') || '',
+      }));
+    } catch { /* Meta-Graph not bootstrapped yet */ }
+
+    try {
+      const srResult = await session.run(`
+        MATCH (sr:SchemaRel)
+        RETURN sr.type AS type, sr.from_label AS from_label, sr.to_label AS to_label, sr.cardinality AS cardinality
+      `);
+      schemaRels = srResult.records.map(r => ({
+        type: r.get('type'),
+        from_label: r.get('from_label'),
+        to_label: r.get('to_label'),
+        cardinality: r.get('cardinality') || 'N:M',
+      }));
+    } catch { /* no SchemaRel nodes */ }
+
+    try {
+      const spResult = await session.run(`
+        MATCH (sp:SchemaProp)
+        RETURN sp.owner AS owner, sp.name AS name, sp.type AS type, sp.is_required AS is_required, sp.description AS description
+      `);
+      schemaProps = spResult.records.map(r => ({
+        owner: r.get('owner'),
+        name: r.get('name'),
+        type: r.get('type') || 'string',
+        is_required: r.get('is_required') === true,
+        description: r.get('description') || '',
+      }));
+    } catch { /* no SchemaProp nodes */ }
+
+    const hasMetaGraph = schemaLabels.length > 0;
+
+    if (!hasMetaGraph) {
+      findings.push({
+        category: 'label',
+        severity: 'error',
+        title: 'Meta-Grafo não encontrado',
+        detail: 'Nenhum SchemaLabel encontrado no grafo. O Meta-Grafo (Spec 050) precisa ser bootstrapped para habilitar análise semântica completa.',
+        recommendation: 'Execute o script de bootstrap do Meta-Grafo para criar SchemaLabel, SchemaRel e SchemaProp.',
+      });
+    }
+
+    // ── 2. Get actual labels in the graph ──
+    const actualLabelsResult = await session.run(`
+      CALL db.labels() YIELD label
+      CALL { WITH label MATCH (n) WHERE label IN labels(n) RETURN count(n) AS cnt }
+      RETURN label, cnt ORDER BY cnt DESC
+    `);
+    const actualLabels = actualLabelsResult.records.map(r => ({
+      label: r.get('label') as string,
+      count: r.get('cnt')?.toNumber?.() || (r.get('cnt') as number),
+    }));
+
+    // Filter out meta-graph labels from validation
+    const metaLabels = new Set(['SchemaLabel', 'SchemaRel', 'SchemaProp', 'QueryProfile', 'AccessPolicy', 'CypherTemplate', 'SchemaVersion']);
+    const dataLabels = actualLabels.filter(l => !metaLabels.has(l.label));
+    const schemaLabelNames = new Set(schemaLabels.map(sl => sl.name));
+
+    // ── 3. Label validation ──
+    if (hasMetaGraph) {
+      // 3a. Labels in graph but NOT in Meta-Graph
+      const undeclaredLabels = dataLabels.filter(l => !schemaLabelNames.has(l.label));
+      for (const ul of undeclaredLabels) {
+        findings.push({
+          category: 'label',
+          severity: 'warning',
+          title: `Label não declarado: ${ul.label}`,
+          detail: `O label "${ul.label}" (${ul.count} nós) existe no grafo mas não está definido no Meta-Grafo (SchemaLabel).`,
+          recommendation: `Criar SchemaLabel para "${ul.label}" ou migrar para um label canônico existente.`,
+        });
+      }
+
+      // 3b. Labels in Meta-Graph but NOT in graph (empty labels)
+      const emptySchemaLabels = schemaLabels.filter(sl =>
+        !actualLabels.some(al => al.label === sl.name)
+      );
+      for (const el of emptySchemaLabels) {
+        findings.push({
+          category: 'label',
+          severity: 'info',
+          title: `Label vazio: ${el.name}`,
+          detail: `O label "${el.name}" está definido no Meta-Grafo (categoria: ${el.category}) mas não tem nenhum nó no grafo.`,
+          recommendation: `Normal para labels não ingeridos ainda. Priorizar ingestão se for label essencial.`,
+        });
+      }
+    }
+
+    // ── 4. Relationship pattern validation ──
+    const actualPatternsResult = await session.run(`
+      MATCH (a)-[r]->(b)
+      WITH labels(a)[0] AS fromLabel, type(r) AS relType, labels(b)[0] AS toLabel, count(*) AS cnt
+      RETURN fromLabel, relType, toLabel, cnt
+      ORDER BY cnt DESC
+    `);
+    const actualPatterns = actualPatternsResult.records.map(r => ({
+      from: r.get('fromLabel') as string,
+      type: r.get('relType') as string,
+      to: r.get('toLabel') as string,
+      count: r.get('cnt')?.toNumber?.() || (r.get('cnt') as number),
+    }));
+
+    if (hasMetaGraph && schemaRels.length > 0) {
+      // Check each actual pattern against SchemaRel definitions
+      for (const pattern of actualPatterns) {
+        if (metaLabels.has(pattern.from) || metaLabels.has(pattern.to)) continue;
+
+        const matchingSchema = schemaRels.find(sr =>
+          sr.type === pattern.type &&
+          sr.from_label === pattern.from &&
+          sr.to_label === pattern.to
+        );
+
+        if (!matchingSchema) {
+          // Check if the relationship type exists at all
+          const typeExists = schemaRels.some(sr => sr.type === pattern.type);
+          const severity = typeExists ? 'warning' : 'error';
+
+          findings.push({
+            category: 'relationship',
+            severity,
+            title: `Padrão não declarado: (${pattern.from})-[${pattern.type}]->(${pattern.to})`,
+            detail: `${pattern.count} relações "${pattern.type}" conectam ${pattern.from}→${pattern.to}, mas esse padrão não está definido no Meta-Grafo.${typeExists ? ` O tipo "${pattern.type}" existe mas para outros labels.` : ` O tipo "${pattern.type}" não existe no Meta-Grafo.`}`,
+            recommendation: typeExists
+              ? `Verificar se ${pattern.from}→${pattern.to} é intencional ou se deveria usar outro tipo de relação.`
+              : `Criar SchemaRel para "${pattern.type}" ou migrar para um tipo canônico.`,
+          });
+        }
+      }
+
+      // SchemaRels with no instances
+      for (const sr of schemaRels) {
+        const exists = actualPatterns.some(p =>
+          p.type === sr.type && p.from === sr.from_label && p.to === sr.to_label
+        );
+        if (!exists) {
+          findings.push({
+            category: 'relationship',
+            severity: 'info',
+            title: `Relação sem instâncias: ${sr.from_label}-[${sr.type}]->${sr.to_label}`,
+            detail: `O Meta-Grafo define (${sr.from_label})-[${sr.type}]->(${sr.to_label}) mas nenhuma instância existe no grafo.`,
+          });
+        }
+      }
+    }
+
+    // ── 5. Property completeness validation ──
+    const requiredProps = schemaProps.filter(sp => sp.is_required);
+    const propViolations: Array<{ label: string; prop: string; missing: number; total: number }> = [];
+
+    for (const rp of requiredProps) {
+      try {
+        const result = await session.run(`
+          MATCH (n:${rp.owner})
+          WITH count(n) AS total,
+               count(CASE WHEN n[\$propName] IS NULL OR n[\$propName] = '' THEN 1 END) AS missing
+          RETURN total, missing
+        `, { propName: rp.name });
+
+        const total = result.records[0]?.get('total')?.toNumber?.() || 0;
+        const missing = result.records[0]?.get('missing')?.toNumber?.() || 0;
+
+        if (missing > 0 && total > 0) {
+          propViolations.push({ label: rp.owner, prop: rp.name, missing, total });
+          findings.push({
+            category: 'property',
+            severity: missing === total ? 'error' : 'warning',
+            title: `Propriedade obrigatória faltando: ${rp.owner}.${rp.name}`,
+            detail: `${missing}/${total} nós ${rp.owner} não têm a propriedade "${rp.name}" (${rp.description}).`,
+            recommendation: `Enriquecer nós ${rp.owner} com a propriedade "${rp.name}" via curadoria ou ingestão.`,
+          });
+        }
+      } catch {
+        // Label might not exist yet
+      }
+    }
+
+    // ── 6. Taxonomy validation ──
+    // Check for cycles in PART_OF
+    try {
+      const cycleResult = await session.run(`
+        MATCH path = (a)-[:PART_OF*2..5]->(a)
+        RETURN count(path) AS cycles, labels(a)[0] AS label
+        LIMIT 5
+      `);
+      const cycles = cycleResult.records.filter(r => (r.get('cycles')?.toNumber?.() || 0) > 0);
+      if (cycles.length > 0) {
+        findings.push({
+          category: 'taxonomy',
+          severity: 'error',
+          title: 'Ciclo detectado em PART_OF',
+          detail: `${cycles.length} ciclo(s) encontrado(s) na hierarquia PART_OF. Isso viola a estrutura taxonômica de árvore.`,
+          recommendation: 'Revisar e remover relações PART_OF circulares.',
+        });
+      }
+    } catch { /* PART_OF might not exist */ }
+
+    // Check BELONGS_TO_OBJECTIVE: OKR should point to Objective, not vice versa
+    try {
+      const reverseResult = await session.run(`
+        MATCH (a)-[:BELONGS_TO_OBJECTIVE]->(b)
+        WHERE NOT 'OKR' IN labels(a) OR NOT 'Objective' IN labels(b)
+        RETURN labels(a)[0] AS fromLabel, labels(b)[0] AS toLabel, count(*) AS cnt
+      `);
+      for (const r of reverseResult.records) {
+        findings.push({
+          category: 'taxonomy',
+          severity: 'warning',
+          title: `BELONGS_TO_OBJECTIVE invertido`,
+          detail: `${r.get('cnt')} relações BELONGS_TO_OBJECTIVE conectam ${r.get('fromLabel')}→${r.get('toLabel')} (esperado: OKR→Objective).`,
+          recommendation: 'Corrigir direção ou usar tipo de relação diferente.',
+        });
+      }
+    } catch { /* OK */ }
+
+    // Check SUPERSEDES forms linear chain (no bifurcations)
+    try {
+      const bifurcResult = await session.run(`
+        MATCH (a)<-[:SUPERSEDES]-(b)
+        WITH a, count(b) AS predecessors
+        WHERE predecessors > 1
+        RETURN labels(a)[0] AS label, a.name AS name, predecessors
+        LIMIT 5
+      `);
+      for (const r of bifurcResult.records) {
+        findings.push({
+          category: 'taxonomy',
+          severity: 'warning',
+          title: `Bifurcação em SUPERSEDES`,
+          detail: `${r.get('label')} "${r.get('name')}" tem ${r.get('predecessors')} predecessores via SUPERSEDES. Deveria ser cadeia linear.`,
+          recommendation: 'Revisar histórico de versões para garantir cadeia única.',
+        });
+      }
+    } catch { /* OK */ }
+
+    // ── 7. Structural patterns ──
+    // Detect super-nodes (nodes with too many relationships)
+    try {
+      const superNodeResult = await session.run(`
+        MATCH (n)
+        WITH n, labels(n)[0] AS label, n.name AS name, size((n)--()) AS degree
+        WHERE degree > 50
+        RETURN label, name, degree
+        ORDER BY degree DESC
+        LIMIT 5
+      `);
+      for (const r of superNodeResult.records) {
+        findings.push({
+          category: 'pattern',
+          severity: 'warning',
+          title: `Supernó detectado: ${r.get('label')} "${r.get('name')}"`,
+          detail: `${r.get('degree')} conexões. Supernós podem degradar performance de queries e indicam possível necessidade de decomposição.`,
+          recommendation: 'Considerar decomposição ou criação de nós intermediários.',
+        });
+      }
+    } catch { /* OK */ }
+
+    // ── 8. Category coverage (taxonomy by category) ──
+    const categoryMap: Record<string, { declared: string[]; populated: string[]; empty: string[] }> = {};
+    for (const sl of schemaLabels) {
+      if (!categoryMap[sl.category]) {
+        categoryMap[sl.category] = { declared: [], populated: [], empty: [] };
+      }
+      categoryMap[sl.category].declared.push(sl.name);
+      const exists = actualLabels.some(al => al.label === sl.name && al.count > 0);
+      if (exists) {
+        categoryMap[sl.category].populated.push(sl.name);
+      } else {
+        categoryMap[sl.category].empty.push(sl.name);
+      }
+    }
+
+    // ── 9. Compute semantic score ──
+    let score = 100;
+
+    // Penalties
+    const errors = findings.filter(f => f.severity === 'error').length;
+    const warnings = findings.filter(f => f.severity === 'warning').length;
+    score -= errors * 10;
+    score -= warnings * 3;
+
+    // Bonus for completeness
+    if (hasMetaGraph) {
+      const labelCoverage = dataLabels.filter(l => schemaLabelNames.has(l.label)).length / Math.max(1, dataLabels.length);
+      score = Math.round(score * (0.5 + labelCoverage * 0.5));
+    }
+
+    score = Math.max(0, Math.min(100, score));
+
+    // ── 10. Build summary ──
+    const summary = {
+      semanticScore: score,
+      metaGraphStatus: hasMetaGraph ? 'active' : 'missing',
+      schemaLabelsCount: schemaLabels.length,
+      schemaRelsCount: schemaRels.length,
+      schemaPropsCount: schemaProps.length,
+      actualLabelsCount: dataLabels.length,
+      actualPatternsCount: actualPatterns.filter(p => !metaLabels.has(p.from) && !metaLabels.has(p.to)).length,
+      findingsCount: { errors, warnings, info: findings.filter(f => f.severity === 'info').length },
+    };
+
+    // ── 11. Build label detail with properties ──
+    const labelDetail = dataLabels.map(dl => {
+      const schema = schemaLabels.find(sl => sl.name === dl.label);
+      const props = schemaProps.filter(sp => sp.owner === dl.label);
+      const rels = schemaRels.filter(sr => sr.from_label === dl.label || sr.to_label === dl.label);
+      const actualRels = actualPatterns.filter(p => p.from === dl.label || p.to === dl.label);
+
+      return {
+        label: dl.label,
+        count: dl.count,
+        category: schema?.category || 'unknown',
+        description: schema?.description || getNodeDescription(dl.label),
+        inMetaGraph: !!schema,
+        declaredProperties: props.map(p => ({
+          name: p.name,
+          type: p.type,
+          required: p.is_required,
+          description: p.description,
+        })),
+        declaredRelationships: rels.map(r => ({
+          type: r.type,
+          direction: r.from_label === dl.label ? 'outgoing' : 'incoming',
+          target: r.from_label === dl.label ? r.to_label : r.from_label,
+          cardinality: r.cardinality,
+        })),
+        actualRelationships: actualRels.map(r => ({
+          type: r.type,
+          direction: r.from === dl.label ? 'outgoing' : 'incoming',
+          target: r.from === dl.label ? r.to : r.from,
+          count: r.count,
+        })),
+      };
+    });
+
+    res.json({
+      success: true,
+      data: {
+        summary,
+        findings,
+        labelDetail,
+        categoryMap,
+        actualPatterns: actualPatterns.filter(p => !metaLabels.has(p.from) && !metaLabels.has(p.to)),
+      },
+    });
+  } catch (error) {
+    logger.error('Semantic analysis error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to run semantic analysis',
     });
   } finally {
     await session.close();

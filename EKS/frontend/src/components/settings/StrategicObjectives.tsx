@@ -35,6 +35,7 @@ interface OKR {
   targetValue: number;
   currentValue: number;
   unit: string;
+  startDate: string;
   deadline: string;
   ownerId: string;
   department: string;
@@ -45,6 +46,7 @@ interface Objective {
   title: string;
   description: string;
   status: "active" | "archived";
+  startDate: string;
   targetDate: string;
   ownerId: string;
   department: string;
@@ -64,20 +66,22 @@ export function StrategicObjectives() {
   const [saving, setSaving] = useState(false);
   const [expandedObjective, setExpandedObjective] = useState<string | null>(null);
   const [editingObjective, setEditingObjective] = useState<string | null>(null);
-  const [objectiveDraft, setObjectiveDraft] = useState<{ title: string; description: string; targetDate: string; ownerId: string; department: string }>({
+  const [objectiveDraft, setObjectiveDraft] = useState<{ title: string; description: string; startDate: string; targetDate: string; ownerId: string; department: string }>({
     title: "",
     description: "",
+    startDate: "",
     targetDate: "",
     ownerId: "",
     department: "",
   });
   const [okrFormObjectiveId, setOkrFormObjectiveId] = useState<string | null>(null);
   const [editingOkr, setEditingOkr] = useState<{ objectiveId: string; okrId: string } | null>(null);
-  const [okrDraft, setOkrDraft] = useState<{ title: string; targetValue: string; currentValue: string; unit: string; deadline: string; ownerId: string; department: string }>({
+  const [okrDraft, setOkrDraft] = useState<{ title: string; targetValue: string; currentValue: string; unit: string; startDate: string; deadline: string; ownerId: string; department: string }>({
     title: "",
     targetValue: "",
     currentValue: "",
     unit: "",
+    startDate: "",
     deadline: "",
     ownerId: "",
     department: "",
@@ -86,6 +90,7 @@ export function StrategicObjectives() {
   const [newObjective, setNewObjective] = useState({
     title: "",
     description: "",
+    startDate: "",
     targetDate: "",
     ownerId: "",
     department: "",
@@ -139,6 +144,7 @@ export function StrategicObjectives() {
           title: obj.title,
           description: obj.description || "",
           status: obj.status || "active",
+          startDate: obj.startDate || "",
           targetDate: obj.targetDate || "",
           ownerId: obj.ownerId || "",
           department: obj.department || "",
@@ -148,6 +154,7 @@ export function StrategicObjectives() {
             targetValue: okr.targetValue || 0,
             currentValue: okr.currentValue || 0,
             unit: okr.unit || "",
+            startDate: okr.startDate || "",
             deadline: okr.deadline || "",
             ownerId: okr.ownerId || "",
             department: okr.department || "",
@@ -213,6 +220,7 @@ export function StrategicObjectives() {
       const response = await api.createObjective({
         title: newObjective.title,
         description: newObjective.description,
+        startDate: newObjective.startDate,
         targetDate: newObjective.targetDate,
         ownerId: newObjective.ownerId,
         department: newObjective.department,
@@ -221,7 +229,7 @@ export function StrategicObjectives() {
       if (response.success) {
         // Recarregar lista do backend para garantir consistência
         await loadObjectives();
-        setNewObjective({ title: "", description: "", targetDate: "", ownerId: "", department: "" });
+        setNewObjective({ title: "", description: "", startDate: "", targetDate: "", ownerId: "", department: "" });
         setShowNewObjective(false);
       } else {
         alert(`Erro ao criar objetivo: ${response.error}`);
@@ -256,6 +264,7 @@ export function StrategicObjectives() {
     setObjectiveDraft({
       title: objective.title,
       description: objective.description,
+      startDate: objective.startDate,
       targetDate: objective.targetDate,
       ownerId: objective.ownerId,
       department: objective.department,
@@ -264,7 +273,7 @@ export function StrategicObjectives() {
 
   const cancelEditObjective = () => {
     setEditingObjective(null);
-    setObjectiveDraft({ title: "", description: "", targetDate: "", ownerId: "", department: "" });
+    setObjectiveDraft({ title: "", description: "", startDate: "", targetDate: "", ownerId: "", department: "" });
   };
 
   const saveObjective = async (objectiveId: string) => {
@@ -283,6 +292,7 @@ export function StrategicObjectives() {
       const response = await api.updateObjective(objectiveId, {
         title,
         description: objectiveDraft.description,
+        startDate: objectiveDraft.startDate,
         targetDate: objectiveDraft.targetDate,
         ownerId: objectiveDraft.ownerId,
         department: objectiveDraft.department,
@@ -302,7 +312,7 @@ export function StrategicObjectives() {
   };
 
   const resetOkrDraft = () => {
-    setOkrDraft({ title: "", targetValue: "", currentValue: "", unit: "", deadline: "", ownerId: "", department: "" });
+    setOkrDraft({ title: "", targetValue: "", currentValue: "", unit: "", startDate: "", deadline: "", ownerId: "", department: "" });
   };
 
   const startAddOkr = (objectiveId: string) => {
@@ -314,6 +324,7 @@ export function StrategicObjectives() {
       targetValue: "",
       currentValue: "0",
       unit: "",
+      startDate: obj?.startDate || "",
       deadline: "",
       ownerId: obj?.ownerId || "",
       department: obj?.department || "",
@@ -328,6 +339,7 @@ export function StrategicObjectives() {
       targetValue: String(okr.targetValue),
       currentValue: String(okr.currentValue),
       unit: okr.unit,
+      startDate: okr.startDate,
       deadline: okr.deadline,
       ownerId: okr.ownerId,
       department: okr.department,
@@ -390,6 +402,7 @@ export function StrategicObjectives() {
         targetValue,
         currentValue,
         unit,
+        startDate: okrDraft.startDate,
         deadline,
         objectiveId,
         ownerId,
@@ -578,7 +591,7 @@ export function StrategicObjectives() {
                     <div className="text-right text-xs text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
-                        {objective.targetDate}
+                        {objective.startDate && `${objective.startDate} → `}{objective.targetDate}
                       </div>
                       <div className="mt-1">{objective.okrs.length} OKRs</div>
                     </div>
@@ -664,6 +677,14 @@ export function StrategicObjectives() {
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Data de Início</Label>
+                          <Input
+                            type="date"
+                            value={objectiveDraft.startDate}
+                            onChange={(e) => setObjectiveDraft({ ...objectiveDraft, startDate: e.target.value })}
+                          />
+                        </div>
                         <div className="space-y-2">
                           <Label>Data Alvo</Label>
                           <Input
@@ -815,6 +836,17 @@ export function StrategicObjectives() {
                             placeholder="% / processos / insights"
                           />
                         </div>
+                        <div className="space-y-2">
+                          <Label>Início do Ciclo</Label>
+                          <Input
+                            type="date"
+                            value={okrDraft.startDate}
+                            onChange={(e) => setOkrDraft({ ...okrDraft, startDate: e.target.value })}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label>Deadline</Label>
                           <Input
@@ -1024,14 +1056,25 @@ export function StrategicObjectives() {
                 </select>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="objDate">Data Alvo</Label>
-              <Input
-                id="objDate"
-                type="date"
-                value={newObjective.targetDate}
-                onChange={(e) => setNewObjective({ ...newObjective, targetDate: e.target.value })}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="objStartDate">Data de Início</Label>
+                <Input
+                  id="objStartDate"
+                  type="date"
+                  value={newObjective.startDate}
+                  onChange={(e) => setNewObjective({ ...newObjective, startDate: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="objDate">Data Alvo</Label>
+                <Input
+                  id="objDate"
+                  type="date"
+                  value={newObjective.targetDate}
+                  onChange={(e) => setNewObjective({ ...newObjective, targetDate: e.target.value })}
+                />
+              </div>
             </div>
             <div className="flex gap-2 justify-end">
               <Button variant="outline" onClick={() => setShowNewObjective(false)}>

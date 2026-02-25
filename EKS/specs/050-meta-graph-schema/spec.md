@@ -430,6 +430,12 @@ CREATE (:SchemaRel {type: "MENTIONS", from_label: "Chunk", to_label: "Person", c
 CREATE (:SchemaRel {type: "EXTRACTED_FROM", from_label: "Knowledge", to_label: "Document", cardinality: "N:1", weight_properties: ["confidence", "method"]})
 CREATE (:SchemaRel {type: "DERIVED_FROM", from_label: "Knowledge", to_label: "Chunk", cardinality: "N:1"})
 
+// Business Cycle Properties (Objective + OKR)
+CREATE (:SchemaProp {owner: "Objective", name: "startDate", type: "datetime", is_key: false, is_required: true, description: "Início do ciclo estratégico (quando a atividade real começa)"})
+CREATE (:SchemaProp {owner: "Objective", name: "targetDate", type: "datetime", is_key: false, is_required: true, description: "Fim previsto do ciclo estratégico"})
+CREATE (:SchemaProp {owner: "OKR", name: "startDate", type: "datetime", is_key: false, is_required: true, description: "Início do ciclo do Key Result (pode diferir do Objective pai)"})
+CREATE (:SchemaProp {owner: "OKR", name: "deadline", type: "datetime", is_key: false, is_required: true, description: "Fim previsto do ciclo do Key Result"})
+
 // Estratégia (BIG)
 CREATE (:SchemaRel {type: "HAS_PURPOSE", from_label: "Organization", to_label: "Purpose", cardinality: "1:1"})
 CREATE (:SchemaRel {type: "HAS_OBJECTIVE", from_label: "Organization", to_label: "Objective", cardinality: "1:N"})
