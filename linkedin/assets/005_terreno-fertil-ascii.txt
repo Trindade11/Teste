@@ -1,0 +1,47 @@
+🌱 TERRENO FÉRTIL — Knowledge Engineering de Negócio
+
+                                   ┌─────────────────────────────────────┐
+                                   │  Knowledge Engineering de Negócio   │
+                                   │     🏗️ Fundamento da IA Corporativa  │
+                                   └─────────────────┬───────────────────┘
+                                                     │
+                    ┌────────────────┴────────────────┼────────────────┴────────────────┐
+                    │                │                │                │                │
+          ┌─────────▼─────────┐ ┌───▼────────┐ ┌─────▼──────┐ ┌─────▼──────┐ ┌─────▼──────┐
+          │ 1️⃣ CAPTURA DO  │ │ 2️⃣ EXTER- │ │ 3️⃣ CURA-  │ │ 4️⃣ ESTRU- │ │ 5️⃣ CICLO  │
+          │      REAL        │ │ NALIZAÇÃO  │ │ DORIA E   │ │ TURAÇÃO    │ │   DE VIDA  │
+          │                 │ │   DO TÁCITO │ │ VALIDAÇÃO │ │ SEMÂNTICA  │ │            │
+          │ • O que foi      │ │            │ │            │ │            │ │ • Memória  │
+          │   decidido       │ │ • Estratégia│ │ • Humano   │ │ • Não é    │ │   viva     │
+          │ • Por quê        │ │   não está  │ │   valida   │ │   conectar │ │ • Versões  │
+          │ • Premissas      │ │   no ERP    │ │   o mundo  │ │   dados    │ │ • Atuali-  │
+          │ • Reuniões,      │ │ • Está na   │ │   da IA    │ │ • Dar forma│ │   zação    │
+          │   e-mails        │ │   cabeça    │ │ • Sem isso:│ │   ao sig-  │ │ • Obsole-  │
+          │   alinhamentos   │ │   das pessoas│ │   base podre│ │ nificado   │ │   scência  │
+          └───────────────────┘ └────────────┘ └────────────┘ └────────────┘ └────────────┘
+
+CÓDIGO MERMAID (VERSÃO SIMPLIFICADA - copiar e colar em https://mermaid.live):
+
+flowchart TD
+    ROOT[🌱 Terreno Fértil<br/>Knowledge Engineering de Negócio]
+    
+    ROOT --> N1["1️⃣ CAPTURA DO REAL<br/>O que foi decidido, por quê, premissas"]
+    ROOT --> N2["2️⃣ EXTERNALIZAÇÃO DO TÁCITO<br/>Estratégia na cabeça → artefato explícito"]
+    ROOT --> N3["3️⃣ CURADORIA E VALIDAÇÃO<br/>Humano valida o mundo da IA"]
+    ROOT --> N4["4️⃣ ESTRUTURAÇÃO SEMÂNTICA<br/>Dar forma ao significado"]
+    ROOT --> N5["5️⃣ CICLO DE VIDA<br/>Memória viva: versões, atualização"]
+    
+    style ROOT fill:#2e7d32,color:#ffffff,stroke:#1b5e20,stroke-width:3px
+    style N1 fill:#66bb6a,color:#ffffff,stroke:#388e3c
+    style N2 fill:#66bb6a,color:#ffffff,stroke:#388e3c
+    style N3 fill:#66bb6a,color:#ffffff,stroke:#388e3c
+    style N4 fill:#66bb6a,color:#ffffff,stroke:#388e3c
+    style N5 fill:#66bb6a,color:#ffffff,stroke:#388e3c
+
+INSTRUÇÕES RÁPIDAS:
+1. Acesse: https://mermaid.live
+2. Cole o código acima no editor da esquerda
+3. Clique em "Actions" → "Export as PNG"
+4. Salve como: terreno-fertil-knowledge-engineering.png
+
+DICA: Para LinkedIn, use dimensão 1080x1080 (quadrado) ou 1200x630 (retangular)
