@@ -7,7 +7,7 @@ import { ONBOARDING_STEPS, useOnboardingStore } from "@/store/onboarding-store";
 import { useInstitutionConfig } from "@/hooks/useInstitutionConfig";
 import { cn } from "@/lib/utils";
 
-export type ViewType = "onboarding" | "processes" | "knowledge" | "navigator" | "navigator_v2" | "validation";
+export type ViewType = "onboarding" | "processes" | "process_mapping" | "curator_processes" | "knowledge" | "navigator" | "navigator_v2" | "validation";
 
 interface SidebarProps {
   onClose?: () => void;
@@ -15,9 +15,11 @@ interface SidebarProps {
   onViewChange?: (view: ViewType) => void;
 }
 
-const MENU_ITEMS: { id: ViewType; label: string; icon: React.ReactNode; badge?: number }[] = [
+const MENU_ITEMS: { id: ViewType; label: string; icon: React.ReactNode; badge?: number; description?: string }[] = [
   { id: "navigator", label: "Visão Estratégica", icon: <Network className="w-4 h-4" /> },
   { id: "navigator_v2", label: "Cockpit Executivo", icon: <Network className="w-4 h-4" /> },
+  { id: "processes", label: "Processos", icon: <GitBranch className="w-4 h-4" />, description: "Estrutura organizacional" },
+  { id: "process_mapping", label: "Mapear Processos", icon: <GitBranch className="w-4 h-4" />, description: "Mapeamento interativo" },
   { id: "knowledge", label: "Conhecimento", icon: <BookOpen className="w-4 h-4" /> },
   { id: "validation", label: "Validação", icon: <CheckCircle className="w-4 h-4" />, badge: 6 },
 ];
@@ -137,7 +139,14 @@ export function Sidebar({ onClose, currentView = "processes", onViewChange }: Si
               )}>
                 {item.icon}
               </span>
-              <span className="text-sm font-medium">{item.label}</span>
+              <div className="flex-1 min-w-0">
+                <div className={cn("text-sm font-medium", currentView === item.id ? "text-primary" : "")}>
+                  {item.label}
+                </div>
+                {item.description && (
+                  <div className="text-[10px] text-muted-foreground truncate">{item.description}</div>
+                )}
+              </div>
               {item.badge && item.badge > 0 && (
                 <span className="ml-auto px-1.5 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-medium">
                   {item.badge}

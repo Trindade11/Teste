@@ -1,4 +1,4 @@
-import { env } from '../config/env';
+﻿import { env } from '../config/env';
 import { logger } from '../utils/logger';
 
 interface ExtractedEntity {
@@ -26,102 +26,102 @@ interface ExtractionResult {
   processingTime: number;
 }
 
-const EXTRACTION_PROMPT = `Você é um analista sênior de inteligência organizacional. Sua missão é extrair ABSOLUTAMENTE TUDO de relevante desta transcrição de reunião.
+const EXTRACTION_PROMPT = `Voc├¬ ├® um analista s├¬nior de intelig├¬ncia organizacional. Sua miss├úo ├® extrair ABSOLUTAMENTE TUDO de relevante desta transcri├º├úo de reuni├úo.
 
-IMPORTANTE: Seja EXAUSTIVO. É melhor extrair demais do que de menos. Esta extração servirá como memória organizacional permanente.
+IMPORTANTE: Seja EXAUSTIVO. ├ë melhor extrair demais do que de menos. Esta extra├º├úo servir├í como mem├│ria organizacional permanente.
 
-ATENÇÃO SOBRE CLASSIFICAÇÃO: Tópicos são apenas METADADOS para recuperação (palavras-chave). Já elementos como tarefas, riscos, decisões, insights e projetos devem ser classificados DIRETAMENTE como entidades nas suas respectivas seções abaixo. NÃO coloque ações, riscos ou decisões como tópicos — classifique-os como entidades.
+ATEN├ç├âO SOBRE CLASSIFICA├ç├âO: T├│picos s├úo apenas METADADOS para recupera├º├úo (palavras-chave). J├í elementos como tarefas, riscos, decis├Áes, insights e projetos devem ser classificados DIRETAMENTE como entidades nas suas respectivas se├º├Áes abaixo. N├âO coloque a├º├Áes, riscos ou decis├Áes como t├│picos ÔÇö classifique-os como entidades.
 
-## ESTRUTURA DE SAÍDA (JSON)
+## ESTRUTURA DE SA├ìDA (JSON)
 
 ### 1. RESUMO EXECUTIVO (summary)
 Resumo DETALHADO com 300-500 palavras cobrindo:
-- Objetivo e contexto da reunião
+- Objetivo e contexto da reuni├úo
 - Todos os pontos principais discutidos
-- Decisões tomadas
-- Próximos passos definidos
+- Decis├Áes tomadas
+- Pr├│ximos passos definidos
 
-### 2. TÓPICOS PRINCIPAIS (keyTopics) - METADADOS PARA RECUPERAÇÃO
-Array SIMPLES de strings com palavras-chave e termos-chave ESPECÍFICOS desta reunião.
-Estes tópicos são METADADOS que ajudarão na busca e recuperação do conteúdo.
+### 2. T├ôPICOS PRINCIPAIS (keyTopics) - METADADOS PARA RECUPERA├ç├âO
+Array SIMPLES de strings com palavras-chave e termos-chave ESPEC├ìFICOS desta reuni├úo.
+Estes t├│picos s├úo METADADOS que ajudar├úo na busca e recupera├º├úo do conte├║do.
 
-REGRA DE OURO: Os tópicos devem ser ESPECÍFICOS o suficiente para que alguém que busque por eles encontre ESTA reunião, e não qualquer reunião genérica.
+REGRA DE OURO: Os t├│picos devem ser ESPEC├ìFICOS o suficiente para que algu├®m que busque por eles encontre ESTA reuni├úo, e n├úo qualquer reuni├úo gen├®rica.
 
-BONS tópicos (específicos, contextuais):
+BONS t├│picos (espec├¡ficos, contextuais):
 - Nomes de programas, projetos, produtos mencionados (ex: "programa MOVE batch 2", "OneOps")
-- Ferramentas específicas com contexto (ex: "Notion AI para gestão de conhecimento")
-- Conceitos-chave debatidos com contexto (ex: "contrapartida equity 3%", "qualificação de startups por IA")
+- Ferramentas espec├¡ficas com contexto (ex: "Notion AI para gest├úo de conhecimento")
+- Conceitos-chave debatidos com contexto (ex: "contrapartida equity 3%", "qualifica├º├úo de startups por IA")
 - Nomes de empresas, parceiros, startups citados (ex: "Genil", "Pirelli", "Maverick")
-- Processos ou metodologias específicos (ex: "pipeline de investimento", "curadoria ontológica")
-- Métricas ou indicadores discutidos (ex: "OKRs Q1 2026", "adesão 100% ao programa")
-- Áreas de negócio com especificidade (ex: "governança Montreal para startups")
+- Processos ou metodologias espec├¡ficos (ex: "pipeline de investimento", "curadoria ontol├│gica")
+- M├®tricas ou indicadores discutidos (ex: "OKRs Q1 2026", "ades├úo 100% ao programa")
+- ├üreas de neg├│cio com especificidade (ex: "governan├ºa Montreal para startups")
 
-MAUS tópicos (genéricos demais — EVITE):
-- "inteligência artificial" (muito genérico, use algo como "IA generativa para qualificação de deals")
-- "status de risco" (genérico, use algo como "risco de não-adesão das startups ao programa")
+MAUS t├│picos (gen├®ricos demais ÔÇö EVITE):
+- "intelig├¬ncia artificial" (muito gen├®rico, use algo como "IA generativa para qualifica├º├úo de deals")
+- "status de risco" (gen├®rico, use algo como "risco de n├úo-ades├úo das startups ao programa")
 - "tecnologia" (sem contexto)
-- "gestão" (sem especificidade)
+- "gest├úo" (sem especificidade)
 
-NÃO inclua aqui: tarefas, ações, riscos, decisões ou insights — estes vão nas seções de entidades abaixo.
+N├âO inclua aqui: tarefas, a├º├Áes, riscos, decis├Áes ou insights ÔÇö estes v├úo nas se├º├Áes de entidades abaixo.
 
-Mínimo 12 termos, máximo 25. Formato: array simples de strings.
-Cada termo deve ter entre 2 e 8 palavras para balancear especificidade e concisão.
+M├¡nimo 12 termos, m├íximo 25. Formato: array simples de strings.
+Cada termo deve ter entre 2 e 8 palavras para balancear especificidade e concis├úo.
 
-### 3. DECISÕES (decisions) - EXTRAIA TODAS
-Qualquer escolha, definição ou direcionamento tomado:
-- value: a decisão (máx 15 palavras)
-- description: contexto completo, motivação, alternativas (mín 60 palavras)
-- relatedPerson: nome EXATO de quem decidiu (use APENAS nomes dos participantes ou pessoas mencionadas na transcrição)
+### 3. DECIS├òES (decisions) - EXTRAIA TODAS
+Qualquer escolha, defini├º├úo ou direcionamento tomado:
+- value: a decis├úo (m├íx 15 palavras)
+- description: contexto completo, motiva├º├úo, alternativas (m├¡n 60 palavras)
+- relatedPerson: nome EXATO de quem decidiu (use APENAS nomes dos participantes ou pessoas mencionadas na transcri├º├úo)
 - impact: impacto esperado
 - confidence: 0.6-1.0
 
 PROCURE por frases como:
 - "Vamos usar/fazer/adotar X"
-- "A estratégia/direção é"
+- "A estrat├®gia/dire├º├úo ├®"
 - "Decidimos/definimos que"
-- "Não vamos fazer X"
+- "N├úo vamos fazer X"
 - "O foco vai ser"
-- "A plataforma será"
+- "A plataforma ser├í"
 
 ### 4. TAREFAS (tasks) - EXTRAIA TODAS (inclui action items)
-Qualquer ação necessária, atribuída ou com responsável claro:
-- value: título da tarefa/ação
-- description: detalhamento completo (mín 50 palavras)
-- assignee: nome EXATO do responsável (use APENAS nomes dos participantes ou pessoas mencionadas na transcrição) - OBRIGATÓRIO quando houver dono claro
+Qualquer a├º├úo necess├íria, atribu├¡da ou com respons├ível claro:
+- value: t├¡tulo da tarefa/a├º├úo
+- description: detalhamento completo (m├¡n 50 palavras)
+- assignee: nome EXATO do respons├ível (use APENAS nomes dos participantes ou pessoas mencionadas na transcri├º├úo) - OBRIGAT├ôRIO quando houver dono claro
 - deadline: prazo (se mencionado)
 - priority: high/medium/low
 - confidence: 0.6-1.0
 
 PROCURE por:
 - "Precisamos/temos que fazer"
-- "Você fica de/vai fazer"
+- "Voc├¬ fica de/vai fazer"
 - "Vou verificar/levantar/agendar"
 - "A partir de [data]"
-- "O próximo passo é"
-- Ações com dono claro e prazo definido
+- "O pr├│ximo passo ├®"
+- A├º├Áes com dono claro e prazo definido
 
 ### 6. RISCOS (risks) - EXTRAIA TODOS
-Problemas, preocupações, limitações ou ameaças:
-- value: título do risco
-- description: descrição completa, causas, consequências, mitigações (mín 60 palavras)
-- relatedPerson: nome EXATO de quem levantou (use APENAS nomes dos participantes ou pessoas mencionadas na transcrição)
+Problemas, preocupa├º├Áes, limita├º├Áes ou amea├ºas:
+- value: t├¡tulo do risco
+- description: descri├º├úo completa, causas, consequ├¬ncias, mitiga├º├Áes (m├¡n 60 palavras)
+- relatedPerson: nome EXATO de quem levantou (use APENAS nomes dos participantes ou pessoas mencionadas na transcri├º├úo)
 - priority: high/medium/low
 - impact: impacto potencial
 - confidence: 0.6-1.0
 
 PROCURE por:
-- "O problema/desafio é"
-- "A dificuldade/limitação"
+- "O problema/desafio ├®"
+- "A dificuldade/limita├º├úo"
 - "Isso afasta/prejudica"
 - "Falta de X"
-- "Não conseguimos/não temos"
-- "Governança dificulta"
+- "N├úo conseguimos/n├úo temos"
+- "Governan├ºa dificulta"
 
 ### 7. INSIGHTS (insights) - EXTRAIA TODOS
-Aprendizados, oportunidades, observações estratégicas:
-- value: título do insight
-- description: explicação completa, importância, aplicação (mín 60 palavras)
-- relatedPerson: nome EXATO de quem contribuiu (use APENAS nomes dos participantes ou pessoas mencionadas na transcrição)
+Aprendizados, oportunidades, observa├º├Áes estrat├®gicas:
+- value: t├¡tulo do insight
+- description: explica├º├úo completa, import├óncia, aplica├º├úo (m├¡n 60 palavras)
+- relatedPerson: nome EXATO de quem contribuiu (use APENAS nomes dos participantes ou pessoas mencionadas na transcri├º├úo)
 - impact: impacto potencial
 - confidence: 0.6-1.0
 
@@ -130,14 +130,14 @@ PROCURE por:
 - "Uma oportunidade seria"
 - "Aprendemos/percebemos que"
 - "O mercado/cliente quer"
-- "A vantagem é"
-- "Transferência de conhecimento"
+- "A vantagem ├®"
+- "Transfer├¬ncia de conhecimento"
 
 ### 8. ENTIDADES MENCIONADAS (mentioned_entities)
 Pessoas EXTERNAS, empresas, produtos, ferramentas, clientes:
 - value: nome exato
 - entityType: person_external | organization | product | tool | client
-- description: contexto da menção
+- description: contexto da men├º├úo
 - mentions: vezes citado
 - confidence: 0.6-1.0
 
@@ -145,27 +145,27 @@ EXTRAIR:
 - Clientes potenciais (ex: Pirelli)
 - Produtos discutidos (ex: Maverick, OneOps)
 - Especialistas externos (ex: Rafael, Bruno)
-- Ferramentas específicas (ex: Notion, Monday, Gemini, ChatGPT)
+- Ferramentas espec├¡ficas (ex: Notion, Monday, Gemini, ChatGPT)
 - Empresas parceiras/concorrentes
 
-NÃO EXTRAIR:
-- Participantes da reunião
+N├âO EXTRAIR:
+- Participantes da reuni├úo
 - Projeto/empresa do contexto
 
-## METAS DE EXTRAÇÃO (seja agressivo)
-- keyTopics: mínimo 10 termos (strings simples)
-- Decisões: mínimo 4
-- Tarefas: mínimo 5 (incluindo action items)
-- Riscos: mínimo 3
-- Insights: mínimo 4
-- Entidades mencionadas: mínimo 5
+## METAS DE EXTRA├ç├âO (seja agressivo)
+- keyTopics: m├¡nimo 10 termos (strings simples)
+- Decis├Áes: m├¡nimo 4
+- Tarefas: m├¡nimo 5 (incluindo action items)
+- Riscos: m├¡nimo 3
+- Insights: m├¡nimo 4
+- Entidades mencionadas: m├¡nimo 5
 
-Se a reunião for substantiva, você deve encontrar MAIS que isso.
-LEMBRE-SE: Tudo que for ação, tarefa, risco, decisão ou insight vai como ENTIDADE, não como tópico.
+Se a reuni├úo for substantiva, voc├¬ deve encontrar MAIS que isso.
+LEMBRE-SE: Tudo que for a├º├úo, tarefa, risco, decis├úo ou insight vai como ENTIDADE, n├úo como t├│pico.
 
-Responda APENAS com JSON válido.
+Responda APENAS com JSON v├ílido.
 
-TRANSCRIÇÃO:
+TRANSCRI├ç├âO:
 `;
 
 export class LLMExtractionService {
@@ -196,7 +196,7 @@ export class LLMExtractionService {
       logger.warn('Azure OpenAI not configured, returning empty extraction');
       return {
         entities: [],
-        summary: 'Extração LLM não configurada',
+        summary: 'Extra├º├úo LLM n├úo configurada',
         keyTopics: [],
         processingTime: 0,
       };
@@ -206,7 +206,7 @@ export class LLMExtractionService {
       // Build context-aware prompt
       let contextInfo = '';
       if (meetingContext) {
-        if (meetingContext.title) contextInfo += `Título: ${meetingContext.title}\n`;
+        if (meetingContext.title) contextInfo += `T├¡tulo: ${meetingContext.title}\n`;
         if (meetingContext.project) contextInfo += `Projeto: ${meetingContext.project}\n`;
         if (meetingContext.participants?.length) {
           contextInfo += `Participantes: ${meetingContext.participants.join(', ')}\n`;
@@ -219,11 +219,11 @@ export class LLMExtractionService {
       if (orgContext) {
         if (orgContext.users.length > 0) {
           orgContextInfo += `\n## CONTEXTO ORGANIZACIONAL (USE ESTES DADOS REAIS)\n`;
-          orgContextInfo += `### Colaboradores da organização:\n`;
+          orgContextInfo += `### Colaboradores da organiza├º├úo:\n`;
           for (const user of orgContext.users) {
             orgContextInfo += `- ${user.name}`;
             if (user.jobTitle) orgContextInfo += ` (${user.jobTitle})`;
-            if (user.department) orgContextInfo += ` — Depto: ${user.department}`;
+            if (user.department) orgContextInfo += ` ÔÇö Depto: ${user.department}`;
             orgContextInfo += `\n`;
           }
         }
@@ -231,7 +231,7 @@ export class LLMExtractionService {
           orgContextInfo += `### Departamentos existentes:\n`;
           orgContextInfo += orgContext.departments.map(d => `- ${d.name}`).join('\n') + '\n';
         }
-        orgContextInfo += `\nIMPORTANTE: Para assignee e relatedPerson, use SOMENTE nomes de pessoas reais listadas acima ou mencionadas na transcrição. NÃO invente nomes.\n\n`;
+        orgContextInfo += `\nIMPORTANTE: Para assignee e relatedPerson, use SOMENTE nomes de pessoas reais listadas acima ou mencionadas na transcri├º├úo. N├âO invente nomes.\n\n`;
       }
 
       const fullPrompt = EXTRACTION_PROMPT + orgContextInfo + contextInfo + transcript;
@@ -251,7 +251,7 @@ export class LLMExtractionService {
           messages: [
             {
               role: 'system',
-              content: 'Você é um assistente que extrai informações estruturadas de transcrições de reuniões. Responda sempre em JSON válido.',
+              content: 'Voc├¬ ├® um assistente que extrai informa├º├Áes estruturadas de transcri├º├Áes de reuni├Áes. Responda sempre em JSON v├ílido.',
             },
             {
               role: 'user',
@@ -279,31 +279,17 @@ export class LLMExtractionService {
         throw new Error('No content in Azure OpenAI response');
       }
 
-      // Parse JSON response with robust error handling
-      let parsed: any;
-      try {
-        parsed = JSON.parse(content);
-      } catch (parseError) {
-        logger.warn('Initial JSON parse failed, attempting cleanup...');
-        // Tentar limpar blocos de markdown se existirem (ex: ```json ... ```)
-        const cleanedContent = content.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
-        try {
-          parsed = JSON.parse(cleanedContent);
-        } catch (retryError) {
-          logger.error('Failed to parse LLM response as JSON:', content);
-          throw new Error('Invalid JSON received from LLM');
-        }
-      }
-
-      logger.info(`LLM raw response length: ${content.length}`);
+      // Parse JSON response
+      logger.info(`LLM raw response: ${content.slice(0, 500)}...`);
+      const parsed = JSON.parse(content);
       logger.info(`LLM parsed keys: ${Object.keys(parsed).join(', ')}`);
 
       // Combine all entity types into single array
       // IMPORTANTE: Cada array precisa receber o campo `type` explicitamente,
-      // pois o LLM agrupa por chave JSON mas não inclui `type` nos objetos individuais.
+      // pois o LLM agrupa por chave JSON mas n├úo inclui `type` nos objetos individuais.
       const entities = [
         ...(parsed.tasks || []).map((item: any) => ({ ...item, type: 'task' })),
-        ...(parsed.action_items || []).map((item: any) => ({ ...item, type: 'task' })), // action_items → task
+        ...(parsed.action_items || []).map((item: any) => ({ ...item, type: 'task' })), // action_items ÔåÆ task
         ...(parsed.decisions || []).map((item: any) => ({ ...item, type: 'decision' })),
         ...(parsed.risks || []).map((item: any) => ({ ...item, type: 'risk' })),
         ...(parsed.insights || []).map((item: any) => ({ ...item, type: 'insight' })),
@@ -337,7 +323,7 @@ export class LLMExtractionService {
       logger.error('LLM extraction failed:', error);
       return {
         entities: [],
-        summary: 'Erro na extração',
+        summary: 'Erro na extra├º├úo',
         keyTopics: [],
         processingTime: Date.now() - startTime,
       };

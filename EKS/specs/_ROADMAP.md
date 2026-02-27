@@ -1,9 +1,9 @@
 # EKS Specs - Implementation Roadmap
 
-**Total**: 22 specs core (após consolidação)  
+**Total**: 24 specs core (após consolidação e adição de 061, 062)  
 **Timeline**: 4 sprints (8 semanas)  
 **Status**: Sprint 1 pending  
-**Last Refinement**: 2025-01-19 (consolidação + limpeza de specs obsoletas)
+**Last Refinement**: 2026-02-27 (adição das Specs 061, 062)
 
 > **Consolidação**: 5 specs removidas por serem obsoletas/duplicadas:
 > - ~~026-intelligent-router~~ → absorvido por 051-CDC
@@ -53,6 +53,7 @@
 | # | Spec | Status | Priority | Effort |
 |---|------|--------|----------|--------|
 | 050 | **Meta-Graph Schema** (NEW) | ⏳ Todo | **P0 FOUNDATION** | 2d |
+| 062 | **Profile-Based Data Security** (NEW) | ⏳ Todo | **P0 CRITICAL** | 3d |
 | 015 | Neo4j Graph Model (updated) | ⏳ Todo | P0 SCHEMA | 2d |
 | 017 | Memory Ecosystem (updated) | ⏳ Todo | P0 CORE | 3d |
 | 025 | Conversation Persistence | ⏳ Todo | P1 | 2d |
@@ -61,6 +62,7 @@
 ### Deliverables
 
 - ✅ Meta-Grafo com Query Profiles
+- ✅ **Sistema de Segurança Baseada em Perfil** (clearance levels, tagging preventivo, response assembly)
 - ✅ MongoDB integrado (long-term memory)
 - ✅ Memory levels + MemoryItem + Claims
 - ✅ Pesos em relacionamentos (confidence, coherence, recency)
@@ -118,6 +120,7 @@
 | 020 | **Incentivo por Ressonância** (renamed) | ⏳ Todo | P2 | 2d |
 | 021 | Notification Center | ⏳ Todo | P2 | 2d |
 | 022 | Onboarding AI Profile (updated) | ⏳ Todo | P1 | 3d |
+| 061 | **EKS Learning Meta-View** (NEW) | ⏳ Todo | **P1 EDUCATIONAL** | 3d |
 
 ### Deliverables
 
@@ -126,6 +129,7 @@
 - ✅ Ressonância (não gamificação clássica)
 - ✅ Notificações semânticas
 - ✅ Onboarding Nível 2 com Tripé Ontológico
+- ✅ Interface de Meta-View (Learning & Audit)
 
 ### Dependencies
 
@@ -266,6 +270,7 @@ flowchart TD
 - [ ] 020 - **Incentivo por Ressonância** (renamed/refocused)
 - [ ] 021 - Notification Center
 - [ ] 022 - Onboarding AI Profile (updated: Nível 2, Tripé)
+- [ ] **061 - EKS Learning Meta-View** (NEW)
 
 ---
 
@@ -274,23 +279,24 @@ flowchart TD
 | Sprint | Specs | Total Days | Team Size | Duration |
 |--------|-------|------------|-----------|----------|
 | Sprint 1 | 5 | 12d | 1 dev | 2 weeks |
-| Sprint 2 | 5 (+050) | 12d | 1 dev | 2 weeks |
+| Sprint 2 | 6 (+050, +062) | 15d | 1 dev | 2.5 weeks |
 | Sprint 3 | 6 (+051, +052) | 20d | 1 dev | 2.5 weeks |
-| Sprint 4 | 4 | 10d | 1 dev | 2 weeks |
-| **TOTAL** | **20 core** | **54d** | **1 dev** | **8.5 weeks** |
+| Sprint 4 | 5 (+061) | 13d | 1 dev | 2 weeks |
+| **TOTAL** | **22 core** | **60d** | **1 dev** | **9 weeks** |
 
 **Note**: 11 specs restantes ficam no backlog (Phase 5/6)
 
-### Specs Consolidadas (23 Core)
+### Specs Consolidadas (24 Core)
 
 | Camada | Specs |
 |--------|-------|
 | **Fundação** | 015, 017, 040, 050 |
+| **Segurança** | **062** |
 | **Cognição** | 005, 024, 051 |
 | **Pipeline** | 001, 007, 012, 013, 014 |
 | **Agentes** | 004, 019, 045, 046 |
 | **HITL (Human-in-the-Loop)** | **052** |
-| **Experiência** | 016, 018, 020, 021, 022 |
+| **Experiência** | 016, 018, 020, 021, 022, 061 |
 | **Auth/Config** | 003, 009 |
 
 ---
@@ -357,6 +363,48 @@ flowchart TD
 
 **Por que P0**:
 > "O EKS só se autoaperfeiçoa de forma sustentável quando o aprendizado estatístico é subordinado a uma ontologia de negócio curada visualmente por humanos que entendem a organização."
+
+### 061 - EKS Learning Meta-View (NEW - 2026-02-27)
+
+**Propósito**: Interface de "autoconsciência" do sistema para fins educacionais e de auditoria.
+
+**Conceito**:
+- **Glass Box**: Transparência total da estrutura interna.
+- **Learning Book Integration**: Deep links do livro "Ontology Engineering" para o grafo vivo.
+- **Auditabilidade**: Visualização de maturidade e saúde da ontologia para gestores.
+
+**Por que P1**:
+- Habilita o uso do EKS como ferramenta de ensino (Learning).
+- Aumenta a confiança de stakeholders através da transparência (Audit).
+
+### 062 - Profile-Based Data Security (NEW - 2026-02-27)
+
+**Propósito**: Resolver o problema fundamental de segurança em sistemas de conhecimento: **o usuário não pode ser restrição da consulta, mas sim da resposta**.
+
+**Conceito Revolucionário**:
+- **Extração Universal**: Todo dado ingerido tem metadados estratégicos extraídos (numéricos, entidades, KPIs)
+- **Tagging Preventivo**: Chunks/nodes recebem `clearance_level` (0-4) ANTES da recuperação
+- **Retrieval Sem Filtro**: Sistema busca TUDO relevante, independente do usuário
+- **Response Assembly**: IA conhece perfil do usuário e monta resposta com variáveis condicionais
+
+**Arquitetura em 3 Camadas**:
+1. **Ingestão**: Tagging automático com clearance levels
+2. **Busca**: Retrieval recupera tudo (quem vê tudo é o sistema)
+3. **Resposta**: IA filtra baseado no perfil (quem transmite é a IA)
+
+**Clearance Levels**:
+- 0: Público | 1: Interno | 2: Departamental | 3: Confidencial | 4: Restrito
+
+**Exemplo**:
+- Analista (nível 1): "Houve crescimento, mas dados numéricos são confidenciais"
+- CFO (nível 4): "Receita foi R$ 2.5M, crescimento de 15%"
+- MESMA consulta, respostas diferentes
+
+**Por que P0 Critical**:
+- Sistema mantém inteligência completa (não limita consulta)
+- Segurança granular por usuário
+- Compliance LGPD/GDPR nativo
+- Auditoria obrigatória para dados sensíveis
 
 ### Modificações em Specs Existentes
 

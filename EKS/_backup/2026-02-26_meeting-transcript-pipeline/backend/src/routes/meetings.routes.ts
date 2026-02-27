@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+﻿import { Router, Request, Response } from 'express';
 import { randomUUID } from 'crypto';
 import { authenticate, requireAdmin } from '../middleware/auth';
 import { neo4jConnection } from '../config/neo4j';
@@ -81,32 +81,20 @@ router.post('/ingest', requireAdmin, async (req: Request, res: Response) => {
       return;
     }
 
-    // Validate Date (YYYY-MM-DD)
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    const safeDate = (meetingNode.date && dateRegex.test(meetingNode.date)) 
-      ? meetingNode.date 
-      : new Date().toISOString().split('T')[0];
-
-    // Validate Time (HH:MM or HH:MM:SS)
-    const timeRegex = /^\d{2}:\d{2}(:\d{2})?$/;
-    const safeTime = (meetingNode.time && timeRegex.test(meetingNode.time))
-      ? meetingNode.time
-      : '00:00';
-
     // 1. Create Meeting node
     const meetingResult = await tx.run(
       `CREATE (m:Meeting {
          id: randomUUID(),
          title: $title,
-         date: date($date),
-         time: localTime($time),
+         date: $date,
+         time: $time,
          duration: $duration,
          organizer: $organizer,
          meetingType: $meetingType,
          confidentiality: $confidentiality,
          recurrence: $recurrence,
          sourceFile: $sourceFile,
-         processedAt: datetime($processedAt),
+         processedAt: $processedAt,
          summary: $summary,
          keyTopics: $keyTopics,
          keyTopicsJson: $keyTopicsJson,
@@ -116,8 +104,8 @@ router.post('/ingest', requireAdmin, async (req: Request, res: Response) => {
        RETURN m`,
       {
         title: meetingNode.title,
-        date: safeDate,
-        time: safeTime,
+        date: meetingNode.date || '',
+        time: meetingNode.time || '',
         duration: meetingNode.duration || '',
         organizer: meetingNode.organizer || '',
         meetingType: meetingNode.meetingType || 'other',
@@ -185,7 +173,7 @@ router.post('/ingest', requireAdmin, async (req: Request, res: Response) => {
           }
         }
       } else if (entity.type === 'task' || entity.type === 'actionItem') {
-        // Criar node Task vinculado à Meeting (consolidação: actionItem → task)
+        // Criar node Task vinculado ├á Meeting (consolida├º├úo: actionItem ÔåÆ task)
         const assigneeName = entity.assignee || entity.relatedPerson || '';
         const taskResult = await tx.run(
           `MATCH (m:Meeting {id: $meetingId})
@@ -230,7 +218,7 @@ router.post('/ingest', requireAdmin, async (req: Request, res: Response) => {
             value: entity.value,
             nodeId: taskNodeId,
           });
-          // Criar relacionamento ASSIGNED_TO → User (busca por nome)
+          // Criar relacionamento ASSIGNED_TO ÔåÆ User (busca por nome)
           if (assigneeName) {
             await tx.run(
               `MATCH (t:Task {id: $taskId})
@@ -241,7 +229,7 @@ router.post('/ingest', requireAdmin, async (req: Request, res: Response) => {
           }
         }
       } else if (entity.type === 'decision') {
-        // Criar node Decision vinculado à Meeting
+        // Criar node Decision vinculado ├á Meeting
         const personName = entity.relatedPerson || '';
         const decisionResult = await tx.run(
           `MATCH (m:Meeting {id: $meetingId})
@@ -280,7 +268,7 @@ router.post('/ingest', requireAdmin, async (req: Request, res: Response) => {
             value: entity.value,
             nodeId: decisionNodeId,
           });
-          // Criar relacionamento DECIDED_BY → User (busca por nome)
+          // Criar relacionamento DECIDED_BY ÔåÆ User (busca por nome)
           if (personName) {
             await tx.run(
               `MATCH (d:Decision {id: $decisionId})
@@ -291,7 +279,7 @@ router.post('/ingest', requireAdmin, async (req: Request, res: Response) => {
           }
         }
       } else if (entity.type === 'risk') {
-        // Criar node Risk vinculado à Meeting
+        // Criar node Risk vinculado ├á Meeting
         const personName = entity.relatedPerson || '';
         const riskResult = await tx.run(
           `MATCH (m:Meeting {id: $meetingId})
@@ -334,7 +322,7 @@ router.post('/ingest', requireAdmin, async (req: Request, res: Response) => {
             value: entity.value,
             nodeId: riskNodeId,
           });
-          // Criar relacionamento RAISED_BY → User (busca por nome)
+          // Criar relacionamento RAISED_BY ÔåÆ User (busca por nome)
           if (personName) {
             await tx.run(
               `MATCH (r:Risk {id: $riskId})
@@ -345,7 +333,7 @@ router.post('/ingest', requireAdmin, async (req: Request, res: Response) => {
           }
         }
       } else if (entity.type === 'insight') {
-        // Criar node Insight vinculado à Meeting
+        // Criar node Insight vinculado ├á Meeting
         const personName = entity.relatedPerson || '';
         const insightResult = await tx.run(
           `MATCH (m:Meeting {id: $meetingId})
@@ -382,7 +370,7 @@ router.post('/ingest', requireAdmin, async (req: Request, res: Response) => {
             value: entity.value,
             nodeId: insightNodeId,
           });
-          // Criar relacionamento CONTRIBUTED_BY → User (busca por nome)
+          // Criar relacionamento CONTRIBUTED_BY ÔåÆ User (busca por nome)
           if (personName) {
             await tx.run(
               `MATCH (i:Insight {id: $insightId})
@@ -393,7 +381,7 @@ router.post('/ingest', requireAdmin, async (req: Request, res: Response) => {
           }
         }
       } else if (entity.type === 'mentionedEntity' && entity.linkedNodeId) {
-        // Vincular entidade mencionada existente à Meeting
+        // Vincular entidade mencionada existente ├á Meeting
         await tx.run(
           `MATCH (m:Meeting {id: $meetingId})
            MATCH (e {id: $nodeId})
@@ -414,8 +402,8 @@ router.post('/ingest', requireAdmin, async (req: Request, res: Response) => {
           linkedNodeId: entity.linkedNodeId,
         });
       } else if (entity.type === 'mentionedEntity' && !entity.linkedNodeId) {
-        // Criar NOVO node para entidade mencionada não vinculada
-        // Mapear entityType → label do Neo4j
+        // Criar NOVO node para entidade mencionada n├úo vinculada
+        // Mapear entityType ÔåÆ label do Neo4j
         const labelMap: Record<string, string> = {
           organization: 'Organization',
           tool: 'Tool',
@@ -718,7 +706,7 @@ router.get('/validations', async (req: Request, res: Response) => {
         validated: entity.validated ?? null,
         validatedAt: entity.validatedAt?.toString() || null,
         createdAt: entity.createdAt?.toString() || '',
-        source: record.get('meetingTitle') || 'Reunião',
+        source: record.get('meetingTitle') || 'Reuni├úo',
         sourceType: 'meeting' as const,
         meetingId: record.get('meetingId'),
         meetingTitle: record.get('meetingTitle') || '',
@@ -756,7 +744,7 @@ router.get('/validations', async (req: Request, res: Response) => {
         id: entity.id,
         entityType: 'externalparticipant',
         value: entity.name || '',
-        description: entity.organization ? `Organização: ${entity.organization}` : '',
+        description: entity.organization ? `Organiza├º├úo: ${entity.organization}` : '',
         priority: null,
         deadline: null,
         confidence: conf,
@@ -764,7 +752,7 @@ router.get('/validations', async (req: Request, res: Response) => {
         validated: entity.validated ?? null,
         validatedAt: entity.validatedAt?.toString() || null,
         createdAt: entity.createdAt?.toString() || '',
-        source: record.get('meetingTitle') || 'Reunião',
+        source: record.get('meetingTitle') || 'Reuni├úo',
         sourceType: 'meeting' as const,
         meetingId: record.get('meetingId'),
         meetingTitle: record.get('meetingTitle') || '',

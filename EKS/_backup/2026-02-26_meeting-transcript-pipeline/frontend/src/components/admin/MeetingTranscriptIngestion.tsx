@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-// Textarea removido - keyTopics agora são tags simples
+// Textarea removido - keyTopics agora s├úo tags simples
 import { 
   Upload, 
   FileText, 
@@ -50,15 +50,15 @@ type EntityType =
   | "risk" 
   | "decision" 
   | "insight"
-  | "area"            // Área/Departamento mencionado (spec 007)
+  | "area"            // ├ürea/Departamento mencionado (spec 007)
   | "deadline"        // Data/Prazo identificado
-  | "followup"        // Ação de follow-up
-  | "mentionedEntity"; // Organização, ferramenta, conceito mencionado
+  | "followup"        // A├º├úo de follow-up
+  | "mentionedEntity"; // Organiza├º├úo, ferramenta, conceito mencionado
 
-// Classificação Real vs Passageiro (spec 010)
+// Classifica├º├úo Real vs Passageiro (spec 010)
 type DataClassification = "real" | "transient";
 
-// Nível de memória (spec 010)
+// N├¡vel de mem├│ria (spec 010)
 type MemoryLevel = "short" | "medium" | "long";
 
 // Visibilidade (spec 009)
@@ -73,14 +73,14 @@ interface ExtractedEntity {
   validated: boolean | null;
   // Novos campos conforme specs
   classification: DataClassification; // Real vs Passageiro (spec 010)
-  memoryLevel: MemoryLevel;           // Nível de memória (spec 010)
+  memoryLevel: MemoryLevel;           // N├¡vel de mem├│ria (spec 010)
   visibility: Visibility;             // Corp vs Pessoal (spec 009)
-  sourceRef?: string;                 // Referência ao trecho da transcrição (proveniência - spec 014)
+  sourceRef?: string;                 // Refer├¬ncia ao trecho da transcri├º├úo (proveni├¬ncia - spec 014)
   linkedNodeId?: string;              // ID do node existente no grafo (se vinculado)
-  expiresAt?: string;                 // Data de expiração para dados passageiros
+  expiresAt?: string;                 // Data de expira├º├úo para dados passageiros
   // Campos LLM enrichment
-  description?: string;               // Descrição detalhada gerada pelo LLM
-  relatedPerson?: string;             // Pessoa relacionada (quem levantou, é afetado, etc.)
+  description?: string;               // Descri├º├úo detalhada gerada pelo LLM
+  relatedPerson?: string;             // Pessoa relacionada (quem levantou, ├® afetado, etc.)
   impact?: string;                    // Impacto esperado/potencial
   priority?: 'high' | 'medium' | 'low'; // Prioridade/severidade
   // Match sugerido (para curador aceitar com 1 clique)
@@ -91,14 +91,14 @@ interface ExtractedEntity {
     score: number;
     matchType: string;
   };
-  // Campos de Tarefa (assignee, deadline) - aplicáveis a task
-  assignee?: string;                  // Responsável pela tarefa/ação
+  // Campos de Tarefa (assignee, deadline) - aplic├íveis a task
+  assignee?: string;                  // Respons├ível pela tarefa/a├º├úo
   deadline?: string;                  // Prazo (data)
-  // Campos específicos de mentionedEntity
+  // Campos espec├¡ficos de mentionedEntity
   entityType?: 'organization' | 'tool' | 'product' | 'client' | 'person_external' | 'concept';
 }
 
-// Tipo de reunião
+// Tipo de reuni├úo
 type MeetingType = 
   | "kickoff" 
   | "status" 
@@ -111,24 +111,24 @@ type MeetingType =
   | "routine"
   | "other";
 
-// Nível de confidencialidade
+// N├¡vel de confidencialidade
 type ConfidentialityLevel = "normal" | "confidential" | "restricted";
 
 interface MeetingMetadata {
-  title: string;                                // Título oficial da reunião (definido pelo curador)
+  title: string;                                // T├¡tulo oficial da reuni├úo (definido pelo curador)
   date: string;
-  time: string;                                 // Hora de início da reunião
+  time: string;                                 // Hora de in├¡cio da reuni├úo
   duration: string;
   organizer: string;                            // Nome do organizador
   organizerId?: string;                         // ID do organizador (User node)
   relatedProjectId: string;
   relatedProjectName: string;
   // Novos campos conforme specs
-  meetingType: MeetingType;                     // Tipo de reunião
-  confidentiality: ConfidentialityLevel;        // Nível de confidencialidade
-  recurrence: "single" | "recurring";           // Recorrência
+  meetingType: MeetingType;                     // Tipo de reuni├úo
+  confidentiality: ConfidentialityLevel;        // N├¡vel de confidencialidade
+  recurrence: "single" | "recurring";           // Recorr├¬ncia
   linkedOkrIds?: string[];                      // OKRs relacionados
-  sourceFile: string;                           // Arquivo fonte (proveniência)
+  sourceFile: string;                           // Arquivo fonte (proveni├¬ncia)
   processingTimestamp: string;                  // Quando foi processado
 }
 
@@ -179,7 +179,7 @@ const ENTITY_CONFIG: Record<EntityType, { icon: typeof Users; label: string; col
     defaultClassification: "real",
     defaultMemoryLevel: "medium"
   },
-  // NOTA: actionItem foi consolidado em task (tarefa) conforme Visão Estratégica
+  // NOTA: actionItem foi consolidado em task (tarefa) conforme Vis├úo Estrat├®gica
   project: { 
     icon: FolderKanban, 
     label: "Projeto", 
@@ -196,7 +196,7 @@ const ENTITY_CONFIG: Record<EntityType, { icon: typeof Users; label: string; col
   },
   decision: { 
     icon: CheckCircle, 
-    label: "Decisão", 
+    label: "Decis├úo", 
     color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
     defaultClassification: "real",
     defaultMemoryLevel: "long"
@@ -210,7 +210,7 @@ const ENTITY_CONFIG: Record<EntityType, { icon: typeof Users; label: string; col
   },
   area: { 
     icon: Building2, 
-    label: "Área/Depto", 
+    label: "├ürea/Depto", 
     color: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400",
     defaultClassification: "real",
     defaultMemoryLevel: "long"
@@ -242,11 +242,11 @@ const MEETING_TYPES: Record<MeetingType, string> = {
   kickoff: "Kickoff",
   status: "Status/Acompanhamento",
   planning: "Planejamento",
-  review: "Revisão",
+  review: "Revis├úo",
   retrospective: "Retrospectiva",
   brainstorm: "Brainstorm",
   alignment: "Alinhamento",
-  decision: "Tomada de Decisão",
+  decision: "Tomada de Decis├úo",
   routine: "Rotina",
   other: "Outro",
 };
@@ -309,14 +309,14 @@ export function MeetingTranscriptIngestion() {
   const [meetingTitle, setMeetingTitle] = useState("");
   const [existingRecurringSeries, setExistingRecurringSeries] = useState<string[]>([]);
   
-  // Estados para Data e Hora da reunião (campos obrigatórios - não disponíveis no VTT)
+  // Estados para Data e Hora da reuni├úo (campos obrigat├│rios - n├úo dispon├¡veis no VTT)
   const [meetingDate, setMeetingDate] = useState<string>("");
   const [meetingTime, setMeetingTime] = useState<string>("");
   
-  // Estado para controlar aba ativa na seção de entidades
+  // Estado para controlar aba ativa na se├º├úo de entidades
   const [activeEntityTab, setActiveEntityTab] = useState<EntityType | "all">("all");
   
-  // Estado para keyTopics (metadados simples para recuperação)
+  // Estado para keyTopics (metadados simples para recupera├º├úo)
   const [keyTopicsData, setKeyTopicsData] = useState<string[]>([]);
   const [editingKeyTopicIdx, setEditingKeyTopicIdx] = useState<number | null>(null);
   const [newTopicInput, setNewTopicInput] = useState("");
@@ -474,7 +474,7 @@ export function MeetingTranscriptIngestion() {
       }
     }
     
-    // 2. Buscar nos ExternalParticipants já cadastrados
+    // 2. Buscar nos ExternalParticipants j├í cadastrados
     for (const ext of externalParticipants) {
       const normalizedExtName = normalizeForMatch(ext.name);
       const extNameParts = normalizedExtName.split(' ').filter(p => p.length > 2);
@@ -552,91 +552,52 @@ export function MeetingTranscriptIngestion() {
     return result;
   };
 
-  // Parser VTT para formato Teams e WebVTT genérico
+  // Parser VTT para formato Teams
   const parseVTTContent = (content: string): {
     speakers: Array<{ name: string; speakCount: number }>;
     segments: Array<{ speaker: string; text: string; startTime: string; endTime: string }>;
     duration: string;
     rawTranscript: string;
   } => {
-    const lines = content.split(/\r?\n/); // Suporte a quebras de linha Windows/Unix
+    const lines = content.split('\n');
     const segments: Array<{ speaker: string; text: string; startTime: string; endTime: string }> = [];
     const speakerCounts: Record<string, number> = {};
     let lastEndTime = "00:00:00.000";
     
     let currentTimestamp = { start: "", end: "" };
-    let currentSpeaker = "";
-    let currentText = "";
-    
-    // Helper to normalize timestamp to HH:MM:SS.mmm
-    const normalizeTimestamp = (ts: string): string => {
-      if (!ts) return "00:00:00.000";
-      const parts = ts.trim().split(':');
-      if (parts.length === 2) {
-        return `00:${parts[0]}:${parts[1]}`; // Add hours if missing
-      }
-      return ts.trim();
-    };
-
-    const pushCurrentSegment = () => {
-      if (currentSpeaker && currentText && currentTimestamp.start) {
-        segments.push({
-          speaker: currentSpeaker,
-          text: currentText.trim(),
-          startTime: normalizeTimestamp(currentTimestamp.start),
-          endTime: normalizeTimestamp(currentTimestamp.end),
-        });
-        speakerCounts[currentSpeaker] = (speakerCounts[currentSpeaker] || 0) + 1;
-        currentText = ""; // Reset text for next block
-      }
-    };
     
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       
-      // Skip WEBVTT header, NOTE lines, and empty lines (unless we are building text)
-      if (!line || line === "WEBVTT" || line.startsWith("NOTE")) {
-        // Se encontrarmos linha vazia e tivermos texto acumulado, pode ser fim do bloco
-        continue;
-      }
+      // Skip WEBVTT header and empty lines
+      if (!line || line === "WEBVTT" || line.startsWith("NOTE")) continue;
       
-      // Check for timestamp line (format: 00:00:04.817 --> 00:00:06.097 OR 04:05.000 --> 04:08.000)
-      const timestampMatch = line.match(/((?:\d{2}:)?\d{2}:\d{2}\.\d{3})\s*-->\s*((?:\d{2}:)?\d{2}:\d{2}\.\d{3})/);
+      // Check for timestamp line (format: 00:00:04.817 --> 00:00:06.097)
+      const timestampMatch = line.match(/(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})/);
       if (timestampMatch) {
-        // Se já tínhamos um segmento sendo construído, salva ele antes de começar o novo timestamp
-        pushCurrentSegment();
-        
         currentTimestamp = { start: timestampMatch[1], end: timestampMatch[2] };
-        lastEndTime = normalizeTimestamp(timestampMatch[2]);
-        currentSpeaker = ""; // Reset speaker for new block
+        lastEndTime = timestampMatch[2];
         continue;
       }
       
-      // Check for speaker tag (format: <v Speaker Name>text</v> OR <v Speaker Name>text)
-      // Às vezes o Teams quebra o texto em múltiplas linhas sem fechar o </v> na mesma linha ou sem timestamp novo
-      const speakerMatch = line.match(/<v\s+([^>]+)>(.*)/);
+      // Check for speaker tag (format: <v Speaker Name>text</v>)
+      const speakerMatch = line.match(/<v\s+([^>]+)>([^<]*)<\/v>/);
       if (speakerMatch && currentTimestamp.start) {
-        // Novo falante neste bloco de tempo
-        if (currentSpeaker && currentSpeaker !== speakerMatch[1].trim()) {
-           // Se mudou o falante dentro do mesmo timestamp (raro, mas possível), salva anterior
-           pushCurrentSegment();
-        }
+        const speaker = speakerMatch[1].trim();
+        const text = speakerMatch[2].trim();
         
-        currentSpeaker = speakerMatch[1].trim();
-        let textPart = speakerMatch[2].replace(/<\/v>$/, '').trim(); // Remove closing tag if present
-        currentText = textPart;
-      } else if (currentSpeaker && currentTimestamp.start) {
-        // Continuação do texto do falante atual (linha quebrada ou sem tag <v> explícita no início mas dentro do bloco)
-        // Remove closing tag if present in this line
-        const cleanLine = line.replace(/<\/v>$/, '').trim();
-        if (cleanLine) {
-          currentText += " " + cleanLine;
+        if (speaker && text) {
+          segments.push({
+            speaker,
+            text,
+            startTime: currentTimestamp.start,
+            endTime: currentTimestamp.end,
+          });
+          
+          speakerCounts[speaker] = (speakerCounts[speaker] || 0) + 1;
         }
       }
     }
-    
-    // Push last segment
-    pushCurrentSegment();
     
     // Build speakers list sorted by speak count
     const speakers = Object.entries(speakerCounts)
@@ -644,9 +605,10 @@ export function MeetingTranscriptIngestion() {
       .sort((a, b) => b.speakCount - a.speakCount);
     
     // Calculate duration from last timestamp
-    const duration = lastEndTime.split('.')[0]; // Remove ms
+    const durationParts = lastEndTime.split(':');
+    const duration = `${durationParts[0]}:${durationParts[1]}:${durationParts[2].split('.')[0]}`;
     
-    // Build raw transcript optimized for LLM (consolidated)
+    // Build raw transcript
     const rawTranscript = segments
       .map(s => `[${s.startTime}] ${s.speaker}: ${s.text}`)
       .join('\n');
@@ -661,7 +623,7 @@ export function MeetingTranscriptIngestion() {
       const isValid = validExtensions.some(ext => selectedFile.name.toLowerCase().endsWith(ext));
       
       if (!isValid) {
-        setError("Por favor, selecione um arquivo de transcrição válido (.vtt, .txt, .docx)");
+        setError("Por favor, selecione um arquivo de transcri├º├úo v├ílido (.vtt, .txt, .docx)");
         return;
       }
       setFile(selectedFile);
@@ -711,7 +673,7 @@ export function MeetingTranscriptIngestion() {
             value: isAutoMatched ? bestCandidate.name : speaker.name,
             confidence: matchResult.matched ? bestCandidate.confidence : 0.5,
             context,
-            validated: true, // Todas entidades validadas por padrão - curador rejeita as incorretas
+            validated: true, // Todas entidades validadas por padr├úo - curador rejeita as incorretas
             classification: "real",
             memoryLevel: "long",
             visibility: defaultVisibility,
@@ -752,14 +714,14 @@ export function MeetingTranscriptIngestion() {
         try {
           console.log(`[LLM Extraction] Starting extraction for ${parsedVTT.rawTranscript.length} chars...`);
           const { api } = await import("@/lib/api");
-          // Não passar nome do arquivo para evitar que LLM extraia termos do título
-          // Passar apenas informações mínimas necessárias
+          // N├úo passar nome do arquivo para evitar que LLM extraia termos do t├¡tulo
+          // Passar apenas informa├º├Áes m├¡nimas necess├írias
           const extractionResponse = await (api as any).extractFromTranscript({
             transcript: parsedVTT.rawTranscript,
             meetingContext: {
-              // Não incluir title para evitar extração de termos do nome do arquivo
-              project: selectedProject?.name, // Para evitar duplicação
-              // Não incluir participants - já processados separadamente
+              // N├úo incluir title para evitar extra├º├úo de termos do nome do arquivo
+              project: selectedProject?.name, // Para evitar duplica├º├úo
+              // N├úo incluir participants - j├í processados separadamente
             },
           });
           
@@ -779,7 +741,7 @@ export function MeetingTranscriptIngestion() {
             }
             
             meetingSummary = summary || "";
-            // keyTopics são metadados simples (array de strings) para recuperação
+            // keyTopics s├úo metadados simples (array de strings) para recupera├º├úo
             if (Array.isArray(topics)) {
               keyTopics = topics.map((t: any) =>
                 typeof t === 'string' ? t : (t.topic || String(t))
@@ -793,7 +755,7 @@ export function MeetingTranscriptIngestion() {
             for (const entity of entities || []) {
               console.log(`[LLM Entity] Processing:`, entity);
               
-              // Map actionItem → task (consolidação: "Ação" e "Tarefa" agora são "Tarefa")
+              // Map actionItem ÔåÆ task (consolida├º├úo: "A├º├úo" e "Tarefa" agora s├úo "Tarefa")
               let mappedType = entity.type as string;
               if (mappedType === 'actionItem' || mappedType === 'action_item') {
                 mappedType = 'task';
@@ -808,7 +770,7 @@ export function MeetingTranscriptIngestion() {
               
               // Build context from various fields
               const contextParts: string[] = [];
-              if (entity.assignee) contextParts.push(`Responsável: ${entity.assignee}`);
+              if (entity.assignee) contextParts.push(`Respons├ível: ${entity.assignee}`);
               if (entity.relatedPerson) contextParts.push(`Relacionado: ${entity.relatedPerson}`);
               if (entity.deadline) contextParts.push(`Prazo: ${entity.deadline}`);
               
@@ -818,14 +780,14 @@ export function MeetingTranscriptIngestion() {
                 value: entity.value,
                 confidence: entity.confidence,
                 context: entity.context || contextParts.join(' | ') || undefined,
-                validated: true, // Validadas por padrão - curador rejeita as incorretas
+                validated: true, // Validadas por padr├úo - curador rejeita as incorretas
                 classification: "real",
                 memoryLevel: entity.type === "insight" ? "long" : "medium",
                 visibility: defaultVisibility,
                 sourceRef: `llm:azure-openai`,
                 // Novos campos LLM
                 description: entity.description,
-                assignee: entity.assignee,               // Responsável (para tasks)
+                assignee: entity.assignee,               // Respons├ível (para tasks)
                 relatedPerson: entity.relatedPerson || entity.assignee, // Pessoa relacionada (decisions/risks/insights)
                 deadline: entity.deadline,               // Prazo (para tasks)
                 impact: entity.impact,
@@ -836,8 +798,7 @@ export function MeetingTranscriptIngestion() {
         } catch (llmError) {
           console.error(`[LLM Extraction] Failed:`, llmError);
           console.error(`[LLM Extraction] Error stack:`, llmError instanceof Error ? llmError.stack : 'No stack');
-          setLlmExtractionError("A extração inteligente via IA falhou. Apenas os participantes e o texto bruto foram processados.");
-          // Continue without LLM entities - não é crítico
+          // Continue without LLM entities - n├úo ├® cr├¡tico
         }
       }
 
@@ -857,27 +818,27 @@ export function MeetingTranscriptIngestion() {
           if (matchResponse.success && matchResponse.data) {
             console.log(`[EntityMatching] Got ${matchResponse.data.length} match results`);
             
-            // Atualizar entidades com informações de matching
+            // Atualizar entidades com informa├º├Áes de matching
             filteredLlmEntities = llmEntities.map(entity => {
               if (entity.type !== 'mentionedEntity') return entity;
               
               const matchResult = matchResponse.data?.find(m => m.input_term === entity.value);
               if (!matchResult) return entity;
               
-              // Se encontrou match com alta confiança, vincular ao node existente
+              // Se encontrou match com alta confian├ºa, vincular ao node existente
               if (matchResult.found && matchResult.best_match && matchResult.best_match.score >= 0.9) {
                 console.log(`[EntityMatching] "${entity.value}" -> linked to "${matchResult.best_match.node.name}" (${matchResult.best_match.score.toFixed(2)})`);
                 return {
                   ...entity,
                   linkedNodeId: matchResult.best_match.node.id,
-                  value: matchResult.best_match.node.name, // Usar nome canônico
+                  value: matchResult.best_match.node.name, // Usar nome can├┤nico
                   confidence: matchResult.best_match.score,
                   context: `${entity.context} | Vinculado a: ${matchResult.best_match.node.label}`,
                   validated: true, // Auto-validar se match alto
                 };
               }
               
-              // Se match médio (>=0.6), sugerir com dados estruturados para o curador aceitar
+              // Se match m├®dio (>=0.6), sugerir com dados estruturados para o curador aceitar
               if (matchResult.found && matchResult.best_match && matchResult.best_match.score >= 0.6) {
                 console.log(`[EntityMatching] "${entity.value}" -> suggestion: ${matchResult.best_match.node.name} (${matchResult.best_match.score.toFixed(2)})`);
                 return {
@@ -895,14 +856,14 @@ export function MeetingTranscriptIngestion() {
               return entity;
             });
             
-            // Filtrar entidades que são a própria organização (label Organization com match alto)
+            // Filtrar entidades que s├úo a pr├│pria organiza├º├úo (label Organization com match alto)
             filteredLlmEntities = filteredLlmEntities.filter(entity => {
               if (entity.type !== 'mentionedEntity') return true;
               
               const matchResult = matchResponse.data?.find(m => m.input_term === entity.value);
               if (matchResult?.best_match?.node.label === 'Organization' && matchResult.best_match.score >= 0.8) {
-                // Verificar se é a organização dona (já existe no grafo como Organization)
-                // Manter apenas se for organização EXTERNA
+                // Verificar se ├® a organiza├º├úo dona (j├í existe no grafo como Organization)
+                // Manter apenas se for organiza├º├úo EXTERNA
                 const isOwnerOrg = ['cocreateai', 'cocreate', 'cvc'].some(org => 
                   matchResult.best_match!.node.name.toLowerCase().includes(org)
                 );
@@ -916,7 +877,7 @@ export function MeetingTranscriptIngestion() {
           }
         } catch (matchError) {
           console.warn(`[EntityMatching] Failed, continuing with basic filter:`, matchError);
-          // Fallback: filtro básico se o agente não estiver disponível
+          // Fallback: filtro b├ísico se o agente n├úo estiver dispon├¡vel
           const normalizeForCompare = (s: string) => s.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
           filteredLlmEntities = llmEntities.filter(entity => {
             const entityValueNorm = normalizeForCompare(entity.value);
@@ -941,7 +902,7 @@ export function MeetingTranscriptIngestion() {
         });
       }
       
-      console.log(`[Filter] Entidades LLM: ${llmEntities.length} -> ${filteredLlmEntities.length} após matching/filtro`);
+      console.log(`[Filter] Entidades LLM: ${llmEntities.length} -> ${filteredLlmEntities.length} ap├│s matching/filtro`);
 
       // Build result with VTT data + LLM entities
       const extractionResult: ExtractionResult = {
@@ -972,7 +933,7 @@ export function MeetingTranscriptIngestion() {
 
       console.log(`[Ingestion] Result: ${extractionResult.entities.length} entities, duration: ${extractionResult.metadata.duration}`);
       setResult(extractionResult);
-      // Atualizar estado de keyTopics para edição
+      // Atualizar estado de keyTopics para edi├º├úo
       setKeyTopicsData(keyTopics);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao processar arquivo");
@@ -1002,12 +963,12 @@ export function MeetingTranscriptIngestion() {
         return {
           ...e,
           linkedNodeId: e.suggestedMatch.nodeId,
-          value: e.suggestedMatch.nodeName, // Usar nome canônico do grafo
+          value: e.suggestedMatch.nodeName, // Usar nome can├┤nico do grafo
           confidence: Math.max(e.confidence, e.suggestedMatch.score),
           validated: true,
           sourceRef: `manual-link:${e.suggestedMatch.nodeLabel}:${e.suggestedMatch.nodeId}`,
           context: e.context ? `${e.context} | Vinculado a: ${e.suggestedMatch.nodeLabel}` : `Vinculado a: ${e.suggestedMatch.nodeLabel}`,
-          suggestedMatch: undefined, // Limpar sugestão após aceitar
+          suggestedMatch: undefined, // Limpar sugest├úo ap├│s aceitar
         };
       }),
     });
@@ -1095,7 +1056,7 @@ export function MeetingTranscriptIngestion() {
   const handleCreateExternalParticipant = async (entityId: string) => {
     if (!result) return;
     if (!externalFormData.name.trim() || !externalFormData.organization.trim()) {
-      setExternalParticipantModalError("Nome e Organização são obrigatórios.");
+      setExternalParticipantModalError("Nome e Organiza├º├úo s├úo obrigat├│rios.");
       return;
     }
 
@@ -1155,8 +1116,6 @@ export function MeetingTranscriptIngestion() {
     }
   };
 
-  const [llmExtractionError, setLlmExtractionError] = useState<string | null>(null);
-
   const handleSaveToGraph = async () => {
     if (!result) return;
 
@@ -1167,40 +1126,37 @@ export function MeetingTranscriptIngestion() {
       return;
     }
 
-    // Filtrar apenas dados "Real" para persistência no grafo principal (spec 010)
+    // Filtrar apenas dados "Real" para persist├¬ncia no grafo principal (spec 010)
     const realEntities = validatedEntities.filter(e => e.classification === "real");
     const transientEntities = validatedEntities.filter(e => e.classification === "transient");
 
     // Construir payload para API conforme specs 012 (Curation), 013 (Ingestion), 014 (Provenance)
-    // USAR VALORES DOS ESTADOS DA UI PARA GARANTIR METADADOS ATUALIZADOS
-    const currentMetadata = {
-        title: recurrence === "recurring" ? (meetingTitle || result.metadata.title) : (result.metadata.title),
-        date: meetingDate || result.metadata.date,
-        time: meetingTime || result.metadata.time,
-        duration: result.metadata.duration,
-        organizer: selectedOrganizer?.name || result.metadata.organizer,
-        meetingType: meetingType,
-        confidentiality: confidentiality,
-        recurrence: recurrence,
-        sourceFile: result.metadata.sourceFile,
-        processedAt: new Date().toISOString(), // Atualizar timestamp de processamento
-        summary: result.summary || "",
-        keyTopics: keyTopicsData.length > 0 ? keyTopicsData : (result.keyTopics || []),
-    };
-
     const ingestionPayload = {
-      // Metadados da reunião (spec 013 - IngestionItem)
+      // Metadados da reuni├úo (spec 013 - IngestionItem)
       ingestionItem: {
         sourceType: "meeting_transcript",
-        sourceRef: currentMetadata.sourceFile,
+        sourceRef: result.metadata.sourceFile,
         meetingMetadata: {
-          ...currentMetadata,
+          ...result.metadata,
           participantCount: validatedEntities.filter(e => e.type === "participant").length,
         },
       },
       
       // Node :Meeting a ser criado
-      meetingNode: currentMetadata,
+      meetingNode: {
+        title: result.metadata.title,
+        date: result.metadata.date,
+        duration: result.metadata.duration,
+        organizer: result.metadata.organizer,
+        meetingType: result.metadata.meetingType,
+        confidentiality: result.metadata.confidentiality,
+        recurrence: result.metadata.recurrence,
+        sourceFile: result.metadata.sourceFile,
+        processedAt: result.metadata.processingTimestamp,
+        // Campos de resumo extra├¡dos pelo LLM
+        summary: result.summary || "",
+        keyTopics: keyTopicsData.length > 0 ? keyTopicsData : (result.keyTopics || []), // string[] - metadados para recupera├º├úo
+      },
 
       // Entidades Real para grafo principal (spec 010, 012)
       entities: realEntities.map(e => ({
@@ -1210,8 +1166,8 @@ export function MeetingTranscriptIngestion() {
         visibility: e.visibility,         // spec 009
         memoryLevel: e.memoryLevel,        // spec 010
         classification: e.classification,  // spec 010
-        sourceRef: e.sourceRef,            // spec 014 - proveniência
-        linkedNodeId: e.linkedNodeId,      // Vinculação com node existente
+        sourceRef: e.sourceRef,            // spec 014 - proveni├¬ncia
+        linkedNodeId: e.linkedNodeId,      // Vincula├º├úo com node existente
         context: e.context,
         // Campos adicionais para entidades (tasks, decisions, risks, insights)
         description: e.description || e.context || '',
@@ -1220,7 +1176,7 @@ export function MeetingTranscriptIngestion() {
         deadline: e.deadline || '',
         priority: e.priority || 'medium',
         impact: e.impact || '',
-        // Tipo específico para mentionedEntity (organization, tool, product, client, etc.)
+        // Tipo espec├¡fico para mentionedEntity (organization, tool, product, client, etc.)
         entityType: e.entityType,
       })),
 
@@ -1245,7 +1201,7 @@ export function MeetingTranscriptIngestion() {
         })),
       ],
 
-      // Dados passageiros (apenas log, não persistir no grafo principal - spec 010)
+      // Dados passageiros (apenas log, n├úo persistir no grafo principal - spec 010)
       transientData: transientEntities.map(e => ({
         type: e.type,
         value: e.value,
@@ -1257,13 +1213,13 @@ export function MeetingTranscriptIngestion() {
       curationJob: {
         sourceType: "meeting_transcript",
         sourceRef: result.metadata.sourceFile,
-        status: "approved", // Já validado pelo curador
+        status: "approved", // J├í validado pelo curador
         priority: result.metadata.confidentiality === "restricted" ? "high" : "medium",
-        summary: `Reunião "${result.metadata.title}" - ${realEntities.length} entidades extraídas`,
+        summary: `Reuni├úo "${result.metadata.title}" - ${realEntities.length} entidades extra├¡das`,
       },
     };
 
-    console.log("Payload de ingestão (conforme specs 007, 010, 012, 013, 014):", ingestionPayload);
+    console.log("Payload de ingest├úo (conforme specs 007, 010, 012, 013, 014):", ingestionPayload);
     
     setProcessing(true);
     setError(null);
@@ -1272,24 +1228,24 @@ export function MeetingTranscriptIngestion() {
       const response = await (api as any).ingestMeeting(ingestionPayload);
       
       if (!response?.success) {
-        throw new Error(response?.error || "Falha ao ingerir reunião no grafo");
+        throw new Error(response?.error || "Falha ao ingerir reuni├úo no grafo");
       }
       
       const { meetingId, entitiesLinked } = response.data;
       
       alert(
-        `✅ Ingestão concluída!\n\n` +
-        `• Meeting ID: ${meetingId}\n` +
-        `• ${entitiesLinked} participantes vinculados\n` +
-        `• ${realEntities.length} entidades processadas\n` +
-        `• ${transientEntities.length} dados passageiros registrados\n` +
-        `• Meeting node criado: "${result.metadata.title}"\n\n` +
-        `A reunião foi salva no grafo e pode ser visualizada no GraphNavigator.`
+        `Ô£à Ingest├úo conclu├¡da!\n\n` +
+        `ÔÇó Meeting ID: ${meetingId}\n` +
+        `ÔÇó ${entitiesLinked} participantes vinculados\n` +
+        `ÔÇó ${realEntities.length} entidades processadas\n` +
+        `ÔÇó ${transientEntities.length} dados passageiros registrados\n` +
+        `ÔÇó Meeting node criado: "${result.metadata.title}"\n\n` +
+        `A reuni├úo foi salva no grafo e pode ser visualizada no GraphNavigator.`
       );
       
       handleReset();
     } catch (err) {
-      console.error("Erro na ingestão:", err);
+      console.error("Erro na ingest├úo:", err);
       setError(err instanceof Error ? err.message : "Erro ao salvar no grafo");
     } finally {
       setProcessing(false);
@@ -1317,7 +1273,7 @@ export function MeetingTranscriptIngestion() {
     }
   };
 
-  // Função para alterar visibilidade de uma entidade (spec 009)
+  // Fun├º├úo para alterar visibilidade de uma entidade (spec 009)
   const handleToggleVisibility = (entityId: string) => {
     if (!result) return;
     setResult({
@@ -1330,7 +1286,7 @@ export function MeetingTranscriptIngestion() {
     });
   };
 
-  // Função para expandir/colapsar entidade para ver descrição detalhada
+  // Fun├º├úo para expandir/colapsar entidade para ver descri├º├úo detalhada
   const handleToggleExpand = (entityId: string) => {
     setExpandedEntities(prev => {
       const next = new Set(prev);
@@ -1343,7 +1299,7 @@ export function MeetingTranscriptIngestion() {
     });
   };
 
-  // Função para alterar classificação Real/Passageiro (spec 010)
+  // Fun├º├úo para alterar classifica├º├úo Real/Passageiro (spec 010)
   const handleToggleClassification = (entityId: string) => {
     if (!result) return;
     setResult({
@@ -1379,9 +1335,9 @@ export function MeetingTranscriptIngestion() {
   return (
     <div className="space-y-6 min-w-0 overflow-hidden">
       <div>
-        <h2 className="text-xl font-semibold">Ingestão de Transcrições de Reunião</h2>
+        <h2 className="text-xl font-semibold">Ingest├úo de Transcri├º├Áes de Reuni├úo</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Importe transcrições de reuniões (Teams, Zoom, etc.) para extrair conhecimento automaticamente.
+          Importe transcri├º├Áes de reuni├Áes (Teams, Zoom, etc.) para extrair conhecimento automaticamente.
         </p>
       </div>
 
@@ -1390,18 +1346,18 @@ export function MeetingTranscriptIngestion() {
         <div className="space-y-4 min-w-0">
           <div className="flex items-center gap-2">
             <Tag className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold">Configuração Prévia</h3>
+            <h3 className="text-lg font-semibold">Configura├º├úo Pr├®via</h3>
           </div>
           <p className="text-xs text-muted-foreground">
-            Preencha informações que você já conhece sobre a reunião. Isso melhora a precisão da extração.
+            Preencha informa├º├Áes que voc├¬ j├í conhece sobre a reuni├úo. Isso melhora a precis├úo da extra├º├úo.
           </p>
 
-          {/* Row 1: Organizador e Tipo de Reunião */}
+          {/* Row 1: Organizador e Tipo de Reuni├úo */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
-                Organizador/Responsável *
+                Organizador/Respons├ível *
               </Label>
               <select
                 value={selectedOrganizerId}
@@ -1409,7 +1365,7 @@ export function MeetingTranscriptIngestion() {
                 className="w-full px-3 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
                 disabled={loadingData}
               >
-                <option value="">Selecione o responsável...</option>
+                <option value="">Selecione o respons├ível...</option>
                 {orgNodes.map((node) => (
                   <option key={node.id} value={node.id}>
                     {node.name} {node.department ? `(${node.department})` : ''}
@@ -1420,7 +1376,7 @@ export function MeetingTranscriptIngestion() {
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                Tipo de Reunião
+                Tipo de Reuni├úo
               </Label>
               <select
                 value={meetingType}
@@ -1434,12 +1390,12 @@ export function MeetingTranscriptIngestion() {
             </div>
           </div>
 
-          {/* Row 2: Data e Hora (obrigatórios - não disponíveis no VTT) */}
+          {/* Row 2: Data e Hora (obrigat├│rios - n├úo dispon├¡veis no VTT) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                Data da Reunião *
+                Data da Reuni├úo *
               </Label>
               <Input
                 type="date"
@@ -1451,7 +1407,7 @@ export function MeetingTranscriptIngestion() {
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                Hora de Início *
+                Hora de In├¡cio *
               </Label>
               <Input
                 type="time"
@@ -1475,7 +1431,7 @@ export function MeetingTranscriptIngestion() {
                 className="w-full px-3 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
                 disabled={loadingData}
               >
-                <option value="">Nenhum projeto específico</option>
+                <option value="">Nenhum projeto espec├¡fico</option>
                 {projects.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name} ({p.department})
@@ -1500,12 +1456,12 @@ export function MeetingTranscriptIngestion() {
             </div>
           </div>
 
-          {/* Row 4: Recorrência */}
+          {/* Row 4: Recorr├¬ncia */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <GitBranch className="h-4 w-4" />
-                Recorrência
+                Recorr├¬ncia
               </Label>
               <div className="flex gap-2">
                 <button
@@ -1520,7 +1476,7 @@ export function MeetingTranscriptIngestion() {
                       : "bg-background border-border text-muted-foreground hover:bg-muted"
                   )}
                 >
-                  Única
+                  ├Ünica
                 </button>
                 <button
                   type="button"
@@ -1536,12 +1492,12 @@ export function MeetingTranscriptIngestion() {
                 </button>
               </div>
             </div>
-            {/* Título da Reunião Recorrente - aparece quando Recorrente é selecionado */}
+            {/* T├¡tulo da Reuni├úo Recorrente - aparece quando Recorrente ├® selecionado */}
             {recurrence === "recurring" && (
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
-                  Título da Reunião *
+                  T├¡tulo da Reuni├úo *
                 </Label>
                 {existingRecurringSeries.length > 0 ? (
                   <>
@@ -1559,7 +1515,7 @@ export function MeetingTranscriptIngestion() {
                       {existingRecurringSeries.map((series) => (
                         <option key={series} value={series}>{series}</option>
                       ))}
-                      <option value="__NEW__">+ Digitar novo título...</option>
+                      <option value="__NEW__">+ Digitar novo t├¡tulo...</option>
                     </select>
                     {!existingRecurringSeries.includes(meetingTitle) && (
                       <Input
@@ -1576,22 +1532,22 @@ export function MeetingTranscriptIngestion() {
                     type="text"
                     value={meetingTitle}
                     onChange={(e) => setMeetingTitle(e.target.value)}
-                    placeholder="Ex: Board Semanal, Daily Standup, Revisão Mensal..."
+                    placeholder="Ex: Board Semanal, Daily Standup, Revis├úo Mensal..."
                     className="w-full"
                   />
                 )}
                 <p className="text-xs text-muted-foreground">
-                  Título oficial que agrupa todas as ocorrências desta reunião recorrente.
+                  T├¡tulo oficial que agrupa todas as ocorr├¬ncias desta reuni├úo recorrente.
                 </p>
               </div>
             )}
           </div>
 
-          {/* Nota: Participantes serão identificados automaticamente pelo parser VTT */}
+          {/* Nota: Participantes ser├úo identificados automaticamente pelo parser VTT */}
           <div className="p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
             <p className="text-sm text-blue-700 dark:text-blue-300 flex items-center gap-2">
               <Users className="h-4 w-4" />
-              <span>Participantes e entidades serão <strong>identificados automaticamente</strong> do arquivo e validados após o processamento.</span>
+              <span>Participantes e entidades ser├úo <strong>identificados automaticamente</strong> do arquivo e validados ap├│s o processamento.</span>
             </p>
           </div>
         </div>
@@ -1602,7 +1558,7 @@ export function MeetingTranscriptIngestion() {
         <div className="space-y-4 min-w-0">
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold">Upload de Transcrição</h3>
+            <h3 className="text-lg font-semibold">Upload de Transcri├º├úo</h3>
           </div>
 
           <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
@@ -1619,7 +1575,7 @@ export function MeetingTranscriptIngestion() {
                 <Upload className="h-12 w-12 mx-auto text-muted-foreground" />
                 <div>
                   <p className="text-sm text-muted-foreground">
-                    Arraste um arquivo de transcrição ou clique para selecionar
+                    Arraste um arquivo de transcri├º├úo ou clique para selecionar
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     Formatos suportados: .vtt (Teams), .txt, .docx
@@ -1659,7 +1615,7 @@ export function MeetingTranscriptIngestion() {
 
           <div className="text-xs text-muted-foreground space-y-1">
             <p><strong>Entidades identificadas automaticamente (conforme specs 007, 012, 013):</strong></p>
-            <p>Participantes, Tarefas, Ações, Projetos, Áreas, Riscos, Decisões, Insights, Prazos, Follow-ups</p>
+            <p>Participantes, Tarefas, A├º├Áes, Projetos, ├üreas, Riscos, Decis├Áes, Insights, Prazos, Follow-ups</p>
           </div>
         </div>
       </Card>
@@ -1672,11 +1628,11 @@ export function MeetingTranscriptIngestion() {
             <div className="space-y-4 min-w-0">
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold">Metadados da Reunião</h3>
+                <h3 className="text-lg font-semibold">Metadados da Reuni├úo</h3>
               </div>
 
               <div className="mb-2">
-                <p className="text-xs text-muted-foreground">Título</p>
+                <p className="text-xs text-muted-foreground">T├¡tulo</p>
                 <p className="font-semibold text-base">{result.metadata.title}</p>
               </div>
 
@@ -1686,7 +1642,7 @@ export function MeetingTranscriptIngestion() {
                   <p className="font-medium">{result.metadata.date}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Duração</p>
+                  <p className="text-xs text-muted-foreground">Dura├º├úo</p>
                   <p className="font-medium">{result.metadata.duration}</p>
                 </div>
                 <div>
@@ -1696,7 +1652,7 @@ export function MeetingTranscriptIngestion() {
                 <div>
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
                     <Clock className="h-3 w-3" />
-                    Tipo de Reunião
+                    Tipo de Reuni├úo
                   </p>
                   <p className="font-medium">{MEETING_TYPES[result.metadata.meetingType]}</p>
                 </div>
@@ -1713,7 +1669,7 @@ export function MeetingTranscriptIngestion() {
                   <div>
                     <p className="text-xs text-muted-foreground flex items-center gap-1">
                       <GitBranch className="h-3 w-3" />
-                      Recorrência
+                      Recorr├¬ncia
                     </p>
                     <p className="font-medium">Recorrente</p>
                   </div>
@@ -1727,7 +1683,7 @@ export function MeetingTranscriptIngestion() {
                     <div>
                       <p className="text-xs text-muted-foreground flex items-center gap-1 mb-1">
                         <FileText className="h-3 w-3" />
-                        Resumo (extraído por IA)
+                        Resumo (extra├¡do por IA)
                       </p>
                       <p className="text-sm bg-muted/50 p-3 rounded-lg break-words overflow-hidden">{result.summary}</p>
                     </div>
@@ -1736,7 +1692,7 @@ export function MeetingTranscriptIngestion() {
                     <div>
                       <p className="text-xs text-muted-foreground flex items-center gap-1 mb-2">
                         <Tag className="h-3 w-3" />
-                        Tópicos Principais — metadados para recuperação ({(keyTopicsData.length > 0 ? keyTopicsData : result.keyTopics || []).length})
+                        T├│picos Principais ÔÇö metadados para recupera├º├úo ({(keyTopicsData.length > 0 ? keyTopicsData : result.keyTopics || []).length})
                       </p>
                       <div className="flex flex-wrap gap-2 items-center">
                         {keyTopicsData.map((topic, i) => (
@@ -1784,7 +1740,7 @@ export function MeetingTranscriptIngestion() {
                                     e.stopPropagation();
                                     setKeyTopicsData(keyTopicsData.filter((_, idx) => idx !== i));
                                   }}
-                                  title="Remover tópico"
+                                  title="Remover t├│pico"
                                 >
                                   <X className="h-3 w-3" />
                                 </button>
@@ -1792,7 +1748,7 @@ export function MeetingTranscriptIngestion() {
                             )}
                           </div>
                         ))}
-                        {/* Adicionar novo tópico */}
+                        {/* Adicionar novo t├│pico */}
                         <div className="inline-flex items-center gap-1">
                           <Input
                             value={newTopicInput}
@@ -1817,8 +1773,8 @@ export function MeetingTranscriptIngestion() {
               <div className="mt-4 pt-4 border-t border-border overflow-hidden">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap min-w-0">
                   <Database className="h-3 w-3 shrink-0" />
-                  <span className="truncate">Proveniência: {result.metadata.sourceFile}</span>
-                  <span className="shrink-0">•</span>
+                  <span className="truncate">Proveni├¬ncia: {result.metadata.sourceFile}</span>
+                  <span className="shrink-0">ÔÇó</span>
                   <span className="shrink-0">Processado em: {new Date(result.metadata.processingTimestamp).toLocaleString('pt-BR')}</span>
                 </div>
               </div>
@@ -1831,14 +1787,14 @@ export function MeetingTranscriptIngestion() {
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-primary" />
-                  <h3 className="text-lg font-semibold">Validação de Entidades</h3>
+                  <h3 className="text-lg font-semibold">Valida├º├úo de Entidades</h3>
                 </div>
                 <div className="flex gap-2 text-sm flex-wrap">
                   <span className="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded whitespace-nowrap">
-                    ✓ {validatedCount} validadas
+                    Ô£ô {validatedCount} validadas
                   </span>
                   <span className="px-2 py-1 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded whitespace-nowrap">
-                    ✗ {rejectedCount} rejeitadas
+                    Ô£ù {rejectedCount} rejeitadas
                   </span>
                   <span className="px-2 py-1 bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400 rounded whitespace-nowrap">
                     ? {pendingCount} pendentes
@@ -1967,7 +1923,7 @@ export function MeetingTranscriptIngestion() {
                                 ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400"
                                 : "bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-400"
                             )} 
-                            title={entity.linkedNodeId ? "Vinculado ao grafo" : "Não vinculado - será criado novo node"}
+                            title={entity.linkedNodeId ? "Vinculado ao grafo" : "N├úo vinculado - ser├í criado novo node"}
                           >
                             <Link2 className="h-3 w-3" />
                             {entity.linkedNodeId ? "Vinculado" : "Novo"}
@@ -1981,17 +1937,17 @@ export function MeetingTranscriptIngestion() {
                               type="button"
                               onClick={() => handleAcceptSuggestedMatch(entity.id)}
                               className="text-xs px-2 py-0.5 rounded flex items-center gap-1 bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-400 hover:bg-sky-200 dark:hover:bg-sky-900/70 transition-colors border border-sky-300 dark:border-sky-700"
-                              title={`Vincular a "${entity.suggestedMatch.nodeName}" (${entity.suggestedMatch.nodeLabel}) — ${Math.round(entity.suggestedMatch.score * 100)}% confiança`}
+                              title={`Vincular a "${entity.suggestedMatch.nodeName}" (${entity.suggestedMatch.nodeLabel}) ÔÇö ${Math.round(entity.suggestedMatch.score * 100)}% confian├ºa`}
                             >
                               <Link2 className="h-3 w-3" />
-                              <span className="max-w-[180px] truncate">→ {entity.suggestedMatch.nodeName}</span>
+                              <span className="max-w-[180px] truncate">ÔåÆ {entity.suggestedMatch.nodeName}</span>
                               <span className="opacity-70">{Math.round(entity.suggestedMatch.score * 100)}%</span>
                             </button>
                             <button
                               type="button"
                               onClick={() => handleRejectSuggestedMatch(entity.id)}
                               className="text-xs px-1 py-0.5 rounded text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                              title="Ignorar sugestão — manter como nova entidade"
+                              title="Ignorar sugest├úo ÔÇö manter como nova entidade"
                             >
                               <X className="h-3 w-3" />
                             </button>
@@ -2016,13 +1972,13 @@ export function MeetingTranscriptIngestion() {
                             </Button>
                           </div>
                         ) : (
-                          <Button size="sm" variant="ghost" onClick={() => handleValidateEntity(entity.id, !entity.validated)} title="Alterar validação">
+                          <Button size="sm" variant="ghost" onClick={() => handleValidateEntity(entity.id, !entity.validated)} title="Alterar valida├º├úo">
                             {entity.validated ? <X className="h-4 w-4 text-red-600" /> : <Check className="h-4 w-4 text-green-600" />}
                           </Button>
                         )}
                       </div>
 
-                      {/* Row 2: Context, Responsável (para ações), Tipo (para entidades) */}
+                      {/* Row 2: Context, Respons├ível (para a├º├Áes), Tipo (para entidades) */}
                       <div className="mt-2 flex items-center gap-2 text-xs flex-wrap min-w-0">
                         {/* Expand button for entities with description */}
                         {entity.description && (
@@ -2040,9 +1996,9 @@ export function MeetingTranscriptIngestion() {
                           </button>
                         )}
 
-                        {/* Responsável inline removido - mantido apenas na seção expandida */}
+                        {/* Respons├ível inline removido - mantido apenas na se├º├úo expandida */}
 
-                        {/* Tipo de entidade editável para mentionedEntity */}
+                        {/* Tipo de entidade edit├ível para mentionedEntity */}
                         {entity.type === "mentionedEntity" && (
                           <div className="flex items-center gap-1 shrink-0">
                             <select
@@ -2067,7 +2023,7 @@ export function MeetingTranscriptIngestion() {
                               className="px-2 py-0.5 text-xs border rounded bg-background"
                               title="Tipo de entidade"
                             >
-                              <option value="organization">Organização</option>
+                              <option value="organization">Organiza├º├úo</option>
                               <option value="tool">Ferramenta</option>
                               <option value="product">Produto</option>
                               <option value="client">Cliente</option>
@@ -2090,7 +2046,7 @@ export function MeetingTranscriptIngestion() {
                             entity.priority === "medium" && "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
                             entity.priority === "low" && "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                           )}>
-                            {entity.priority === "high" ? "Alta" : entity.priority === "medium" ? "Média" : "Baixa"}
+                            {entity.priority === "high" ? "Alta" : entity.priority === "medium" ? "M├®dia" : "Baixa"}
                           </span>
                         )}
                         
@@ -2104,7 +2060,7 @@ export function MeetingTranscriptIngestion() {
                               ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                               : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
                           )}
-                          title={entity.classification === "real" ? "Dado Real (permanente)" : "Dado Passageiro (temporário)"}
+                          title={entity.classification === "real" ? "Dado Real (permanente)" : "Dado Passageiro (tempor├írio)"}
                         >
                           {entity.classification === "real" ? "Real" : "Passageiro"}
                         </button>
@@ -2119,15 +2075,15 @@ export function MeetingTranscriptIngestion() {
                               ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
                               : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
                           )}
-                          title={entity.visibility === "corporate" ? "Visível para organização" : "Visível apenas para você"}
+                          title={entity.visibility === "corporate" ? "Vis├¡vel para organiza├º├úo" : "Vis├¡vel apenas para voc├¬"}
                         >
                           {entity.visibility === "corporate" ? <Building2 className="h-3 w-3" /> : <Users className="h-3 w-3" />}
                           {entity.visibility === "corporate" ? "Corp" : "Pessoal"}
                         </button>
 
                         {/* Memory level indicator */}
-                        <span className="text-muted-foreground" title={`Nível de memória: ${entity.memoryLevel}`}>
-                          {entity.memoryLevel === "long" ? "🔒" : entity.memoryLevel === "medium" ? "⏳" : "💨"}
+                        <span className="text-muted-foreground" title={`N├¡vel de mem├│ria: ${entity.memoryLevel}`}>
+                          {entity.memoryLevel === "long" ? "­ƒöÆ" : entity.memoryLevel === "medium" ? "ÔÅ│" : "­ƒÆ¿"}
                         </span>
 
                         {/* Source reference (provenance) */}
@@ -2142,7 +2098,7 @@ export function MeetingTranscriptIngestion() {
                       {expandedEntities.has(entity.id) && entity.description && (
                         <div className="mt-3 pt-3 border-t border-dashed border-border/50 space-y-2">
                           <div className="bg-muted/30 p-3 rounded-lg">
-                            <p className="text-xs font-medium text-muted-foreground mb-1">Descrição Detalhada</p>
+                            <p className="text-xs font-medium text-muted-foreground mb-1">Descri├º├úo Detalhada</p>
                             <textarea
                               value={entity.description || ""}
                               onChange={(e) => handleUpdateEntityField(entity.id, "description", e.target.value)}
@@ -2153,10 +2109,10 @@ export function MeetingTranscriptIngestion() {
                           
                           {/* Related info grid */}
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-                            {/* Responsável - combo para task/decision/risk/insight */}
+                            {/* Respons├ível - combo para task/decision/risk/insight */}
                             {["task", "decision", "risk", "insight"].includes(entity.type) && (
                               <div className="bg-blue-50 dark:bg-blue-950/30 p-2 rounded">
-                                <p className="text-muted-foreground mb-1">Responsável</p>
+                                <p className="text-muted-foreground mb-1">Respons├ível</p>
                                 <select
                                   value={(() => {
                                     const val = entity.type === "task" ? entity.assignee : entity.relatedPerson;
@@ -2177,7 +2133,7 @@ export function MeetingTranscriptIngestion() {
                                 </select>
                               </div>
                             )}
-                            {/* Prazo - editável para Tarefa */}
+                            {/* Prazo - edit├ível para Tarefa */}
                             {entity.type === "task" && (
                               <div className="bg-orange-50 dark:bg-orange-950/30 p-2 rounded">
                                 <p className="text-muted-foreground mb-1">Prazo</p>
@@ -2210,9 +2166,9 @@ export function MeetingTranscriptIngestion() {
                                   onChange={(e) => handleUpdateEntityField(entity.id, "priority", e.target.value)}
                                   className="w-full px-2 py-1 text-xs border rounded bg-white dark:bg-gray-900"
                                 >
-                                  <option value="high">🔴 Alta</option>
-                                  <option value="medium">🟡 Média</option>
-                                  <option value="low">🟢 Baixa</option>
+                                  <option value="high">­ƒö┤ Alta</option>
+                                  <option value="medium">­ƒƒí M├®dia</option>
+                                  <option value="low">­ƒƒó Baixa</option>
                                 </select>
                               </div>
                             )}
@@ -2336,7 +2292,7 @@ export function MeetingTranscriptIngestion() {
                 {/* Row 2: Organizacao | Cargo */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="ext-org" className="text-sm font-medium">Organização *</Label>
+                    <Label htmlFor="ext-org" className="text-sm font-medium">Organiza├º├úo *</Label>
                     <Input
                       id="ext-org"
                       list="partner-organizations"
@@ -2354,7 +2310,7 @@ export function MeetingTranscriptIngestion() {
                     </datalist>
                     {partnerOrganizations.length > 0 && (
                       <p className="text-xs text-muted-foreground mt-1">
-                        {partnerOrganizations.length} organizações parceiras cadastradas
+                        {partnerOrganizations.length} organiza├º├Áes parceiras cadastradas
                       </p>
                     )}
                   </div>
@@ -2385,7 +2341,7 @@ export function MeetingTranscriptIngestion() {
                       )}
                     >
                       <Target className="h-5 w-5" />
-                      <span className="text-sm font-medium">Estratégico</span>
+                      <span className="text-sm font-medium">Estrat├®gico</span>
                     </button>
                     <button
                       type="button"
@@ -2411,24 +2367,24 @@ export function MeetingTranscriptIngestion() {
                       )}
                     >
                       <ListTodo className="h-5 w-5" />
-                      <span className="text-sm font-medium">Tático</span>
+                      <span className="text-sm font-medium">T├ítico</span>
                     </button>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
                     {externalFormData.partnerType === "strategic" && "Parceiros de longo prazo e alto impacto"}
                     {externalFormData.partnerType === "operational" && "Parceiros do dia-a-dia operacional"}
-                    {externalFormData.partnerType === "tactical" && "Parceiros para projetos específicos"}
+                    {externalFormData.partnerType === "tactical" && "Parceiros para projetos espec├¡ficos"}
                   </p>
                 </div>
 
                 {/* Observacoes */}
                 <div>
-                  <Label htmlFor="ext-notes" className="text-sm font-medium">Observações</Label>
+                  <Label htmlFor="ext-notes" className="text-sm font-medium">Observa├º├Áes</Label>
                   <textarea
                     id="ext-notes"
                     value={externalFormData.notes}
                     onChange={(e) => setExternalFormData({ ...externalFormData, notes: e.target.value })}
-                    placeholder="Informações adicionais sobre o participante..."
+                    placeholder="Informa├º├Áes adicionais sobre o participante..."
                     className="mt-1 w-full px-3 py-2 border rounded-md text-sm bg-background min-h-[80px] resize-none"
                   />
                 </div>

@@ -18,6 +18,7 @@ import ontologyRoutes from './routes/ontology.routes';
 import ontologyTourRoutes from './routes/ontology-tour.routes';
 import externalParticipantsRoutes from './routes/external-participants.routes';
 import meetingsRoutes from './routes/meetings.routes';
+import documentsRoutes from './routes/documents.routes';
 
 const app = express();
 
@@ -83,6 +84,7 @@ app.use('/ontology', ontologyRoutes);
 app.use('/ontology/tour', ontologyTourRoutes);
 app.use('/external-participants', externalParticipantsRoutes);
 app.use('/meetings', meetingsRoutes);
+app.use('/documents', documentsRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

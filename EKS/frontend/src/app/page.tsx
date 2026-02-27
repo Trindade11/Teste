@@ -6,6 +6,7 @@ import { Header } from "@/components/layout/Header";
 import { ChatbotPanel } from "@/components/chat/ChatbotPanel";
 import { Canvas } from "@/components/canvas/Canvas";
 import { ProcessesView } from "@/components/canvas/ProcessesView";
+import { ProcessMappingView } from "@/components/canvas/ProcessMappingView";
 import { KnowledgeBase } from "@/components/canvas/KnowledgeBase";
 import { GraphNavigator } from "@/components/canvas/GraphNavigator";
 import { GraphNavigatorV2 } from "@/components/canvas/GraphNavigatorV2";
@@ -103,6 +104,7 @@ export default function Home() {
               {currentView === "navigator" && <GraphNavigator />}
               {currentView === "navigator_v2" && <GraphNavigatorV2 />}
               {currentView === "processes" && <ProcessesView onClose={() => setCurrentView("processes")} />}
+              {currentView === "process_mapping" && <ProcessMappingView />}
             </div>
 
             {/* Chat coluna à direita */}

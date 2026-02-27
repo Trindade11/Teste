@@ -1,8 +1,8 @@
-/**
+﻿/**
  * API Client for Enterprise Hub Backend
  * Centralized API communication with auth token management
  * 
- * MODO SIMULAÇÃO: Use mock data para focar em UX/estética
+ * MODO SIMULA├ç├âO: Use mock data para focar em UX/est├®tica
  */
 
 import mockApi from './mockApi';
@@ -196,7 +196,7 @@ class ApiClient {
   // ===== Auth Endpoints =====
 
   async login(email: string, password: string): Promise<ApiResponse<AuthTokens>> {
-    // MODO SIMULAÇÃO: Usar mock para focar em UX
+    // MODO SIMULA├ç├âO: Usar mock para focar em UX
     if (USE_MOCK) {
       const response = await mockApi.login(email, password);
       
@@ -910,94 +910,6 @@ class ApiClient {
       console.error('[API] matchEntity error:', error);
       return { success: false, error: 'Failed to connect to agents API' };
     }
-  }
-
-  // ===== Documents =====
-
-  async getDocuments(filters?: { type?: string; status?: string; limit?: number; offset?: number }): Promise<ApiResponse<any>> {
-    const params = new URLSearchParams();
-    if (filters?.type) params.append('type', filters.type);
-    if (filters?.status) params.append('status', filters.status);
-    if (filters?.limit) params.append('limit', filters.limit.toString());
-    if (filters?.offset) params.append('offset', filters.offset.toString());
-    const query = params.toString() ? `?${params.toString()}` : '';
-    return this.request<any>(`/documents${query}`);
-  }
-
-  async getDocument(id: string): Promise<ApiResponse<any>> {
-    return this.request<any>(`/documents/${id}`);
-  }
-
-  async getLinkableEntities(type?: 'project' | 'okr' | 'objective' | 'process'): Promise<ApiResponse<any>> {
-    const query = type ? `?type=${type}` : '';
-    return this.request<any>(`/documents/linkable-entities${query}`);
-  }
-
-  async suggestDocumentRelationships(data: { title: string; type: string; summary?: string }): Promise<ApiResponse<any>> {
-    return this.request<any>('/documents/suggest-relationships', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async preprocessDocument(file: File): Promise<ApiResponse<any>> {
-    const token = this.getToken();
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const response = await fetch(`${this.baseUrl}/documents/preprocess`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return { success: false, error: data.error || 'Preprocessing failed', details: data };
-    }
-
-    return { success: true, data };
-  }
-
-  async uploadDocument(file: File, metadata: any): Promise<ApiResponse<any>> {
-    const token = this.getToken();
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('metadata', JSON.stringify(metadata));
-
-    const response = await fetch(`${this.baseUrl}/documents/ingest`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return { success: false, error: data.error || 'Upload failed', details: data };
-    }
-
-    return { success: true, data };
-  }
-
-  // Generic GET/POST methods for flexibility
-  async get<T = any>(endpoint: string): Promise<{ data: ApiResponse<T> }> {
-    const result = await this.request<T>(endpoint);
-    return { data: result };
-  }
-
-  async post<T = any>(endpoint: string, body?: any, options?: { headers?: Record<string, string> }): Promise<{ data: ApiResponse<T> }> {
-    const result = await this.request<T>(endpoint, {
-      method: 'POST',
-      body: body instanceof FormData ? body : JSON.stringify(body),
-      headers: options?.headers,
-    });
-    return { data: result };
   }
 }
 
