@@ -14,6 +14,7 @@ import { ValidationFeed } from "@/components/canvas/ValidationFeed";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useOnboardingStore } from "@/store/onboarding-store";
+import { IDELayout } from "@/components/ide-layout/IDELayout";
 import { Menu } from "lucide-react";
 
 const CHAT_STATE_KEY = 'chat_expanded_state'
@@ -99,6 +100,7 @@ export default function Home() {
               </div>
               {/* Render view based on currentView */}
               {currentView === "onboarding" && <Canvas />}
+              {currentView === "agent_workspace" && <IDELayout />}
               {currentView === "knowledge" && <KnowledgeBase />}
               {currentView === "validation" && <ValidationFeed />}
               {currentView === "navigator" && <GraphNavigator />}

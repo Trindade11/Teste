@@ -17,6 +17,11 @@ export interface EntitySuggestion {
   metadata?: Record<string, any>;
 }
 
+interface SuggestionHints {
+  prelinkedProjectIds?: string[];
+  preferredType?: string;
+}
+
 export class DocumentEntitySuggester {
   /**
    * Suggest entity relationships based on mentioned entities and document metadata
@@ -25,7 +30,8 @@ export class DocumentEntitySuggester {
     mentionedEntities: MentionedEntity[],
     documentTitle: string,
     documentSummary: string,
-    documentTags: string[]
+    documentTags: string[],
+    hints?: SuggestionHints
   ): Promise<EntitySuggestion[]> {
     const suggestions: EntitySuggestion[] = [];
     const session = neo4jConnection.getSession();
@@ -61,7 +67,13 @@ export class DocumentEntitySuggester {
       );
       suggestions.push(...semanticSuggestions);
 
-      // 5. Sort by confidence and remove duplicates
+      // 5. Always include user prelinked projects in suggestion list (if provided)
+      if (hints?.prelinkedProjectIds && hints.prelinkedProjectIds.length > 0) {
+        const prelinkedSuggestions = await this.includePrelinkedProjects(hints.prelinkedProjectIds, session);
+        suggestions.push(...prelinkedSuggestions);
+      }
+
+      // 6. Sort by confidence and remove duplicates
       const uniqueSuggestions = this.deduplicateSuggestions(suggestions);
       const sortedSuggestions = uniqueSuggestions.sort((a, b) => b.confidence - a.confidence);
 
@@ -142,17 +154,51 @@ export class DocumentEntitySuggester {
     return suggestions;
   }
 
+  private async includePrelinkedProjects(projectIds: string[], session: any): Promise<EntitySuggestion[]> {
+    if (projectIds.length === 0) return [];
+
+    try {
+      const result = await session.run(
+        `MATCH (p)
+         WHERE (p:Project OR p:project)
+           AND ANY(pid IN $projectIds WHERE p.id = pid OR p.projectId = pid OR elementId(p) = pid)
+         OPTIONAL MATCH (p)-[:OWNED_BY]->(owner:User)
+         RETURN coalesce(p.id, p.projectId, elementId(p)) AS id,
+                p.name AS name, p.status AS status, owner.name AS ownerName`,
+        { projectIds }
+      );
+
+      return result.records.map((record: any) => ({
+        entityType: 'project' as const,
+        entityId: record.get('id'),
+        entityName: record.get('name'),
+        confidence: 0.99,
+        context: 'Pré-vinculado manualmente pelo usuário',
+        matchType: 'exact' as const,
+        metadata: {
+          status: record.get('status'),
+          owner: record.get('ownerName'),
+        },
+      }));
+    } catch (error) {
+      logger.error('Error including prelinked projects in suggestions:', error);
+      return [];
+    }
+  }
+
   private async matchProject(project: MentionedEntity, session: any): Promise<EntitySuggestion[]> {
     const suggestions: EntitySuggestion[] = [];
 
     try {
       // Exact match by name
       const exactResult = await session.run(
-        `MATCH (p:Project)
-         WHERE toLower(p.name) = toLower($name)
+        `MATCH (p)
+         WHERE (p:Project OR p:project)
+           AND toLower(p.name) = toLower($name)
          OPTIONAL MATCH (p)-[:OWNED_BY]->(owner:User)
          OPTIONAL MATCH (p)-[:BELONGS_TO]->(d:Department)
-         RETURN p.id AS id, p.name AS name, p.status AS status,
+         RETURN coalesce(p.id, p.projectId, elementId(p)) AS id,
+                p.name AS name, p.status AS status,
                 owner.name AS ownerName, d.name AS department
          LIMIT 5`,
         { name: project.name }
@@ -174,14 +220,20 @@ export class DocumentEntitySuggester {
         });
       }
 
-      // Fuzzy match if no exact match
+      // Fuzzy match: project name contains mention OR mention contains project name
+      // Ex: "EKS" matches "Projeto EKS", "Move Studio" matches "Proposta Move Studio"
       if (suggestions.length === 0) {
         const fuzzyResult = await session.run(
-          `MATCH (p:Project)
-           WHERE toLower(p.name) CONTAINS toLower($namePart)
+          `MATCH (p)
+           WHERE (p:Project OR p:project)
+             AND (
+              toLower(p.name) CONTAINS toLower($namePart)
+              OR toLower($namePart) CONTAINS toLower(p.name)
               OR toLower(p.description) CONTAINS toLower($namePart)
+             )
            OPTIONAL MATCH (p)-[:OWNED_BY]->(owner:User)
-           RETURN p.id AS id, p.name AS name, p.status AS status,
+           RETURN coalesce(p.id, p.projectId, elementId(p)) AS id,
+                  p.name AS name, p.status AS status,
                   owner.name AS ownerName
            LIMIT 3`,
           { namePart: project.name }
@@ -258,7 +310,9 @@ export class DocumentEntitySuggester {
         ...title.toLowerCase().split(/\s+/),
         ...summary.toLowerCase().split(/\s+/),
         ...tags.map(t => t.toLowerCase()),
-      ].filter(term => term.length > 3); // Only meaningful terms
+      ]
+        .map(term => term.replace(/[^a-z0-9_-]/gi, '').trim())
+        .filter(term => term.length >= 3); // Keep acronyms like EKS
 
       const uniqueTerms = [...new Set(searchTerms)].slice(0, 20); // Limit to top 20 terms
 
@@ -266,13 +320,15 @@ export class DocumentEntitySuggester {
 
       // Search for projects matching keywords
       const projectResult = await session.run(
-        `MATCH (p:Project)
-         WHERE ANY(term IN $terms WHERE 
-           toLower(p.name) CONTAINS term OR 
-           toLower(p.description) CONTAINS term
-         )
+        `MATCH (p)
+         WHERE (p:Project OR p:project)
+           AND ANY(term IN $terms WHERE 
+             toLower(p.name) CONTAINS term OR 
+             toLower(p.description) CONTAINS term
+           )
          OPTIONAL MATCH (p)-[:OWNED_BY]->(owner:User)
-         RETURN p.id AS id, p.name AS name, p.status AS status,
+         RETURN coalesce(p.id, p.projectId, elementId(p)) AS id,
+                p.name AS name, p.status AS status,
                 owner.name AS ownerName
          LIMIT 5`,
         { terms: uniqueTerms }

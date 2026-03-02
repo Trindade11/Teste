@@ -4,6 +4,12 @@
 
 **Version**: V22 | **Created**: 2025-12-06 | **Updated**: 2025-12-29
 
+> Incremental update (2026-03-01): Document ingestion validation flow aligned to meeting-transcription UX with preview-before-persist and collaborator assignment combo.
+> Incremental update (2026-03-01): Web ingestion switched to deterministic fixed chunking (1500/200) for website pages/PDFs to avoid long LLM chunking stalls on large pages.
+> Incremental update (2026-03-01): Web ingestion simplificado para curadoria de fonte (sem extração de entidades), com limite de tamanho aplicado por seleção real de páginas/PDFs.
+> Incremental update (2026-03-01): WebSource linkage simplificado: ingest web agora vincula apenas uploader e vínculos explícitos (projeto/okr/objective); vínculo automático com departamento/organização do uploader foi removido.
+> Incremental update (2026-03-01): Arquitetura de processamento especializado de documentos: 3 categorias (Rich Extraction com agentes especializados para contrato/proposta/ata/relatório, Knowledge Base sem extração para specs/políticas/manuais, Generic com extração leve para análise/outros). Pipeline unificado com especialização inteligente.
+
 ## 🎯 Project Macro View
 
 **CVC Hub** é uma plataforma de gestão e mentoria para startups focadas em IA, desenvolvida pela **CoCreateAI** para o programa de investimentos da **CVC** (Corporate Venture Capital). A plataforma combina interface conversacional com visualização em canvas, utilizando grafos (Neo4j) para estruturar conhecimento, tarefas e relacionamentos entre stakeholders.
@@ -236,6 +242,14 @@ mindmap
 
 - [ ] Executar `/speckit-plan` para o **MVP Core**: Auth/Admin (003), User Agent Factory (004), Agent Router (005), Chat Actions (006), Chat & Knowledge (007/009), Memory Ecosystem & Conversas (017/025), Retrieval Orchestration (024), Observability (018) e Onboarding & AI Profile (022).
 - [ ] A partir do plano, usar `/speckit-tasks` para quebrar em tarefas antes de iniciar implementação de backend e agentes.
+- [x] Refinar ingestão documental para validação robusta: preview extraído → validação visual por tipo → persistência apenas de itens confirmados.
+- [x] Alinhar UX de validação documental ao padrão de transcrição (cards coloridos por tipo, status de validação, seleção de responsável por combo de colaboradores).
+- [x] Ajustar ingestão de website para chunking fixo com overlap (1500/200), removendo dependência de chunking LLM por página para casos de conteúdo grande.
+- [x] Alinhar `sizeKb` de páginas no ingest com texto extraído (texto-only), coerente com a prévia de site.
+- [x] Remover extração de entidades (Task/Decision/Risk/Insight) do pipeline de site; manter ingestão focada em WebSource/WebPage/Chunk e visibilidade (individual/área/corporativo).
+- [x] Corrigir cálculo de limite para considerar somente páginas/PDFs selecionados e ajustar UX para seleção inicial da raiz com total selecionado mais preciso.
+- [x] Remover vínculo automático do WebSource com departamento/organização do uploader; manter apenas vínculos explícitos (usuário, projeto, okr, objetivo).
+- [x] Implementar arquitetura de processamento especializado por tipo de documento: 3 categorias (Rich/KB/Generic), agentes Pydantic AI especializados (Contract/Proposal/Meeting/Report), DocumentCategoryService + SpecializedExtractionService no backend, FastAPI agents API.
 
 ### ⬜ Depois
 9. [ ] Testar frontend: `cd frontend && npm install && npm run dev`
@@ -393,6 +407,11 @@ mindmap
 | V20 | 2025-12-07 | Sequências 3–5 consolidadas: criação/integr. de 024 (Retrieval Orchestration) e 025 (Conversation Persistence), refinamentos de onboarding/admin e atualização dos próximos passos para Planning do MVP Core. | AI Agent |
 | V21 | 2025-12-07 | MVP Core Plan criado (`plans/mvp-core-plan.md`): arquitetura completa com diagramas Mermaid, 5 fases de implementação (Backend Foundation, Agent System, Core Features, Advanced Features, Polish), 10 semanas estimadas, integração frontend existente. | AI Agent |
 | V22 | 2025-12-29 | **CONSOLIDAÇÃO COMPLETA**: 47 specs (87% PT), MongoDB deprecado (Neo4j-only), 6 specs traduzidas (041-046: GIN, GID, Memory Steward, Trust Score, Simulation, Hierarchical Brainstorm, PIA), Sistema de customização de agentes (Global/Pessoal/Sistema), Zero sobreposições, Diagramas atualizados. | AI Agent |
+| V23 | 2026-03-01 | Ajustes de ingestão documental: fluxo persist-after-validation mantido com preview sem persistência e remodelagem do bloco de validação para padrão de transcrição (abas por tipo, cores por entidade, confirmar/retirar e combo de responsável com colaboradores do org chart). | AI Agent |
+| V24 | 2026-03-01 | Ajustes de ingestão web para estabilidade/performance: chunking fixo determinístico (1500 chars com overlap 200) em páginas/PDFs no fluxo de website e sizing de páginas baseado em texto extraído, reduzindo travas por chamadas LLM longas no chunking por página. | AI Agent |
+| V25 | 2026-03-01 | Simplificação do pipeline web: removida extração de entidades no ingest de site; limite de tamanho e UX de seleção refinados para usar apenas itens selecionados e seleção inicial da raiz. | AI Agent |
+| V26 | 2026-03-01 | WebSource linkage simplificado: ingest web agora vincula apenas uploader e vínculos explícitos (projeto/okr/objective); vínculo automático com departamento/organização do uploader foi removido. | AI Agent |
+| V27 | 2026-03-01 | Arquitetura de processamento especializado de documentos: 3 categorias (Rich Extraction para contrato/proposta/ata/relatório com 4 agentes Pydantic AI especializados + schemas completos, Knowledge Base para specs/políticas/manuais com chunking fixo sem extração, Generic para análise/outros com extração leve). Backend: DocumentCategoryService + SpecializedExtractionService + endpoint /extract atualizado. Agents: FastAPI com 5 endpoints especializados. Pipeline unificado com especialização inteligente por tipo. | AI Agent |
 
 ---
 

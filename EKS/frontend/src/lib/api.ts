@@ -498,6 +498,34 @@ class ApiClient {
     return { success: true, data };
   }
 
+  async extractDocumentEntities(
+    file: File,
+    context?: { title?: string; type?: string }
+  ): Promise<ApiResponse<any>> {
+    const token = this.getToken();
+    const formData = new FormData();
+    formData.append('file', file);
+    if (context) {
+      formData.append('context', JSON.stringify(context));
+    }
+
+    const response = await fetch(`${this.baseUrl}/documents/extract`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { success: false, error: data.error || 'Extraction failed', details: data };
+    }
+
+    return { success: true, data };
+  }
+
   // ===== Projects CRUD =====
 
   async getProjects(filters?: { status?: string; department?: string; ownerId?: string; includeArchived?: boolean }): Promise<ApiResponse<any[]>> {
@@ -940,10 +968,16 @@ class ApiClient {
     });
   }
 
-  async preprocessDocument(file: File): Promise<ApiResponse<any>> {
+  async preprocessDocument(
+    file: File,
+    hints?: { preferredType?: string; prelinkedProjectIds?: string[] }
+  ): Promise<ApiResponse<any>> {
     const token = this.getToken();
     const formData = new FormData();
     formData.append('file', file);
+    if (hints) {
+      formData.append('hints', JSON.stringify(hints));
+    }
 
     const response = await fetch(`${this.baseUrl}/documents/preprocess`, {
       method: 'POST',
@@ -983,6 +1017,66 @@ class ApiClient {
     }
 
     return { success: true, data };
+  }
+
+  async getDocumentValidations(documentId: string, filters?: { status?: string }): Promise<ApiResponse<any[]>> {
+    const params = new URLSearchParams();
+    if (filters?.status) params.append('status', filters.status);
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return this.request<any[]>(`/documents/${documentId}/validations${query}`);
+  }
+
+  // ===== Web / URL Ingestion =====
+
+  async previewWebSite(url: string, depth: number = 1): Promise<ApiResponse<any>> {
+    return this.request('/web/preview', {
+      method: 'POST',
+      body: JSON.stringify({ url, depth }),
+    });
+  }
+
+  async ingestWebSite(payload: {
+    url: string;
+    title?: string;
+    selectedPages: string[];
+    downloadPdfs?: boolean;
+    selectedPdfs?: string[];
+    projectIds?: string[];
+    objectiveIds?: string[];
+    okrIds?: string[];
+    pageLevels?: Record<string, number>;
+    visibility?: string;
+    previewData?: any;
+  }): Promise<ApiResponse<any>> {
+    return this.request('/web/ingest', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async getWebSources(): Promise<ApiResponse<any>> {
+    return this.request('/web/sources');
+  }
+
+  // ===== Curation =====
+
+  async getCurationQueue(): Promise<ApiResponse<any[]>> {
+    return this.request<any[]>('/curation/queue');
+  }
+
+  async getCurationQueueAll(): Promise<ApiResponse<any[]>> {
+    return this.request<any[]>('/curation/queue?all=true');
+  }
+
+  async approveCurationItem(id: string): Promise<ApiResponse<any>> {
+    return this.request<any>(`/curation/${id}/approve`, { method: 'POST' });
+  }
+
+  async rejectCurationItem(id: string, reason: string): Promise<ApiResponse<any>> {
+    return this.request<any>(`/curation/${id}/reject`, { 
+      method: 'POST',
+      body: JSON.stringify({ reason })
+    });
   }
 
   // Generic GET/POST methods for flexibility

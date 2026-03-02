@@ -159,6 +159,18 @@ class FrontendWelcomeRequest(BaseModel):
 session_contexts: Dict[str, UserContext] = {}
 
 
+def _extract_text_response(payload: Any) -> str:
+    """Ensure response payload is always a plain string for Pydantic models."""
+    if isinstance(payload, str):
+        return payload
+    if isinstance(payload, dict):
+        message = payload.get("message")
+        if isinstance(message, str):
+            return message
+        return str(payload)
+    return str(payload)
+
+
 @router.post("/api/chat", response_model=FrontendChatResponse)
 async def frontend_chat(request: FrontendChatRequest) -> FrontendChatResponse:
     """
@@ -220,11 +232,18 @@ async def frontend_chat_welcome(request: FrontendWelcomeRequest) -> FrontendChat
 
         user_context = await load_user_context(request.user_id)
         if not user_context:
-            raise HTTPException(status_code=404, detail=f"User not found: {request.user_id}")
+            logger.warning(f"User not found for welcome endpoint: {request.user_id}. Using anonymous fallback context.")
+            user_context = UserContext(
+                user_id=request.user_id or "anonymous",
+                name="Usuário",
+                email="",
+                company="",
+            )
 
         session_contexts[session_id] = user_context
 
-        welcome_text = await personal_agent.get_welcome_message(user_context)
+        welcome_payload = await personal_agent.get_welcome_message(user_context)
+        welcome_text = _extract_text_response(welcome_payload)
         return FrontendChatResponse(response=welcome_text, session_id=session_id)
     except HTTPException:
         raise

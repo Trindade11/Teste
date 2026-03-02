@@ -26,6 +26,13 @@ interface ExtractionResult {
   processingTime: number;
 }
 
+interface DocumentContext {
+  id?: string;
+  title?: string;
+  type?: string;
+  project?: string;
+}
+
 const EXTRACTION_PROMPT = `Você é um analista sênior de inteligência organizacional. Sua missão é extrair ABSOLUTAMENTE TUDO de relevante desta transcrição de reunião.
 
 IMPORTANTE: Seja EXAUSTIVO. É melhor extrair demais do que de menos. Esta extração servirá como memória organizacional permanente.
@@ -166,6 +173,65 @@ LEMBRE-SE: Tudo que for ação, tarefa, risco, decisão ou insight vai como ENTI
 Responda APENAS com JSON válido.
 
 TRANSCRIÇÃO:
+`;
+
+const DOCUMENT_EXTRACTION_PROMPT = `Você é um analista sênior de inteligência organizacional. Sua missão é extrair ABSOLUTAMENTE TUDO de relevante deste documento.
+
+IMPORTANTE: Seja EXAUSTIVO. É melhor extrair demais do que de menos. Esta extração servirá como memória organizacional permanente.
+
+ATENÇÃO SOBRE CLASSIFICAÇÃO: Tópicos são apenas METADADOS para recuperação (palavras-chave). Já elementos como tarefas, riscos, decisões e insights devem ser classificados DIRETAMENTE como entidades nas suas respectivas seções abaixo. NÃO coloque ações, riscos ou decisões como tópicos — classifique-os como entidades.
+
+## ESTRUTURA DE SAÍDA (JSON)
+
+### 1. RESUMO EXECUTIVO (summary)
+Resumo DETALHADO com 250-450 palavras cobrindo:
+- Contexto e objetivo do documento
+- Pontos principais
+- Condições, obrigações, entregáveis e prazos (se houver)
+- Decisões/definições explícitas
+
+### 2. TÓPICOS PRINCIPAIS (keyTopics) - METADADOS PARA RECUPERAÇÃO
+Array SIMPLES de strings com palavras-chave e termos-chave ESPECÍFICOS deste documento.
+
+Mínimo 12 termos, máximo 25.
+
+### 3. DECISÕES (decisions)
+Qualquer definição, condição fechada, direcionamento, regra estabelecida:
+- value
+- description
+- relatedPerson (se houver)
+- impact
+- confidence: 0.6-1.0
+
+### 4. TAREFAS (tasks)
+Ações, entregas, obrigações, próximos passos:
+- value
+- description
+- assignee (se houver)
+- deadline (se houver)
+- priority: high/medium/low
+- confidence: 0.6-1.0
+
+### 6. RISCOS (risks)
+Riscos, problemas, gaps, ambiguidades, dependências:
+- value
+- description
+- relatedPerson (se houver)
+- priority: high/medium/low
+- impact
+- confidence: 0.6-1.0
+
+### 7. INSIGHTS (insights)
+Aprendizados, oportunidades, observações estratégicas:
+- value
+- description
+- relatedPerson (se houver)
+- impact
+- confidence: 0.6-1.0
+
+Responda APENAS com JSON válido.
+
+DOCUMENTO:
 `;
 
 export class LLMExtractionService {
@@ -335,6 +401,150 @@ export class LLMExtractionService {
       };
     } catch (error) {
       logger.error('LLM extraction failed:', error);
+      return {
+        entities: [],
+        summary: 'Erro na extração',
+        keyTopics: [],
+        processingTime: Date.now() - startTime,
+      };
+    }
+  }
+
+  async extractFromDocument(
+    documentText: string,
+    documentContext?: DocumentContext,
+    orgContext?: OrgContext
+  ): Promise<ExtractionResult> {
+    const startTime = Date.now();
+
+    if (!this.isConfigured()) {
+      logger.warn('Azure OpenAI not configured, returning empty extraction');
+      return {
+        entities: [],
+        summary: 'Extração LLM não configurada',
+        keyTopics: [],
+        processingTime: 0,
+      };
+    }
+
+    try {
+      let contextInfo = '';
+      if (documentContext) {
+        if (documentContext.title) contextInfo += `Título: ${documentContext.title}\n`;
+        if (documentContext.type) contextInfo += `Tipo: ${documentContext.type}\n`;
+        if (documentContext.project) contextInfo += `Projeto: ${documentContext.project}\n`;
+        if (documentContext.id) contextInfo += `DocumentId: ${documentContext.id}\n`;
+        contextInfo += '\n';
+      }
+
+      let orgContextInfo = '';
+      if (orgContext) {
+        if (orgContext.users.length > 0) {
+          orgContextInfo += `\n## CONTEXTO ORGANIZACIONAL (USE ESTES DADOS REAIS)\n`;
+          orgContextInfo += `### Colaboradores da organização:\n`;
+          for (const user of orgContext.users) {
+            orgContextInfo += `- ${user.name}`;
+            if (user.jobTitle) orgContextInfo += ` (${user.jobTitle})`;
+            if (user.department) orgContextInfo += ` — Depto: ${user.department}`;
+            orgContextInfo += `\n`;
+          }
+        }
+        if (orgContext.departments.length > 0) {
+          orgContextInfo += `### Departamentos existentes:\n`;
+          orgContextInfo += orgContext.departments.map((d) => `- ${d.name}`).join('\n') + '\n';
+        }
+        orgContextInfo += `\nIMPORTANTE: Para assignee e relatedPerson, use SOMENTE nomes de pessoas reais listadas acima ou explicitamente mencionadas no documento. NÃO invente nomes.\n\n`;
+      }
+
+      const fullPrompt = DOCUMENT_EXTRACTION_PROMPT + orgContextInfo + contextInfo + documentText;
+      const truncatedPrompt = fullPrompt.slice(0, 100000);
+
+      const url = `${this.endpoint}/openai/deployments/${this.deploymentName}/chat/completions?api-version=${this.apiVersion}`;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': this.apiKey,
+        },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: 'system',
+              content: 'Você é um assistente que extrai informações estruturadas de documentos. Responda sempre em JSON válido.',
+            },
+            {
+              role: 'user',
+              content: truncatedPrompt,
+            },
+          ],
+          temperature: 0.3,
+          max_tokens: 8000,
+          response_format: { type: 'json_object' },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        logger.error(`Azure OpenAI error: ${response.status} - ${errorText}`);
+        throw new Error(`Azure OpenAI API error: ${response.status}`);
+      }
+
+      const data = (await response.json()) as {
+        choices?: Array<{ message?: { content?: string } }>;
+      };
+      const content = data.choices?.[0]?.message?.content;
+
+      if (!content) {
+        throw new Error('No content in Azure OpenAI response');
+      }
+
+      let parsed: any;
+      try {
+        parsed = JSON.parse(content);
+      } catch (parseError) {
+        logger.warn('Initial JSON parse failed, attempting cleanup...');
+        const cleanedContent = content
+          .replace(/^```json\s*/, '')
+          .replace(/^```\s*/, '')
+          .replace(/\s*```$/, '');
+        try {
+          parsed = JSON.parse(cleanedContent);
+        } catch (retryError) {
+          logger.error('Failed to parse LLM response as JSON:', content);
+          throw new Error('Invalid JSON received from LLM');
+        }
+      }
+
+      const entities = [
+        ...(parsed.tasks || []).map((item: any) => ({ ...item, type: 'task' })),
+        ...(parsed.action_items || []).map((item: any) => ({ ...item, type: 'task' })),
+        ...(parsed.decisions || []).map((item: any) => ({ ...item, type: 'decision' })),
+        ...(parsed.risks || []).map((item: any) => ({ ...item, type: 'risk' })),
+        ...(parsed.insights || []).map((item: any) => ({ ...item, type: 'insight' })),
+        ...(parsed.entities || []),
+      ];
+
+      const processingTime = Date.now() - startTime;
+
+      const typeCounts: Record<string, number> = {};
+      for (const e of entities) {
+        typeCounts[e.type || 'unknown'] = (typeCounts[e.type || 'unknown'] || 0) + 1;
+      }
+      logger.info(
+        `LLM document extraction completed in ${processingTime}ms, found ${entities.length} entities: ${JSON.stringify(typeCounts)}`
+      );
+
+      return {
+        entities,
+        summary: parsed.summary || '',
+        keyTopics: (parsed.keyTopics || []).map((t: any) =>
+          typeof t === 'string' ? t : t.topic || String(t)
+        ),
+        processingTime,
+      };
+    } catch (error) {
+      logger.error('LLM document extraction failed:', error);
       return {
         entities: [],
         summary: 'Erro na extração',

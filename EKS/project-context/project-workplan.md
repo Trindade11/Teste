@@ -19,6 +19,14 @@
 - ✅ Agenda & Calendar System com integração a Tarefas e visualização % pessoal vs corporativo
 - ✅ Specs 024 (Retrieval Orchestration) e 025 (Conversation Persistence System) criadas e integradas com Memory Ecosystem (017), Observability (018), Multi-Agent (019) e Chat/Knowledge (007/009).
 - ✅ Admin Login (003) e Onboarding & AI Profile (022) refinados para onboarding por tipo de organização/papel, com fluxo chat + Canvas e recuperação de senha prevista.
+- ✅ Document ingestion: fluxo ajustado para preview→validação→persistência (persist after validation), sem etapa manual de preprocess.
+- ✅ Document validation UX alinhada ao padrão robusto de transcrição: cards por tipo de entidade, validação tri-state, abas por tipo e seleção de responsável via combo de colaboradores.
+- ✅ Web ingestion robusto para sites grandes: chunking fixo determinístico (1500 chars, overlap 200) aplicado em páginas HTML e PDFs para evitar travas de chunking LLM por página.
+- ✅ Cálculo de `sizeKb` no scrape de página alinhado ao texto extraído (não HTML bruto), mantendo coerência com o preview.
+- ✅ Pipeline de site simplificado: removida extração de entidades (Task/Decision/Risk/Insight) no ingest web; fluxo agora persiste apenas WebSource/WebPage/Chunk + vínculos e curadoria por visibilidade.
+- ✅ Correção de sizing/seleção no ingest web: limite considera apenas páginas/PDFs selecionados; UI inicia com página raiz selecionada e mostra total selecionado com maior precisão.
+- ✅ WebSource linkage simplificado: ingest web agora vincula apenas uploader e vínculos explícitos (projeto/okr/objective); vínculo automático com departamento/organização do uploader foi removido.
+- ✅ Arquitetura de processamento especializado por tipo de documento: 3 categorias (Rich Extraction, Knowledge Base, Generic) com agentes especializados (Contract, Proposal, Meeting, Report) e pipeline diferenciado por categoria.
 
 ---
 
@@ -188,3 +196,8 @@ Use this checklist to ensure proper project initialization:
 | V16 | 2025-12-07 | Specs 024 (Retrieval Orchestration) e 025 (Conversation Persistence System) criadas e alinhadas com Memory Ecosystem (017), Chat/Knowledge (007/009) e Observability (018). |
 | V17 | 2025-12-07 | Ajustes macro: simplificação da sumarização em 017 (modelo enxuto com resumos agregados), refinamento de onboarding/admin (003, 022) e costura 017+018+019 em ciclo de feedback. |
 | V18 | 2025-12-07 | MVP Core Plan criado: arquitetura completa (frontend+backend+agents), 5 fases de implementação (10 semanas), integração do frontend Next.js existente com backend Node.js/TypeScript e agents Python/Agno, Neo4j como database central. |
+| V19 | 2026-03-01 | Document ingestion validation refinado: preview sem persistência + persistência após validação; UX de validação de documento remodelada para padrão da transcrição (cores por tipo, ações confirmar/retirar e combo de responsável com colaboradores). |
+| V20 | 2026-03-01 | Web ingest performance fix: removido chunking LLM por página no fluxo de website e adotado chunking fixo 1500/200 (HTML+PDF), com `sizeKb` baseado no texto extraído para consistência de sizing. |
+| V21 | 2026-03-01 | Web ingest simplificado para curadoria de fonte: removido enriquecimento/extração de entidades no pipeline de site; cálculo de limite corrigido para itens selecionados e UX ajustada para seleção inicial da raiz + indicador de tamanho mais preciso e bloqueio por limite. |
+| V22 | 2026-03-01 | WebSource linkage simplificado: ingest web agora vincula apenas uploader e vínculos explícitos (projeto/okr/objective); vínculo automático com departamento/organização do uploader foi removido. |
+| V23 | 2026-03-01 | Arquitetura de processamento especializado de documentos implementada: 3 categorias (Rich Extraction para contrato/proposta/ata/relatório com agentes Pydantic AI especializados, Knowledge Base para specs/políticas/manuais sem extração, Generic para análise/outros com extração leve). Backend com DocumentCategoryService + SpecializedExtractionService + FastAPI agents. |

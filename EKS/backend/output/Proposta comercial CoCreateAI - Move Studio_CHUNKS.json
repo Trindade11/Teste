@@ -1,0 +1,272 @@
+[
+  {
+    "id": "1c3132e5-3c02-491c-addc-1b3e54808160",
+    "text": "Proposta Comercial: Gestão Técnica e Estratégica em IA - Projeto EKS Para: Montreal VenturesDe: CoCreate AIData: 30/07/2025 Versão: 3.0 DADOS DA PRESTADORA: Razão Social: ACHEI TECNOLOGIA DA INFORMAÇÃO EIRELI – EPP Nome Fantasia: CoCreate AI CNPJ: 29.259.131/0001-70 Endereço: Rua Tiradentes nº 210, Apto 101, Bairro do Ingá, CEP 24.210-510, Niterói/RJ Representante Legal: Rodrigo Trindade Coutinho (CPF: 079.287.787-00) 1.",
+    "textLength": 424,
+    "sequenceIndex": 0,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "adba083f-6616-4e80-90c7-2bf69497ce5d",
+    "text": "Sumário Executivo Esta proposta reflete o modelo de parceria estratégica acordado, onde a CoCreate AI atuará como Apoio Técnico e Estratégico em IA para o Move Track. Nosso papel é dar suporte aos empreendedores na arquitetura, no design e na solução dos desafios técnicos de seus projetos, atuando como um conselho consultivo para aplicação de metodologias de IA. Para a execução do desenvolvimento, a CoCreate AI irá liderar o processo do roadmap tecnológico das startups participantes do programa, desde definição, acompanhamento, mentoria e apoio ao desenvolvimento. Caso seja necessário, a CoCreate AI vai realizar a busca, seleção e coordenação de equipes técnicas especializadas externas. Estes recursos serão contratados à parte, garantindo que o empreendedor tenha o time certo para executar a visão técnica que definirmos juntos.",
+    "textLength": 839,
+    "sequenceIndex": 1,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "dc3a06c8-286d-40c0-bf34-299e5002dcc6",
+    "text": "2.",
+    "textLength": 2,
+    "sequenceIndex": 2,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "6112d4f3-3ae3-4722-a5f3-5a16592a17ba",
+    "text": "Modelo de Parceria 2.1.",
+    "textLength": 23,
+    "sequenceIndex": 3,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "d270b61e-3e35-44ed-bcff-28046705b5d6",
+    "text": "Divisão de Responsabilidades CoCreate AI (Apoio Técnico e Estratégico): Fornecer suporte consultivo na arquitetura da solução, design técnico, especificações e validação das entregas. Atuamos como um parceiro estratégico para apoiar os empreendedores em seus desafios técnicos. Empreendedores (Execução e Gestão do Projeto): São os responsáveis finais pelo desenvolvimento, gestão e entrega de seus respectivos projetos, contando com nosso apoio. Recursos de Desenvolvimento (Provisionados pela CoCreate AI): Equipes de desenvolvimento que podem ser contratadas sob demanda para apoiar os empreendedores na execução. 2.2. Processo de Solução Técnica (Desenvolvimento Sob Demanda) Quando um desafio técnico exigir desenvolvimento que não será abrangido pela equipe da Montreal Ventures, nosso processo será: Diagnóstico e Estratégia: Juntamente com o empreendedor, definiremos a solução técnica e o perfil da equipe necessária. Busca e Seleção: A CoCreate AI conduzirá o processo para encontrar e apresentar os desenvolvedores ou times mais adequados para a tarefa. Orçamento e Contratação: Apresentaremos um orçamento claro para aprovação da Montreal. A contratação será feita diretamente ou via CoCreate AI, em um acordo separado. Coordenação Técnica: Após a contratação, faremos a ponte entre o empreendedor e a equipe de desenvolvimento, garantindo que a visão estratégica seja executada corretamente.",
+    "textLength": 1404,
+    "sequenceIndex": 4,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "2cadd577-bc55-41e3-9243-e5bb19eadd9c",
+    "text": "3.",
+    "textLength": 2,
+    "sequenceIndex": 5,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "ab45d29e-b317-44bc-b26d-c173e3d4ec22",
+    "text": "Escopo de Entregáveis e Serviços 3.1.",
+    "textLength": 37,
+    "sequenceIndex": 6,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "82ce0ae9-7d9b-408f-b29b-083a799fc838",
+    "text": "Desenvolvimento do Projeto EKS (Ambiente do Programa) Trabalharemos em conjunto para criar a plataforma digital do Move Track, com os seguintes componentes: Componente Descrição Apoio Estratégico da CoCreate AI a) Sistema de Memória Coletiva Chatbot inteligente com RAG para consulta a atas, documentos e histórico do programa. Base de conhecimento consultável por IA. Apoiar o empreendedor na definição da arquitetura, na criação de prompts e na estratégia de dados para o treino do modelo. b) Dashboard de Maturidade Ferramenta de avaliação \"antes e depois\" com radar visual, métricas de evolução e roadmap personalizado por startup Fornecer suporte consultivo na criação da metodologia de scoring e na definição das métricas de avaliação. c) Landing Page + Seleção Portal de inscrições com formulário inteligente e entrevista automatizada por IA Dar suporte no desenho do fluxo de seleção e na definição dos critérios de IA para a triagem dos candidatos.",
+    "textLength": 957,
+    "sequenceIndex": 7,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "ec968483-3bfd-469c-99ad-ab8ca990ac99",
+    "text": "d) Transferência de Conhecimento Documentação técnica completa e treinamento da equipe Montreal para manutenção autônoma Apoiar o empreendedor na estruturação e na revisão da documentação técnica do projeto.",
+    "textLength": 207,
+    "sequenceIndex": 8,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "d048f769-8d8d-424e-948f-0ac5f3ab827b",
+    "text": "3.2.",
+    "textLength": 4,
+    "sequenceIndex": 9,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "d28a2ac5-ead0-4c25-8219-32127425a4a2",
+    "text": "Apoio Técnico e Estratégico às Startups Acompanhamento quinzenal focado em: Automação Inteligente: Identificar oportunidades de IA nos processos de negócio Validação Técnica: Avaliar viabilidade e arquitetura das soluções de IA propostas Go-to-Market: Estratégias de venda e posicionamento de produtos Prototipagem Rápida: Orientação para MVPs e PoCs com IA 3.3. Programa de Capacitação Destaque do Workshop \"IA para Negócios\": O objetivo é capacitar os participantes a usar ferramentas de prototipagem rápida (low-code/no-code) como LangFlow, VoiceFlow, e outras, para que possam validar suas ideias de IA de forma ágil e com baixo custo, antes de partirem para o desenvolvimento completo. Evento Público-Alvo Duração Horário Responsável Masterclass: IA para Startups Empreendedores das startups 3h Após 19:30 Rodrigo Trindade Workshop: IA para Negócios Empreendedores e Time Montreal 3h A definir Rodrigo Trindade 4.",
+    "textLength": 918,
+    "sequenceIndex": 10,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "1b3974f3-ae8c-4f9c-93d2-7096fa329476",
+    "text": "Estrutura de Investimento 4.1.",
+    "textLength": 30,
+    "sequenceIndex": 11,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "5ed9fa63-469e-46fe-a093-4391df0bf107",
+    "text": "Apoio Técnico e Estratégico (Taxa Mensal) Valor do Apoio Estratégico: R$ 7.000/mês Inclui: O suporte consultivo às startups e ao desenvolvimento do Projeto EKS, além das capacitações descritas. Não Inclui: Custos com desenvolvimento, que serão orçados à parte. Duração Prevista: 6 meses (2 meses preparação + 4 meses programa) 4.2. Desenvolvimento e Serviços Adicionais Recursos de Desenvolvimento: Orçados sob demanda, conforme necessidade. Consultoria Técnica Avançada: Pacotes de horas com especialistas para desafios específicos.",
+    "textLength": 533,
+    "sequenceIndex": 12,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "737bcc86-6a4c-4882-b5f2-4b5ad77d8c08",
+    "text": "TOTAL PREVISTO (GESTÃO): R$ 42.000 (6 meses) O valor não inclui os custos com as equipes de desenvolvimento.",
+    "textLength": 108,
+    "sequenceIndex": 13,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "95908845-7bfc-424d-b6dd-e21d79616907",
+    "text": "5.",
+    "textLength": 2,
+    "sequenceIndex": 14,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "cb906376-4ac5-48a5-9d4d-669f0ad20662",
+    "text": "Cronograma de Execução Fase 1: Preparação (2 meses previstos) Mês Foco da Gestão Entregáveis Estratégicos Atividades Mês 1 Setup + Arquitetura Especificações da Landing Page e Seleção Definição de metodologias e seleção de startups Mês 2 Estruturação Especificações do Dashboard e Memória Coletiva Workshop: IA para Negócios Fase 2: Programa (4 meses previstos) Mês Foco da Gestão Entregáveis Estratégicos Atividades de Gestão Mês 3 Início do Programa Validação das primeiras entregas Gestão técnica das 3 startups Mês 4 Acompanhamento do Desenvolvimento Revisão de arquitetura e otimizações Gestão quinzenal + Acompanhamento de devs Mês 5 Consolidação Validação de MVPs e melhorias Gestão de MVPs e roadmaps Mês 6 Finalização Plano de transferência de conhecimento Preparação para Demo Day e handover 6.",
+    "textLength": 804,
+    "sequenceIndex": 15,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "4bf08448-fbe4-462a-8e80-e796897370cc",
+    "text": "Condições Comerciais e Jurídicas 6.1.",
+    "textLength": 37,
+    "sequenceIndex": 16,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "fe7ac217-8377-4ee7-95e1-087ee2d7eef5",
+    "text": "Forma de Pagamento Modelo: Taxa mensal de Apoio Estratégico de R$ 7.000 Faturamento: Mensal até o 5º dia útil, com vencimento em 30 dias.",
+    "textLength": 137,
+    "sequenceIndex": 17,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "35354e4b-b91c-42a8-9aec-ca696078818b",
+    "text": "Desenvolvimento: Contratado e faturado à parte, mediante aprovação de orçamento específico.",
+    "textLength": 91,
+    "sequenceIndex": 18,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "5c5664e0-aa3f-4cf6-a0ef-119ff8dd6a01",
+    "text": "Flexibilidade: O acordo de gestão pode ser cancelado por qualquer parte com aviso prévio de 30 dias.",
+    "textLength": 100,
+    "sequenceIndex": 19,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "f2876d22-f8b9-4c75-a3fb-5c9d8741a639",
+    "text": "6.2.",
+    "textLength": 4,
+    "sequenceIndex": 20,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "c55830ca-65ac-4161-a4ce-869d49d5c4ef",
+    "text": "Responsabilidades e Riscos CoCreate AI: Responsável por prover o suporte consultivo e estratégico, conforme descrito no escopo. Não se responsabiliza pela execução técnica ou gestão direta dos projetos das startups. Empreendedor/Startup: Responsável final pela gestão, desenvolvimento e entrega do seu projeto. Montreal Ventures: Responsável pela aprovação dos orçamentos de desenvolvimento e pelos custos operacionais de infraestrutura (tokens, APIs, etc.). Desenvolvimento de Terceiros: A responsabilidade sobre a execução técnica será regida pelo contrato específico com o time de desenvolvimento contratado.",
+    "textLength": 611,
+    "sequenceIndex": 21,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "be39fe84-8e88-4ed2-aad2-91bba3232c9c",
+    "text": "6.3. Infraestrutura e Custos Operacionais Hospedagem, domínios, APIs de LLMs e tokens por conta da Montreal Ventures. 6.4. Propriedade Intelectual Metodologias desenvolvidas: Propriedade Montreal Ventures Know-how pré-existente: Mantido pela CoCreate AI 6.5.",
+    "textLength": 258,
+    "sequenceIndex": 22,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "182258e3-fc48-482b-9c0c-cd41bef2368f",
+    "text": "Aspectos Tributários Valores BRUTOS incluindo todos os impostos (ISS, PIS, COFINS, etc.) Sem valores adicionais de tributos para a contratante 7.",
+    "textLength": 145,
+    "sequenceIndex": 23,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "ec4129b4-b1fe-4521-a9a6-9ec820a60f84",
+    "text": "Sobre a CoCreate AI A CoCreate AI é especializada em traduzir complexidade técnica de IA em resultados de negócio. Nosso fundador, Rodrigo Trindade, é estrategista de IA com experiência em RAG, orquestração de agentes e automação de processos. Nosso diferencial: Conectamos a técnica da IA às necessidades reais do negócio, garantindo que a tecnologia seja um meio, não um fim.",
+    "textLength": 377,
+    "sequenceIndex": 24,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "599ecd39-3d06-49a9-8093-07ea83cda975",
+    "text": "8.",
+    "textLength": 2,
+    "sequenceIndex": 25,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "88999fb1-5923-4c88-9e13-53626ef1b3aa",
+    "text": "Próximos Passos Validação da Proposta: Confirmar o alinhamento com este novo modelo de apoio técnico e estratégico.",
+    "textLength": 115,
+    "sequenceIndex": 26,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "0f29be84-a61b-48b4-b9c4-a007a89c2fbf",
+    "text": "Kick-off do Projeto: Início imediato da Fase 1 (Preparação) após a formalização do contrato de apoio estratégico.",
+    "textLength": 113,
+    "sequenceIndex": 27,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "f81f9479-28b6-4fc0-b968-e5cff51e0a2e",
+    "text": "Apresentação aos Empreendedores: Alinhamento de papéis e responsabilidades com as startups selecionadas.",
+    "textLength": 104,
+    "sequenceIndex": 28,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  },
+  {
+    "id": "9598fd20-11ef-4685-b089-af62d212b84b",
+    "text": "Rodrigo Trindade CoutinhoFundador, CoCreate AIACHEI TECNOLOGIA DA INFORMAÇÃO EIRELI – EPPCNPJ: 29.259.131/0001-70",
+    "textLength": 113,
+    "sequenceIndex": 29,
+    "chunkType": "paragraph",
+    "hierarchyLevel": 1,
+    "sectionTitle": null
+  }
+]

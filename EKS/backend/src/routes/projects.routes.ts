@@ -116,7 +116,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     let query = `
       MATCH (p:Project)
-      WHERE p.status <> 'archived' OR $includeArchived = true
+      WHERE coalesce(p.status, 'active') <> 'archived' OR $includeArchived = true
     `;
 
     if (status) {

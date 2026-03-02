@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useThemeStore } from "@/store/themeStore"
 import { useAuthStore } from "@/store/authStore"
-import { ArrowLeft, Save, Upload, RotateCcw, Palette, Image as ImageIcon, Database, User, Bot, Building2, FileText, Target, FolderKanban, Network, Shield, Activity, Compass, GitBranch } from "lucide-react"
+import { ArrowLeft, Save, Upload, RotateCcw, Palette, Image as ImageIcon, Database, User, Bot, Building2, FileText, Target, FolderKanban, Network, Shield, Activity, Compass, GitBranch, Key } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { useRouter } from "next/navigation"
 import { DataIngestion } from "@/components/admin/DataIngestion"
@@ -24,6 +24,7 @@ import { OntologicalTour } from "@/components/settings/OntologicalTour"
 import { MenuPermissionsManager } from "@/components/settings/MenuPermissionsManager"
 import { ExternalParticipantsManager } from "@/components/settings/ExternalParticipantsManager"
 import { PipelineFlows } from "@/components/settings/PipelineFlows"
+import { UserPasswordReset } from "@/components/admin/UserPasswordReset"
 import { useSettingsPermissionsStore } from "@/store/settingsPermissionsStore"
 
 export default function SettingsPage() {
@@ -32,7 +33,7 @@ export default function SettingsPage() {
   const router = useRouter()
   const logoInputRef = useRef<HTMLInputElement>(null)
 
-  const [activeSection, setActiveSection] = useState<'theme' | 'ingest' | 'meetings' | 'profile' | 'agents' | 'company' | 'strategy' | 'projects' | 'ontology' | 'ontology-health' | 'ontological-tour' | 'permissions' | 'external-participants' | 'pipeline-flows'>('theme')
+  const [activeSection, setActiveSection] = useState<'theme' | 'ingest' | 'meetings' | 'profile' | 'agents' | 'company' | 'strategy' | 'projects' | 'ontology' | 'ontology-health' | 'ontological-tour' | 'permissions' | 'external-participants' | 'pipeline-flows' | 'password-reset'>('theme')
   const { getVisibleMenus } = useSettingsPermissionsStore()
   const userRole = user?.role || 'user'
   const visibleMenus = getVisibleMenus(userRole)
@@ -401,6 +402,27 @@ export default function SettingsPage() {
                         </div>
                         <div className="text-xs mt-1">
                           Configurar visibilidade para usuários
+                        </div>
+                      </button>
+                    )}
+                    
+                    {/* Admin Only: Password Reset */}
+                    {userRole === 'admin' && (
+                      <button
+                        type="button"
+                        onClick={() => setActiveSection('password-reset')}
+                        className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                          activeSection === 'password-reset'
+                            ? 'bg-muted border-border text-foreground'
+                            : 'bg-background border-transparent text-muted-foreground hover:bg-muted/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Key className="h-4 w-4" />
+                          <span className="text-sm font-medium">Reset de Senhas</span>
+                        </div>
+                        <div className="text-xs mt-1">
+                          Gerenciar senhas dos usuários
                         </div>
                       </button>
                     )}
@@ -774,6 +796,9 @@ export default function SettingsPage() {
                     )}
                     {activeSection === 'permissions' && userRole === 'admin' && (
                       <MenuPermissionsManager />
+                    )}
+                    {activeSection === 'password-reset' && userRole === 'admin' && (
+                      <UserPasswordReset />
                     )}
                     {activeSection === 'pipeline-flows' && (
                       <PipelineFlows />

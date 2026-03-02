@@ -49,8 +49,11 @@ import {
   BadgeCheck,
   History,
   BarChart3,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import DocumentUpload from "@/components/knowledge/DocumentUpload";
+import WebIngest from "@/components/knowledge/WebIngest";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -918,7 +921,55 @@ function AcervoTab() {
 
 // ─── Ingestão (Upload) Tab ──────────────────────────────────────────────────
 
+type IngestaoSource = "document" | "web";
+
 function IngestaoTab() {
+  const [source, setSource] = useState<IngestaoSource>("document");
+
+  return (
+    <div className="h-full flex flex-col">
+      {/* Source Selector */}
+      <div className="flex gap-2 p-4 pb-0 border-b border-border bg-card/30">
+        <button
+          onClick={() => setSource("document")}
+          className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-t-lg border transition-colors ${
+            source === "document"
+              ? "bg-background border-border border-b-background -mb-px text-foreground"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <FileText className="w-4 h-4" />
+          Documento
+        </button>
+        <button
+          onClick={() => setSource("web")}
+          className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-t-lg border transition-colors ${
+            source === "web"
+              ? "bg-background border-border border-b-background -mb-px text-foreground"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Globe className="w-4 h-4" />
+          Site / URL
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-hidden">
+        {source === "document" && (
+          <div className="h-full overflow-auto">
+            <DocumentUpload />
+          </div>
+        )}
+        {source === "web" && <WebIngest />}
+      </div>
+    </div>
+  );
+}
+
+// ─── Ingestão (Upload) Tab - OLD IMPLEMENTATION (DEPRECATED) ───────────────
+
+function IngestaoTabOld() {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [docTitle, setDocTitle] = useState("");
@@ -1471,19 +1522,44 @@ function CuradoriaTab() {
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<CurationItem["status"] | null>(null);
   const [expandedChunks, setExpandedChunks] = useState<Set<string>>(new Set());
+  
+  const [items, setItems] = useState<CurationItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadQueue = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await api.getCurationQueue();
+      if (res.success && Array.isArray(res.data)) {
+        setItems(res.data);
+      } else {
+        setError(res.error || "Falha ao carregar fila de curadoria");
+      }
+    } catch (err: any) {
+      setError(err.message || "Erro de conexão ao buscar curadoria");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadQueue();
+  }, [loadQueue]);
 
   const filteredItems = useMemo(() => {
-    let items = [...MOCK_CURATION_ITEMS];
-    if (filterStatus) items = items.filter((i) => i.status === filterStatus);
-    return items;
-  }, [filterStatus]);
+    let list = [...items];
+    if (filterStatus) list = list.filter((i) => i.status === filterStatus);
+    return list;
+  }, [items, filterStatus]);
 
   const stats = useMemo(() => ({
-    total: MOCK_CURATION_ITEMS.length,
-    pending: MOCK_CURATION_ITEMS.filter((i) => i.status === "pending").length,
-    inReview: MOCK_CURATION_ITEMS.filter((i) => i.status === "in_review").length,
-    approved: MOCK_CURATION_ITEMS.filter((i) => i.status === "approved").length,
-  }), []);
+    total: items.length,
+    pending: items.filter((i) => i.status === "pending").length,
+    inReview: items.filter((i) => i.status === "in_review").length,
+    approved: items.filter((i) => i.status === "approved").length,
+  }), [items]);
 
   const toggleChunk = (chunkId: string) => {
     setExpandedChunks((prev) => {
@@ -1557,13 +1633,25 @@ function CuradoriaTab() {
 
       {/* Curation Items */}
       <div className="flex-1 overflow-auto p-4 space-y-4">
-            {filteredItems.length === 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+            <Loader2 className="w-8 h-8 animate-spin mb-4 text-primary" />
+            <p>Carregando fila de curadoria...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-16 text-red-600 bg-red-50 rounded-lg border border-red-200">
+            <AlertTriangle className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p className="font-medium">Erro ao carregar fila</p>
+            <p className="text-sm mt-1 opacity-80">{error}</p>
+            <Button onClick={loadQueue} variant="outline" className="mt-4" size="sm">Tentar novamente</Button>
+          </div>
+        ) : filteredItems.length === 0 ? (
           <div className="text-center py-16">
             <ShieldCheck className="w-12 h-12 mx-auto text-muted-foreground/30 mb-4" />
             <p className="text-muted-foreground font-medium">Nenhum item para curadoria</p>
-            <p className="text-sm text-muted-foreground/70 mt-1">Todos os documentos foram revisados</p>
-              </div>
-            ) : (
+            <p className="text-sm text-muted-foreground/70 mt-1">Sua fila de revisão está vazia</p>
+          </div>
+        ) : (
               filteredItems.map((item) => {
             const isSelected = selectedItem === item.id;
             const typeInfo = getDocTypeInfo(item.type);
@@ -1766,7 +1854,7 @@ function CuradoriaTab() {
                     )}
 
                     {/* Curator Actions */}
-                    <div className="p-4 flex items-center justify-between">
+                    <div className="p-4 flex items-center justify-between bg-muted/10">
                       <div className="flex items-center gap-2">
                         <textarea
                           placeholder="Notas do curador (opcional)..."
@@ -1775,22 +1863,33 @@ function CuradoriaTab() {
                         />
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                          onClick={async () => {
+                            await api.rejectCurationItem(item.id, "Rejeitado via portal");
+                            loadQueue();
+                          }}
+                        >
                           <XCircle className="w-4 h-4 mr-1" />
                           Rejeitar
                         </Button>
-                        <Button variant="outline" size="sm" className="text-amber-600 border-amber-200 hover:bg-amber-50 hover:text-amber-700">
-                          <RefreshCw className="w-4 h-4 mr-1" />
-                          Solicitar Revisão
-                        </Button>
-                        <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                        <Button 
+                          size="sm" 
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                          onClick={async () => {
+                            await api.approveCurationItem(item.id);
+                            loadQueue();
+                          }}
+                        >
                           <CheckCircle2 className="w-4 h-4 mr-1" />
                           Aprovar e Integrar
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })
@@ -1846,11 +1945,6 @@ export function KnowledgeBase() {
               >
                 {tab.icon}
                 <span>{tab.label}</span>
-                {tab.id === "curadoria" && MOCK_CURATION_ITEMS.filter((i) => i.status === "pending").length > 0 && (
-                  <span className="px-1.5 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-bold">
-                    {MOCK_CURATION_ITEMS.filter((i) => i.status === "pending").length}
-                  </span>
-                )}
               </button>
             ))}
           </div>

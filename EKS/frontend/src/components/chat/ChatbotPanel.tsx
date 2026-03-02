@@ -210,10 +210,13 @@ export function ChatbotPanel({
   }
 
   const handleSendMessage = async (content: string) => {
+    console.log('📤 [ChatbotPanel] handleSendMessage chamado com:', content);
     const { getContextForLLM } = useChatContextStore.getState()
     const contextText = getContextForLLM()
     const fullContent = contextText ? `${contextText}\n\n---\n\n${content}` : content
+    console.log('📤 [ChatbotPanel] Enviando para hook use-chat:', fullContent);
     await sendMessage(fullContent)
+    console.log('📤 [ChatbotPanel] Mensagem enviada, limpando input');
     setInputValue("")
   }
 
@@ -414,7 +417,9 @@ export function ChatbotPanel({
             onDragLeave={handleDragLeave}
           >
             <div className="space-y-4">
-              {messages.map((message) => (
+              {messages.map((message) => {
+                console.log('🎨 [ChatbotPanel] Renderizando mensagem:', message.type, message.content.substring(0, 50));
+                return (
                 <div
                   key={message.id}
                   className={`flex gap-2 ${message.type === "user" ? "justify-end" : "justify-start"}`}
@@ -479,7 +484,8 @@ export function ChatbotPanel({
                     </div>
                   )}
                 </div>
-              ))}
+                );
+              })}
 
               {(isLoading || isStartingChat) && (
                 <div className="flex gap-2 justify-start">
@@ -704,7 +710,9 @@ export function ChatbotPanel({
               onDragLeave={handleDragLeave}
             >
               <div className="space-y-4">
-                {messages.map((message) => (
+                {messages.map((message) => {
+                  console.log('🎨 [ChatbotPanel Desktop] Renderizando mensagem:', message.type, message.content.substring(0, 50));
+                  return (
                   <div
                     key={message.id}
                     className={`flex gap-2 ${message.type === "user" ? "justify-end" : "justify-start"}`}
@@ -799,7 +807,8 @@ export function ChatbotPanel({
                       </div>
                     )}
                   </div>
-                ))}
+                  );
+                })}
 
                 {(isLoading || isStartingChat) && (
                   <div className="flex gap-2 justify-start">

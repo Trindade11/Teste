@@ -147,17 +147,58 @@ export class ContractChunker implements ChunkingStrategy {
 
   private fallbackChunking(content: string): SemanticChunk[] {
     const chunks: SemanticChunk[] = [];
-    const paragraphs = content.split(/\n\s*\n/).filter(p => p.trim().length > 50);
-
-    for (let i = 0; i < paragraphs.length; i++) {
-      chunks.push({
-        text: paragraphs[i].trim(),
-        chunkType: 'paragraph',
-        hierarchyLevel: 1,
-        sequenceIndex: i,
-      });
+    const chunkSize = 1000; // Fixed size chunks
+    
+    // Simple fixed-size chunking
+    for (let i = 0; i < content.length; i += chunkSize) {
+      const chunkText = content.substring(i, i + chunkSize);
+      
+      // Skip empty chunks
+      if (chunkText.trim().length > 50) {
+        chunks.push({
+          text: chunkText.trim(),
+          chunkType: 'paragraph',
+          hierarchyLevel: 1,
+          sequenceIndex: chunks.length,
+        });
+      }
     }
 
     return chunks;
+  }
+
+  private extractSentences(text: string): string[] {
+    // Better sentence splitting that handles abbreviations and lists
+    const sentences = text.match(/(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|\!)\s/g) || [];
+    
+    if (sentences.length === 0) {
+      // Fallback: split by periods
+      return text.split('.').map(s => s.trim()).filter(s => s.length > 20);
+    }
+    
+    // Build sentences from splits
+    const result: string[] = [];
+    let lastIndex = 0;
+    
+    for (const match of sentences) {
+      const index = text.indexOf(match, lastIndex);
+      if (index > lastIndex) {
+        const sentence = text.substring(lastIndex, index).trim();
+        if (sentence.length > 20) {
+          result.push(sentence);
+        }
+      }
+      lastIndex = index + match.length;
+    }
+    
+    // Add final sentence
+    if (lastIndex < text.length) {
+      const finalSentence = text.substring(lastIndex).trim();
+      if (finalSentence.length > 20) {
+        result.push(finalSentence);
+      }
+    }
+    
+    return result;
   }
 }

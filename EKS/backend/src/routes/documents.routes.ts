@@ -4,10 +4,14 @@ import { randomUUID } from 'crypto';
 import { authenticate } from '../middleware/auth';
 import { neo4jConnection } from '../config/neo4j';
 import { logger } from '../utils/logger';
+import { FileTextExtractorService } from '../services/file-text-extractor.service';
+import { llmExtractionService } from '../services/llm-extraction.service';
+import { DocumentCategoryService } from '../services/document-category.service';
+import { specializedExtractionService } from '../services/specialized-extraction.service';
 import neo4j from 'neo4j-driver';
+import { DocumentMetadata, DocumentType, MemoryClass } from '../types/document.types';
 
 const router = Router();
-router.use(authenticate);
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -27,39 +31,6 @@ const toNumber = (value: unknown): number => {
 // ============================================================================
 // TYPES & INTERFACES
 // ============================================================================
-
-type DocumentType =
-  | 'contract'
-  | 'report'
-  | 'meeting'
-  | 'process_doc'
-  | 'strategic_plan'
-  | 'technical_spec'
-  | 'email'
-  | 'note'
-  | 'policy'
-  | 'analysis'
-  | 'manual'
-  | 'proposal'
-  | 'spreadsheet'
-  | 'other';
-
-type ConfidentialityLevel = 'public' | 'internal' | 'confidential' | 'restricted';
-type MemoryClass = 'semantic' | 'episodic' | 'procedural' | 'evaluative';
-
-interface DocumentMetadata {
-  title: string;
-  type: DocumentType;
-  confidentiality: ConfidentialityLevel;
-  memoryClass?: MemoryClass;
-  linkedProjectIds?: string[];
-  linkedOkrIds?: string[];
-  linkedObjectiveIds?: string[];
-  linkedProcessId?: string;
-  departmentId?: string;
-  tags?: string[];
-  summary?: string;
-}
 
 // ============================================================================
 // VALIDATION RULES
@@ -136,17 +107,19 @@ function validateRequiredRelationships(
  * POST /documents/preprocess
  * Analyze document and extract metadata + suggest entities (no persistence)
  */
-router.post('/preprocess', upload.single('file'), async (req: Request, res: Response) => {
+router.post('/preprocess', authenticate, upload.single('file'), async (req: Request, res: Response) => {
   try {
     const file = req.file;
+    const hints = req.body.hints ? JSON.parse(req.body.hints) : undefined;
 
     if (!file) {
       res.status(400).json({ success: false, error: 'No file uploaded' });
       return;
     }
 
-    // Extract text content from file
-    const fileContent = file.buffer.toString('utf-8');
+    // Extract text content from file (supports .docx via specialized parser)
+    const textExtractor = new FileTextExtractorService();
+    const fileContent = await textExtractor.extract(file);
     const fileName = file.originalname;
 
     // Import services dynamically
@@ -163,8 +136,17 @@ router.post('/preprocess', upload.single('file'), async (req: Request, res: Resp
       extraction.mentionedEntities,
       extraction.suggestedTitle,
       extraction.summary,
-      extraction.suggestedTags
+      extraction.suggestedTags,
+      hints
     );
+
+    const suggestedRelationships = {
+      projects: suggestions.filter((s) => s.entityType === 'project').length,
+      okrs: suggestions.filter((s) => s.entityType === 'okr').length,
+      objectives: suggestions.filter((s) => s.entityType === 'objective').length,
+      departments: suggestions.filter((s) => s.entityType === 'department').length,
+      people: suggestions.filter((s) => s.entityType === 'person').length,
+    };
 
     logger.info(`Document preprocessed: ${fileName}, ${suggestions.length} entity suggestions`);
 
@@ -180,6 +162,7 @@ router.post('/preprocess', upload.single('file'), async (req: Request, res: Resp
       },
       suggestedEntities: suggestions,
       mentionedEntities: extraction.mentionedEntities,
+      suggestedRelationships,
     });
   } catch (error) {
     logger.error('Error preprocessing document:', error);
@@ -190,11 +173,236 @@ router.post('/preprocess', upload.single('file'), async (req: Request, res: Resp
   }
 });
 
+router.post('/extract', authenticate, upload.single('file'), async (req: Request, res: Response) => {
+  try {
+    const file = req.file;
+    const context = req.body.context ? JSON.parse(req.body.context) : undefined;
+
+    if (!file) {
+      res.status(400).json({ success: false, error: 'No file uploaded' });
+      return;
+    }
+
+    const fileContent = await new FileTextExtractorService().extract(file);
+    const docType: DocumentType = context?.type || 'other';
+    const category = DocumentCategoryService.getCategory(docType);
+    const config = DocumentCategoryService.getConfig(docType);
+
+    logger.info(`Document extraction - Type: ${docType}, Category: ${category}`);
+
+    // Knowledge Base documents: no extraction needed
+    if (category === 'knowledge_base') {
+      logger.info('Knowledge Base document - skipping entity extraction');
+      res.json({
+        success: true,
+        category: 'knowledge_base',
+        processingMode: 'chunking_only',
+        message: 'Documento de base de conhecimento - sem extração de entidades',
+        data: {
+          summary: context?.title || file.originalname,
+          keyTopics: [],
+          entities: [],
+        },
+      });
+      return;
+    }
+
+    // Rich Extraction: keep single entity pipeline (Task/Decision/Risk/Insight)
+    // and use specialized agents only for document-type canonical metadata.
+    if (category === 'rich_extraction' && config.requiresSpecialist) {
+      const agentsAvailable = await specializedExtractionService.isAvailable();
+
+      if (!llmExtractionService.isConfigured()) {
+        res.status(503).json({
+          success: false,
+          error: 'LLM extraction service not configured. Check Azure OpenAI credentials.',
+        });
+        return;
+      }
+
+      logger.info('Using base entity extraction pipeline for rich document types');
+      const baseExtraction = await llmExtractionService.extractFromDocument(fileContent, {
+        id: context?.id || 'preview',
+        title: context?.title || file.originalname,
+        type: docType,
+      });
+
+      let specialistMetadata: Record<string, unknown> | null = null;
+      if (agentsAvailable) {
+        logger.info(`Using specialized metadata agent: ${config.specialistAgent}`);
+        const specialistResponse = await specializedExtractionService.extractByType(fileContent, {
+          id: context?.id || 'preview',
+          title: context?.title || file.originalname,
+          type: docType,
+          author: context?.author,
+          validFrom: context?.validFrom,
+          validUntil: context?.validUntil,
+          effectiveAt: context?.effectiveAt,
+          signedAt: context?.signedAt,
+        });
+
+        const rawSpecialistData =
+          specialistResponse && typeof specialistResponse === 'object' && 'data' in specialistResponse
+            ? (specialistResponse as { data?: unknown }).data
+            : specialistResponse;
+
+        if (rawSpecialistData && typeof rawSpecialistData === 'object') {
+          const canonical = { ...(rawSpecialistData as Record<string, unknown>) };
+          delete canonical.entities;
+          delete canonical.tasks;
+          delete canonical.decisions;
+          delete canonical.risks;
+          delete canonical.insights;
+          specialistMetadata = canonical;
+        }
+      } else {
+        logger.warn('Specialized agents not available; rich docs will use entity pipeline only');
+      }
+
+      res.json({
+        success: true,
+        category: 'rich_extraction',
+        processingMode: agentsAvailable ? 'hybrid_metadata_plus_entities' : 'entity_pipeline_only',
+        agent: agentsAvailable ? config.specialistAgent : null,
+        data: {
+          summary: baseExtraction.summary || '',
+          keyTopics: baseExtraction.keyTopics || [],
+          entities: Array.isArray(baseExtraction.entities) ? baseExtraction.entities : [],
+          canonicalData: specialistMetadata,
+        },
+      });
+      return;
+    }
+
+    // Fallback: generic LLM extraction (for generic category or when agents unavailable)
+    if (!llmExtractionService.isConfigured()) {
+      res.status(503).json({
+        success: false,
+        error: 'LLM extraction service not configured. Check Azure OpenAI credentials.',
+      });
+      return;
+    }
+
+    logger.info('Using generic LLM extraction');
+    const extraction = await llmExtractionService.extractFromDocument(fileContent, {
+      id: context?.id || 'preview',
+      title: context?.title || file.originalname,
+      type: docType,
+    });
+
+    res.json({
+      success: true,
+      category,
+      processingMode: 'generic_llm',
+      data: extraction,
+    });
+  } catch (error) {
+    logger.error('Error extracting entities from document (preview):', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to extract entities',
+    });
+  }
+});
+
+// =============================================
+// Document Validation Endpoints
+// =============================================
+
+/**
+ * GET /documents/:id/validations
+ * Fetch entities pending validation extracted from a Document (Task, Decision, Risk, Insight)
+ * Supports status filter: pending (default), validated, rejected, all
+ */
+router.get('/:id/validations', authenticate, async (req: Request, res: Response) => {
+  const session = neo4jConnection.getSession();
+  try {
+    const { id } = req.params;
+    const { status } = req.query;
+
+    let entityWhereClause = '';
+    if (status === 'validated') {
+      entityWhereClause = 'AND e.validated = true';
+    } else if (status === 'rejected') {
+      entityWhereClause = 'AND e.validated = false';
+    } else if (status === 'all') {
+      entityWhereClause = '';
+    } else {
+      entityWhereClause = 'AND e.validated IS NULL';
+    }
+
+    const result = await session.run(
+      `MATCH (e)-[:EXTRACTED_FROM]->(d:Document {id: $documentId})
+       WHERE (e:Task OR e:Decision OR e:Risk OR e:Insight)
+       ${entityWhereClause}
+       OPTIONAL MATCH (e)-[rel]->(u:User)
+       WHERE type(rel) IN ['ASSIGNED_TO', 'DECIDED_BY', 'RAISED_BY', 'CONTRIBUTED_BY']
+       WITH e, d, rel, u
+       OPTIONAL MATCH (orgUser:User {id: d.uploadedBy})
+       WITH e, d, rel, u, head(collect(DISTINCT orgUser)) AS uploader
+       RETURN
+         labels(e)[0] AS entityType,
+         e AS entity,
+         d.id AS documentId,
+         d.title AS documentTitle,
+         d.createdAt AS documentCreatedAt,
+         d.uploadedBy AS uploadedBy,
+         uploader.id AS uploaderId,
+         uploader.name AS uploaderName,
+         u.id AS assigneeId,
+         u.name AS assigneeName,
+         type(rel) AS relType
+       ORDER BY d.createdAt DESC, e.createdAt DESC`,
+      { documentId: id }
+    );
+
+    const validations = result.records.map((record) => {
+      const entity = record.get('entity').properties;
+      const entityType = record.get('entityType').toLowerCase();
+      const confidence = entity.confidence;
+
+      const titleOrValue = entity.value || entity.title || '';
+      const assigneeName = record.get('assigneeName') || entity.assignee || entity.relatedPerson || null;
+
+      return {
+        id: entity.id,
+        entityType,
+        value: titleOrValue,
+        description: entity.description || '',
+        priority: entity.priority || null,
+        deadline: entity.dueDate || null,
+        confidence: typeof confidence === 'number' ? confidence : toNumber(confidence) || 0,
+        visibility: entity.visibility || 'corporate',
+        validated: entity.validated ?? null,
+        validatedAt: entity.validatedAt?.toString() || null,
+        createdAt: entity.createdAt?.toString() || '',
+        source: record.get('documentTitle') || 'Documento',
+        sourceType: 'document' as const,
+        meetingId: record.get('documentId'),
+        meetingTitle: record.get('documentTitle') || '',
+        meetingOrganizer: record.get('uploaderName') || '',
+        meetingOrganizerId: record.get('uploaderId') || record.get('uploadedBy') || null,
+        meetingDate: record.get('documentCreatedAt')?.toString() || '',
+        assigneeId: record.get('assigneeId') || null,
+        assigneeName,
+        relType: record.get('relType') || null,
+      };
+    });
+
+    res.json({ success: true, data: validations, total: validations.length });
+  } catch (error) {
+    logger.error('Error fetching document validations:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch document validations' });
+  } finally {
+    await session.close();
+  }
+});
+
 /**
  * POST /documents/ingest
  * Upload and ingest a document with BIG relationships
  */
-router.post('/ingest', upload.single('file'), async (req: Request, res: Response) => {
+router.post('/ingest', authenticate, upload.single('file'), async (req: Request, res: Response) => {
   const session = neo4jConnection.getSession();
   const tx = session.beginTransaction();
 
@@ -209,6 +417,10 @@ router.post('/ingest', upload.single('file'), async (req: Request, res: Response
 
     // Parse metadata
     const metadata: DocumentMetadata = JSON.parse(req.body.metadata || '{}');
+
+    const approvedEntities = Array.isArray((metadata as any)?.approvedEntities)
+      ? ((metadata as any).approvedEntities as any[])
+      : null;
 
     // Validate required fields
     if (!metadata.title || !metadata.type) {
@@ -243,6 +455,10 @@ router.post('/ingest', upload.single('file'), async (req: Request, res: Response
         fileSize: $fileSize,
         uploadedBy: $uploadedBy,
         createdAt: datetime(),
+        validFrom: $validFrom,
+        validUntil: $validUntil,
+        effectiveAt: $effectiveAt,
+        signedAt: $signedAt,
         status: 'processing',
         confidentiality: $confidentiality,
         memoryClass: $memoryClass,
@@ -254,7 +470,8 @@ router.post('/ingest', upload.single('file'), async (req: Request, res: Response
         linkedOkrIds: $linkedOkrIds,
         linkedObjectiveIds: $linkedObjectiveIds,
         linkedProcessId: $linkedProcessId,
-        departmentId: $departmentId
+        departmentId: $departmentId,
+        canonicalDataJson: $canonicalDataJson
       })
       RETURN d`,
       {
@@ -265,6 +482,10 @@ router.post('/ingest', upload.single('file'), async (req: Request, res: Response
         sourceFile: file.originalname,
         fileSize: file.size,
         uploadedBy: userId,
+        validFrom: metadata.validFrom || null,
+        validUntil: metadata.validUntil || null,
+        effectiveAt: metadata.effectiveAt || null,
+        signedAt: metadata.signedAt || null,
         confidentiality,
         memoryClass,
         visibility: 'corporate',
@@ -276,6 +497,7 @@ router.post('/ingest', upload.single('file'), async (req: Request, res: Response
         linkedObjectiveIds: metadata.linkedObjectiveIds || [],
         linkedProcessId: metadata.linkedProcessId || null,
         departmentId: metadata.departmentId || null,
+        canonicalDataJson: JSON.stringify(metadata.canonicalData || {}),
       }
     );
 
@@ -301,7 +523,9 @@ router.post('/ingest', upload.single('file'), async (req: Request, res: Response
       for (const projectId of metadata.linkedProjectIds) {
         await tx.run(
           `MATCH (d:Document {id: $documentId})
-           MATCH (p:Project {id: $projectId})
+           MATCH (p)
+           WHERE (p:Project OR p:project)
+             AND (p.id = $projectId OR p.projectId = $projectId OR elementId(p) = $projectId)
            MERGE (d)-[:BELONGS_TO_PROJECT]->(p)`,
           { documentId, projectId }
         );
@@ -358,14 +582,57 @@ router.post('/ingest', upload.single('file'), async (req: Request, res: Response
     }
 
     // 4. Semantic Chunking (structure-based, not token-based)
-    const fileContent = file.buffer.toString('utf-8');
+    logger.info(`🔍 Starting semantic chunking for document type: ${metadata.type}`);
+    const textExtractor = new FileTextExtractorService();
+    const fileContent = await textExtractor.extract(file);
+    logger.info(`📄 Extracted text length: ${fileContent.length} chars`);
+    
     const { ChunkerFactory } = await import('../services/chunking/chunker-factory');
     const chunker = ChunkerFactory.create(metadata.type);
-    const semanticChunks = chunker.chunk(fileContent);
+    logger.info(`🔨 Using chunker for type: ${metadata.type}`);
+    
+    const semanticChunks = await chunker.chunk(fileContent, {
+      id: documentId,
+      title: metadata.title,
+      type: metadata.type,
+      sourceFile: file.originalname,
+      author: metadata.author,
+      createdAt: new Date(),
+      validFrom: metadata.validFrom,
+      validUntil: metadata.validUntil,
+      effectiveAt: metadata.effectiveAt,
+      signedAt: metadata.signedAt,
+    });
+    if (!semanticChunks || semanticChunks.length === 0) {
+      throw new Error('Chunking failed: produced 0 chunks');
+    }
+    logger.info(`✂️ Generated ${semanticChunks.length} semantic chunks`);
+    semanticChunks.forEach((chunk, idx) => {
+      logger.info(`  Chunk ${idx}: type=${chunk.chunkType}, level=${chunk.hierarchyLevel}, length=${chunk.text.length}, title="${chunk.sectionTitle}"`);
+    });
 
     // Create chunk nodes with semantic metadata
+    const firstNonEmpty = (values: Array<string | undefined | null>) =>
+      values.find((v) => typeof v === 'string' && v.trim().length > 0) || null;
+    const inferredValidFrom = firstNonEmpty(semanticChunks.map((c) => c.validFrom));
+    const inferredValidUntil = firstNonEmpty(semanticChunks.map((c) => c.validUntil));
+    const inferredEffectiveAt = firstNonEmpty(semanticChunks.map((c) => c.effectiveAt));
+    const inferredSignedAt = firstNonEmpty(semanticChunks.map((c) => c.signedAt));
+
+    const extractedEntities = {
+      tasks: 0,
+      decisions: 0,
+      risks: 0,
+      insights: 0,
+    };
+
     for (const chunk of semanticChunks) {
       const chunkId = randomUUID();
+      const containsTable = Boolean(chunk.metadata?.containsTable);
+      const tableDataJson = chunk.metadata?.tableData ? JSON.stringify(chunk.metadata.tableData) : null;
+      const keyTopics = Array.isArray(chunk.metadata?.keyTopics) ? chunk.metadata.keyTopics : [];
+      const estimatedImportance = typeof chunk.metadata?.estimatedImportance === 'string' ? chunk.metadata.estimatedImportance : null;
+      const reasoning = typeof chunk.metadata?.reasoning === 'string' ? chunk.metadata.reasoning : null;
       
       await tx.run(
         `MATCH (d:Document {id: $documentId})
@@ -379,7 +646,16 @@ router.post('/ingest', upload.single('file'), async (req: Request, res: Response
            sectionNumber: $sectionNumber,
            sectionTitle: $sectionTitle,
            sequenceIndex: $sequenceIndex,
-           createdAt: datetime()
+           createdAt: datetime(),
+           containsTable: $containsTable,
+           tableDataJson: $tableDataJson,
+           keyTopics: $keyTopics,
+           estimatedImportance: $estimatedImportance,
+           reasoning: $reasoning,
+           validFrom: $validFrom,
+           validUntil: $validUntil,
+           effectiveAt: $effectiveAt,
+           signedAt: $signedAt
          })
          MERGE (d)-[:HAS_CHUNK {sequenceIndex: $sequenceIndex}]->(c)`,
         {
@@ -392,6 +668,15 @@ router.post('/ingest', upload.single('file'), async (req: Request, res: Response
           sectionNumber: chunk.sectionNumber || null,
           sectionTitle: chunk.sectionTitle || null,
           sequenceIndex: chunk.sequenceIndex,
+          containsTable,
+          tableDataJson,
+          keyTopics,
+          estimatedImportance,
+          reasoning,
+          validFrom: chunk.validFrom || null,
+          validUntil: chunk.validUntil || null,
+          effectiveAt: chunk.effectiveAt || null,
+          signedAt: chunk.signedAt || null,
         }
       );
 
@@ -411,17 +696,490 @@ router.post('/ingest', upload.single('file'), async (req: Request, res: Response
       }
     }
 
-    // 5. TODO: Extract entities with LLM (tasks, decisions, risks, insights)
-    // TODO: Enrich chunks with summaries, entities, topics, clearance levels
-    // For now, we'll skip this and mark as completed
+    
+    if (approvedEntities) {
+      for (const entity of approvedEntities) {
+        const type = typeof entity?.type === 'string' ? entity.type : '';
+        const value = typeof entity?.value === 'string' ? entity.value : '';
+        const description = typeof entity?.description === 'string' ? entity.description : (entity?.context || '');
+        const confidence = typeof entity?.confidence === 'number' ? entity.confidence : 0.8;
+        const sourceRef = `document:${documentId}`;
+
+        if (!value) continue;
+
+        if (type === 'task') {
+          const taskId = randomUUID();
+          const assigneeName = entity.assignee || entity.relatedPerson || '';
+
+          await tx.run(
+            `MATCH (d:Document {id: $documentId})
+             CREATE (t:Task {
+               id: $taskId,
+               title: $value,
+               description: $description,
+               status: 'pending',
+               priority: $priority,
+               assignee: $assignee,
+               dueDate: $deadline,
+               impact: $impact,
+               confidence: $confidence,
+               sourceRef: $sourceRef,
+               validated: true,
+               validatedAt: datetime(),
+               visibility: 'corporate',
+               memoryLevel: 'medium',
+               completedAt: null,
+               createdAt: datetime(),
+               createdBy: $createdBy
+             })
+             CREATE (t)-[:EXTRACTED_FROM]->(d)`,
+            {
+              documentId,
+              taskId,
+              value,
+              description,
+              priority: entity.priority || 'medium',
+              assignee: assigneeName,
+              deadline: entity.deadline || '',
+              impact: entity.impact || '',
+              confidence,
+              sourceRef,
+              createdBy: userId,
+            }
+          );
+
+          if (assigneeName) {
+            await tx.run(
+              `MATCH (t:Task {id: $taskId})
+               OPTIONAL MATCH (u:User)
+               WHERE toLower(u.name) = toLower($assigneeName)
+               WITH t, u
+               WHERE u IS NOT NULL
+               MERGE (t)-[:ASSIGNED_TO]->(u)`,
+              { taskId, assigneeName }
+            );
+          }
+
+          extractedEntities.tasks++;
+        } else if (type === 'decision') {
+          const decisionId = randomUUID();
+          const relatedPersonName = entity.relatedPerson || '';
+
+          await tx.run(
+            `MATCH (doc:Document {id: $documentId})
+             CREATE (d:Decision {
+               id: $decisionId,
+               value: $value,
+               description: $description,
+               rationale: $rationale,
+               impact: $impact,
+               relatedPerson: $relatedPerson,
+               confidence: $confidence,
+               sourceRef: $sourceRef,
+               validated: true,
+               validatedAt: datetime(),
+               visibility: 'corporate',
+               createdAt: datetime(),
+               createdBy: $createdBy
+             })
+             CREATE (d)-[:EXTRACTED_FROM]->(doc)`,
+            {
+              documentId,
+              decisionId,
+              value,
+              description,
+              rationale: (entity as any).rationale || '',
+              impact: entity.impact || '',
+              relatedPerson: relatedPersonName,
+              confidence,
+              sourceRef,
+              createdBy: userId,
+            }
+          );
+
+          if (relatedPersonName) {
+            await tx.run(
+              `MATCH (d:Decision {id: $decisionId})
+               OPTIONAL MATCH (u:User)
+               WHERE toLower(u.name) = toLower($relatedPersonName)
+               WITH d, u
+               WHERE u IS NOT NULL
+               MERGE (d)-[:DECIDED_BY]->(u)`,
+              { decisionId, relatedPersonName }
+            );
+          }
+
+          extractedEntities.decisions++;
+        } else if (type === 'risk') {
+          const riskId = randomUUID();
+          const relatedPersonName = entity.relatedPerson || '';
+
+          await tx.run(
+            `MATCH (doc:Document {id: $documentId})
+             CREATE (r:Risk {
+               id: $riskId,
+               value: $value,
+               description: $description,
+               impact: $impact,
+               probability: $probability,
+               priority: $priority,
+               relatedPerson: $relatedPerson,
+               mitigation: $mitigation,
+               confidence: $confidence,
+               sourceRef: $sourceRef,
+               validated: true,
+               validatedAt: datetime(),
+               visibility: 'corporate',
+               createdAt: datetime(),
+               createdBy: $createdBy
+             })
+             CREATE (r)-[:EXTRACTED_FROM]->(doc)`,
+            {
+              documentId,
+              riskId,
+              value,
+              description,
+              impact: entity.impact || '',
+              probability: (entity as any).probability || entity.priority || 'medium',
+              priority: entity.priority || 'medium',
+              relatedPerson: relatedPersonName,
+              mitigation: (entity as any).mitigation || '',
+              confidence,
+              sourceRef,
+              createdBy: userId,
+            }
+          );
+
+          if (relatedPersonName) {
+            await tx.run(
+              `MATCH (r:Risk {id: $riskId})
+               OPTIONAL MATCH (u:User)
+               WHERE toLower(u.name) = toLower($relatedPersonName)
+               WITH r, u
+               WHERE u IS NOT NULL
+               MERGE (r)-[:RAISED_BY]->(u)`,
+              { riskId, relatedPersonName }
+            );
+          }
+
+          extractedEntities.risks++;
+        } else if (type === 'insight') {
+          const insightId = randomUUID();
+          const relatedPersonName = entity.relatedPerson || '';
+
+          await tx.run(
+            `MATCH (doc:Document {id: $documentId})
+             CREATE (i:Insight {
+               id: $insightId,
+               value: $value,
+               description: $description,
+               impact: $impact,
+               relatedPerson: $relatedPerson,
+               confidence: $confidence,
+               sourceRef: $sourceRef,
+               validated: true,
+               validatedAt: datetime(),
+               visibility: 'corporate',
+               createdAt: datetime(),
+               createdBy: $createdBy
+             })
+             CREATE (i)-[:EXTRACTED_FROM]->(doc)`,
+            {
+              documentId,
+              insightId,
+              value,
+              description,
+              impact: entity.impact || '',
+              relatedPerson: relatedPersonName,
+              confidence,
+              sourceRef,
+              createdBy: userId,
+            }
+          );
+
+          if (relatedPersonName) {
+            await tx.run(
+              `MATCH (i:Insight {id: $insightId})
+               OPTIONAL MATCH (u:User)
+               WHERE toLower(u.name) = toLower($relatedPersonName)
+               WITH i, u
+               WHERE u IS NOT NULL
+               MERGE (i)-[:CONTRIBUTED_BY]->(u)`,
+              { insightId, relatedPersonName }
+            );
+          }
+
+          extractedEntities.insights++;
+        }
+      }
+    } else if (llmExtractionService.isConfigured()) {
+      try {
+        logger.info(`🧠 Starting document semantic enrichment (${fileContent.length} chars)`);
+
+        const enrichment = await llmExtractionService.extractFromDocument(fileContent, {
+          id: documentId,
+          title: metadata.title,
+          type: metadata.type,
+        });
+
+        await tx.run(
+          `MATCH (d:Document {id: $documentId})
+           SET d.summary = coalesce(d.summary, $summary),
+               d.keyTopics = CASE WHEN size(coalesce(d.keyTopics, [])) > 0 THEN d.keyTopics ELSE $keyTopics END,
+               d.enrichedAt = datetime()`,
+          {
+            documentId,
+            summary: enrichment.summary || null,
+            keyTopics: enrichment.keyTopics || [],
+          }
+        );
+
+        const entities = Array.isArray(enrichment.entities) ? enrichment.entities : [];
+        for (const entity of entities) {
+          const type = typeof entity?.type === 'string' ? entity.type : '';
+          const value = typeof entity?.value === 'string' ? entity.value : '';
+          const description =
+            typeof entity?.description === 'string' ? entity.description : (entity?.context || '');
+          const confidence = typeof entity?.confidence === 'number' ? entity.confidence : 0.8;
+          const sourceRef = `document:${documentId}`;
+
+          if (!value) continue;
+
+          if (type === 'task') {
+            const taskId = randomUUID();
+            const assigneeName = entity.assignee || entity.relatedPerson || '';
+            
+            await tx.run(
+              `MATCH (d:Document {id: $documentId})
+               CREATE (t:Task {
+                 id: $taskId,
+                 title: $value,
+                 description: $description,
+                 status: 'pending',
+                 priority: $priority,
+                 assignee: $assignee,
+                 dueDate: $deadline,
+                 impact: $impact,
+                 confidence: $confidence,
+                 sourceRef: $sourceRef,
+                 validated: null,
+                 validatedAt: null,
+                 visibility: 'corporate',
+                 memoryLevel: 'medium',
+                 completedAt: null,
+                 createdAt: datetime(),
+                 createdBy: $createdBy
+               })
+               CREATE (t)-[:EXTRACTED_FROM]->(d)`,
+              {
+                documentId,
+                taskId,
+                value,
+                description,
+                priority: entity.priority || 'medium',
+                assignee: assigneeName,
+                deadline: entity.deadline || '',
+                impact: entity.impact || '',
+                confidence,
+                sourceRef,
+                createdBy: userId,
+              }
+            );
+
+            if (assigneeName) {
+              await tx.run(
+                `MATCH (t:Task {id: $taskId})
+                 OPTIONAL MATCH (u:User)
+                 WHERE toLower(u.name) = toLower($assigneeName)
+                 WITH t, u
+                 WHERE u IS NOT NULL
+                 MERGE (t)-[:ASSIGNED_TO]->(u)`,
+                { taskId, assigneeName }
+              );
+            }
+
+            extractedEntities.tasks++;
+          } else if (type === 'decision') {
+            const decisionId = randomUUID();
+            const relatedPersonName = entity.relatedPerson || '';
+
+            await tx.run(
+              `MATCH (doc:Document {id: $documentId})
+               CREATE (d:Decision {
+                 id: $decisionId,
+                 value: $value,
+                 description: $description,
+                 rationale: $rationale,
+                 impact: $impact,
+                 relatedPerson: $relatedPerson,
+                 confidence: $confidence,
+                 sourceRef: $sourceRef,
+                 validated: null,
+                 validatedAt: null,
+                 visibility: 'corporate',
+                 createdAt: datetime(),
+                 createdBy: $createdBy
+               })
+               CREATE (d)-[:EXTRACTED_FROM]->(doc)`,
+              {
+                documentId,
+                decisionId,
+                value,
+                description,
+                rationale: (entity as any).rationale || '',
+                impact: entity.impact || '',
+                relatedPerson: relatedPersonName,
+                confidence,
+                sourceRef,
+                createdBy: userId,
+              }
+            );
+
+            if (relatedPersonName) {
+              await tx.run(
+                `MATCH (d:Decision {id: $decisionId})
+                 OPTIONAL MATCH (u:User)
+                 WHERE toLower(u.name) = toLower($relatedPersonName)
+                 WITH d, u
+                 WHERE u IS NOT NULL
+                 MERGE (d)-[:DECIDED_BY]->(u)`,
+                { decisionId, relatedPersonName }
+              );
+            }
+
+            extractedEntities.decisions++;
+          } else if (type === 'risk') {
+            const riskId = randomUUID();
+            const relatedPersonName = entity.relatedPerson || '';
+
+            await tx.run(
+              `MATCH (doc:Document {id: $documentId})
+               CREATE (r:Risk {
+                 id: $riskId,
+                 value: $value,
+                 description: $description,
+                 impact: $impact,
+                 probability: $probability,
+                 priority: $priority,
+                 relatedPerson: $relatedPerson,
+                 mitigation: $mitigation,
+                 confidence: $confidence,
+                 sourceRef: $sourceRef,
+                 validated: null,
+                 validatedAt: null,
+                 visibility: 'corporate',
+                 createdAt: datetime(),
+                 createdBy: $createdBy
+               })
+               CREATE (r)-[:EXTRACTED_FROM]->(doc)`,
+              {
+                documentId,
+                riskId,
+                value,
+                description,
+                impact: entity.impact || '',
+                probability: (entity as any).probability || entity.priority || 'medium',
+                priority: entity.priority || 'medium',
+                relatedPerson: relatedPersonName,
+                mitigation: (entity as any).mitigation || '',
+                confidence,
+                sourceRef,
+                createdBy: userId,
+              }
+            );
+
+            if (relatedPersonName) {
+              await tx.run(
+                `MATCH (r:Risk {id: $riskId})
+                 OPTIONAL MATCH (u:User)
+                 WHERE toLower(u.name) = toLower($relatedPersonName)
+                 WITH r, u
+                 WHERE u IS NOT NULL
+                 MERGE (r)-[:RAISED_BY]->(u)`,
+                { riskId, relatedPersonName }
+              );
+            }
+
+            extractedEntities.risks++;
+          } else if (type === 'insight') {
+            const insightId = randomUUID();
+            const relatedPersonName = entity.relatedPerson || '';
+
+            await tx.run(
+              `MATCH (doc:Document {id: $documentId})
+               CREATE (i:Insight {
+                 id: $insightId,
+                 value: $value,
+                 description: $description,
+                 impact: $impact,
+                 relatedPerson: $relatedPerson,
+                 confidence: $confidence,
+                 sourceRef: $sourceRef,
+                 validated: null,
+                 validatedAt: null,
+                 visibility: 'corporate',
+                 createdAt: datetime(),
+                 createdBy: $createdBy
+               })
+               CREATE (i)-[:EXTRACTED_FROM]->(doc)`,
+              {
+                documentId,
+                insightId,
+                value,
+                description,
+                impact: entity.impact || '',
+                relatedPerson: relatedPersonName,
+                confidence,
+                sourceRef,
+                createdBy: userId,
+              }
+            );
+
+            if (relatedPersonName) {
+              await tx.run(
+                `MATCH (i:Insight {id: $insightId})
+                 OPTIONAL MATCH (u:User)
+                 WHERE toLower(u.name) = toLower($relatedPersonName)
+                 WITH i, u
+                 WHERE u IS NOT NULL
+                 MERGE (i)-[:CONTRIBUTED_BY]->(u)`,
+                { insightId, relatedPersonName }
+              );
+            }
+
+            extractedEntities.insights++;
+          }
+        }
+      } catch (enrichmentError) {
+        logger.warn('Document enrichment failed, continuing without blocking ingestion:', enrichmentError);
+      }
+    }
 
     // 6. Update document status
+    const hasPendingValidations = !approvedEntities &&
+      (extractedEntities.tasks || 0) +
+      (extractedEntities.decisions || 0) +
+      (extractedEntities.risks || 0) +
+      (extractedEntities.insights || 0) > 0;
+
     await tx.run(
       `MATCH (d:Document {id: $documentId})
-       SET d.status = 'completed',
+       SET d.status = $status,
            d.processedAt = datetime(),
-           d.chunkCount = $chunkCount`,
-      { documentId, chunkCount: semanticChunks.length }
+           d.chunkCount = $chunkCount,
+           d.validFrom = coalesce(d.validFrom, $validFrom),
+           d.validUntil = coalesce(d.validUntil, $validUntil),
+           d.effectiveAt = coalesce(d.effectiveAt, $effectiveAt),
+           d.signedAt = coalesce(d.signedAt, $signedAt)`,
+      {
+        documentId,
+        status: hasPendingValidations ? 'pending_validation' : 'completed',
+        chunkCount: semanticChunks.length,
+        validFrom: inferredValidFrom,
+        validUntil: inferredValidUntil,
+        effectiveAt: inferredEffectiveAt,
+        signedAt: inferredSignedAt,
+      }
     );
 
     await tx.commit();
@@ -430,15 +1188,12 @@ router.post('/ingest', upload.single('file'), async (req: Request, res: Response
 
     res.status(201).json({
       success: true,
-      documentId,
-      chunkCount: semanticChunks.length,
-      extractedEntities: {
-        tasks: 0,
-        decisions: 0,
-        risks: 0,
-        insights: 0,
+      data: {
+        documentId,
+        chunkCount: semanticChunks.length,
+        extractedEntities,
+        relationships,
       },
-      relationships,
     });
   } catch (error) {
     await tx.rollback();
@@ -457,6 +1212,10 @@ router.post('/ingest', upload.single('file'), async (req: Request, res: Response
  * Get list of entities available for linking (Projects, OKRs, Objectives, Processes)
  */
 router.get('/linkable-entities', async (req: Request, res: Response) => {
+  // CORS headers explícitos
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.header('Access-Control-Allow-Methods', 'GET');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   const session = neo4jConnection.getSession();
   const { type } = req.query;
 
@@ -465,11 +1224,13 @@ router.get('/linkable-entities', async (req: Request, res: Response) => {
 
     if (!type || type === 'project') {
       const projectsResult = await session.run(`
-        MATCH (p:Project)
-        WHERE p.status <> 'archived'
+        MATCH (p)
+        WHERE (p:Project OR p:project)
+          AND (p.status IS NULL OR p.status <> 'archived')
         OPTIONAL MATCH (p)-[:OWNED_BY]->(owner:User)
         OPTIONAL MATCH (p)-[:BELONGS_TO]->(dept:Department)
-        RETURN p.id AS id, p.name AS name, 'project' AS type, p.status AS status, 
+        RETURN coalesce(p.id, p.projectId, elementId(p)) AS id,
+               p.name AS name, 'project' AS type, p.status AS status, 
                dept.name AS department, owner.name AS owner
         ORDER BY p.name
         LIMIT 100
@@ -576,7 +1337,7 @@ router.get('/linkable-entities', async (req: Request, res: Response) => {
  * POST /documents/suggest-relationships
  * Suggest relationships based on document title and type
  */
-router.post('/suggest-relationships', async (req: Request, res: Response) => {
+router.post('/suggest-relationships', authenticate, async (req: Request, res: Response) => {
   const session = neo4jConnection.getSession();
 
   try {
@@ -599,9 +1360,11 @@ router.post('/suggest-relationships', async (req: Request, res: Response) => {
 
     // Suggest projects based on name similarity
     const projectsResult = await session.run(
-      `MATCH (p:Project)
-       WHERE p.status <> 'archived' AND toLower(p.name) CONTAINS $keyword
-       RETURN p.id AS id, p.name AS name, 0.7 AS confidence
+      `MATCH (p)
+       WHERE (p:Project OR p:project)
+         AND (p.status IS NULL OR p.status <> 'archived')
+         AND toLower(p.name) CONTAINS $keyword
+       RETURN coalesce(p.id, p.projectId, elementId(p)) AS id, p.name AS name, 0.7 AS confidence
        LIMIT 5`,
       { keyword: keywords.split(' ')[0] }
     );
@@ -686,11 +1449,11 @@ router.get('/', async (req: Request, res: Response) => {
 
     query += `
       OPTIONAL MATCH (d)<-[:UPLOADED]-(uploader:User)
-      OPTIONAL MATCH (d)-[:BELONGS_TO_PROJECT]->(proj:Project)
+      OPTIONAL MATCH (d)-[:BELONGS_TO_PROJECT]->(proj)
       OPTIONAL MATCH (d)-[:LINKED_TO_OKR]->(okr:OKR)
       OPTIONAL MATCH (d)-[:SUPPORTS]->(obj:Objective)
       RETURN d, uploader.name AS uploaderName,
-             collect(DISTINCT proj.name) AS projects,
+             collect(DISTINCT CASE WHEN proj:Project OR proj:project THEN proj.name ELSE null END) AS projects,
              collect(DISTINCT okr.title) AS okrs,
              collect(DISTINCT obj.title) AS objectives
       ORDER BY d.createdAt DESC
@@ -731,6 +1494,99 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 /**
+ * GET /documents/:elementId/reconstruct
+ * Reconstruct document from chunks and compare with original
+ */
+router.get('/:elementId/reconstruct', async (req: Request, res: Response) => {
+  const session = neo4jConnection.getSession();
+
+  try {
+    const { elementId } = req.params;
+
+    // Get document info
+    const docResult = await session.run(
+      `MATCH (d:Document) 
+       WHERE elementId(d) = $elementId
+       RETURN d.id AS docId, d.title AS title, d.sourceFile AS sourceFile, 
+              d.chunkCount AS chunkCount, d.format AS format`,
+      { elementId }
+    );
+
+    if (docResult.records.length === 0) {
+      res.status(404).json({ success: false, error: 'Document not found' });
+      return;
+    }
+
+    const docRecord = docResult.records[0];
+    const docId = docRecord.get('docId');
+    const title = docRecord.get('title');
+    const sourceFile = docRecord.get('sourceFile');
+    const chunkCount = docRecord.get('chunkCount');
+
+    // Get all chunks ordered by sequence
+    const chunksResult = await session.run(
+      `MATCH (d:Document {id: $docId})-[:HAS_CHUNK]->(c:Chunk)
+       RETURN c.id AS id, c.text AS text, c.textLength AS textLength,
+              c.sequenceIndex AS sequenceIndex, c.chunkType AS chunkType,
+              c.hierarchyLevel AS hierarchyLevel, c.sectionTitle AS sectionTitle
+       ORDER BY c.sequenceIndex`,
+      { docId }
+    );
+
+    const chunks = chunksResult.records.map(r => ({
+      id: r.get('id'),
+      text: r.get('text'),
+      textLength: r.get('textLength'),
+      sequenceIndex: r.get('sequenceIndex'),
+      chunkType: r.get('chunkType'),
+      hierarchyLevel: r.get('hierarchyLevel'),
+      sectionTitle: r.get('sectionTitle'),
+    }));
+
+    // Reconstruct document
+    const reconstructed = chunks.map(c => c.text).join('\n\n');
+
+    // Analyze chunks
+    const analysis = {
+      totalChunks: chunks.length,
+      expectedChunks: chunkCount,
+      chunkSizes: chunks.map(c => c.textLength),
+      avgChunkSize: chunks.reduce((sum, c) => sum + c.textLength, 0) / chunks.length,
+      minChunkSize: Math.min(...chunks.map(c => c.textLength)),
+      maxChunkSize: Math.max(...chunks.map(c => c.textLength)),
+      emptyChunks: chunks.filter(c => !c.text || c.text.trim().length === 0).length,
+      specialCharsIssues: chunks.filter(c => 
+        c.text && (c.text.includes('�') || c.text.includes('\ufffd'))
+      ).length,
+    };
+
+    logger.info(`📊 Document reconstruction analysis:`, analysis);
+
+    res.json({
+      success: true,
+      document: {
+        id: docId,
+        elementId,
+        title,
+        sourceFile,
+        chunkCount,
+      },
+      chunks,
+      reconstructed,
+      analysis,
+    });
+  } catch (error) {
+    logger.error('Error reconstructing document:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to reconstruct document',
+    });
+  } finally {
+    await session.close();
+  }
+});
+
+/**
  * GET /documents/:id
  * Get document details with all relationships
  */
@@ -743,14 +1599,14 @@ router.get('/:id', async (req: Request, res: Response) => {
     const result = await session.run(
       `MATCH (d:Document {id: $id})
        OPTIONAL MATCH (d)<-[:UPLOADED]-(uploader:User)
-       OPTIONAL MATCH (d)-[:BELONGS_TO_PROJECT]->(proj:Project)
+       OPTIONAL MATCH (d)-[:BELONGS_TO_PROJECT]->(proj)
        OPTIONAL MATCH (d)-[:LINKED_TO_OKR]->(okr:OKR)
        OPTIONAL MATCH (d)-[:SUPPORTS]->(obj:Objective)
        OPTIONAL MATCH (d)-[:DESCRIBES_PROCESS]->(proc:Process)
        OPTIONAL MATCH (d)-[:BELONGS_TO]->(dept:Department)
        OPTIONAL MATCH (d)-[:HAS_CHUNK]->(chunk:Chunk)
        RETURN d, uploader,
-              collect(DISTINCT proj) AS projects,
+              collect(DISTINCT CASE WHEN proj:Project OR proj:project THEN proj ELSE null END) AS projects,
               collect(DISTINCT okr) AS okrs,
               collect(DISTINCT obj) AS objectives,
               collect(DISTINCT proc) AS processes,

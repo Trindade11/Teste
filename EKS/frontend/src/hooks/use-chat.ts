@@ -97,10 +97,16 @@ export function useChat({ initialMessages = [], onError, onMessageSent, sessionI
       mentions: mentions.length > 0 ? mentions : undefined,
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    console.log('🔵 [use-chat] Enviando mensagem do usuário:', userMessage);
+    setMessages(prev => {
+      const updated = [...prev, userMessage];
+      console.log('🔵 [use-chat] Messages atualizadas:', updated.length, 'mensagens');
+      return updated;
+    });
     
     // Callback para notificar que a mensagem foi enviada
     if (onMessageSent) {
+      console.log('🔵 [use-chat] Chamando onMessageSent callback');
       onMessageSent(userMessage);
     }
     
@@ -118,10 +124,16 @@ export function useChat({ initialMessages = [], onError, onMessageSent, sessionI
         sources: response.sources,
       };
 
-      setMessages(prev => [...prev, botMessage]);
+      console.log('🤖 [use-chat] Resposta do bot recebida:', botMessage);
+      setMessages(prev => {
+        const updated = [...prev, botMessage];
+        console.log('🤖 [use-chat] Messages atualizadas:', updated.length, 'mensagens');
+        return updated;
+      });
       
       // Callback para notificar que a resposta foi recebida
       if (onMessageSent) {
+        console.log('🤖 [use-chat] Chamando onMessageSent callback para bot');
         onMessageSent(botMessage);
       }
     } catch (error) {

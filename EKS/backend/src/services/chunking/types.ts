@@ -4,6 +4,7 @@
  */
 
 export type ChunkType = 
+  | 'title'
   | 'section' 
   | 'subsection' 
   | 'paragraph' 
@@ -13,7 +14,9 @@ export type ChunkType =
   | 'list'
   | 'annex'
   | 'header'
-  | 'footer';
+  | 'footer'
+  | 'summary'
+  | 'other';
 
 export type DocumentType =
   | 'contract'
@@ -31,8 +34,23 @@ export type DocumentType =
   | 'spreadsheet'
   | 'other';
 
+export interface DocumentMetadata {
+  id: string;
+  title: string;
+  type: DocumentType;
+  sourceFile?: string;
+  author?: string;
+  createdAt?: Date;
+  validFrom?: string;
+  validUntil?: string;
+  effectiveAt?: string;
+  signedAt?: string;
+}
+
 export interface SemanticChunk {
+  id?: string;
   text: string;
+  textLength: number;
   chunkType: ChunkType;
   hierarchyLevel: number;
   sectionNumber?: string;
@@ -41,6 +59,11 @@ export interface SemanticChunk {
   pageNumber?: number;
   startOffset?: number;
   endOffset?: number;
+  validFrom?: string;
+  validUntil?: string;
+  effectiveAt?: string;
+  signedAt?: string;
+  metadata?: Record<string, any>;
 }
 
 export interface EnrichedChunk extends SemanticChunk {
@@ -58,7 +81,7 @@ export interface EnrichedChunk extends SemanticChunk {
 }
 
 export interface ChunkingStrategy {
-  chunk(content: string, metadata?: any): SemanticChunk[];
+  chunk(content: string, metadata?: any): SemanticChunk[] | Promise<SemanticChunk[]>;
 }
 
 export interface StructureNode {

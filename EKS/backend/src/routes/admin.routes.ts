@@ -211,13 +211,89 @@ router.patch('/users/:id', async (req: Request, res: Response) => {
  * Reset user password
  */
 router.post('/users/:id/reset-password', async (req: Request, res: Response) => {
+  const session = neo4jConnection.getSession();
+  
   try {
     const { newPassword } = resetPasswordSchema.parse(req.body);
+    const adminId = (req as any).user?.userId;
+    const adminEmail = (req as any).user?.email;
+    
+    if (!adminId || !adminEmail) {
+      res.status(401).json({
+        success: false,
+        error: 'Admin authentication required',
+      });
+      return;
+    }
+
+    // Prevent self-reset for security
+    if (adminId === req.params.id) {
+      res.status(403).json({
+        success: false,
+        error: 'Administrators cannot reset their own passwords through this endpoint',
+      });
+      return;
+    }
+
+    // Get target user info for audit
+    const targetUserResult = await session.run(
+      `MATCH (u:User {id: $id})
+       RETURN u.email as email, u.name as name, u.role as role`,
+      { id: req.params.id }
+    );
+
+    if (targetUserResult.records.length === 0) {
+      res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+      return;
+    }
+
+    const targetUser = targetUserResult.records[0].toObject();
+    
+    // Log the reset attempt before execution
+    logger.warn(`Password reset attempt by admin ${adminEmail} for user ${targetUser.email}`, {
+      adminId,
+      adminEmail,
+      targetUserId: req.params.id,
+      targetUserEmail: targetUser.email,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Execute password reset
     await authService.resetPassword(req.params.id, newPassword);
+
+    // Create audit log entry
+    await session.run(
+      `MATCH (admin:User {id: $adminId}), (target:User {id: $targetId})
+       CREATE (admin)-[:PERFORMED_ACTION {
+         action: 'PASSWORD_RESET',
+         timestamp: datetime(),
+         details: $details
+       }]->(target)`,
+      {
+        adminId,
+        targetId: req.params.id,
+        details: {
+          action: 'Password reset by administrator',
+          adminEmail,
+          targetEmail: targetUser.email,
+          timestamp: new Date().toISOString(),
+        }
+      }
+    );
+
+    logger.info(`Password reset successfully: ${targetUser.email} by admin ${adminEmail}`);
 
     res.json({
       success: true,
       message: 'Password reset successfully',
+      audit: {
+        performedBy: adminEmail,
+        performedAt: new Date().toISOString(),
+        targetUser: targetUser.email,
+      }
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -234,6 +310,8 @@ router.post('/users/:id/reset-password', async (req: Request, res: Response) => 
       success: false,
       error: error instanceof Error ? error.message : 'Failed to reset password',
     });
+  } finally {
+    await session.close();
   }
 });
 

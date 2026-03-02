@@ -48,6 +48,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         const { syncStatus } = useOnboardingStore.getState();
         await syncStatus();
         
+        // Load ontology metadata cache (schema, labels, relationships)
+        const { useOntologyCache } = await import('@/stores/useOntologyCache');
+        const { loadOntologyMetadata } = useOntologyCache.getState();
+        loadOntologyMetadata().catch(err => {
+          console.warn('Failed to preload ontology cache:', err);
+        });
+        
         return true;
       } else {
         set({ error: 'Failed to load user profile', isLoading: false });
@@ -104,6 +111,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           isAuthenticated: true,
           isLoading: false,
           error: null,
+        });
+
+        // Load ontology metadata cache on page reload/refresh
+        const { useOntologyCache } = await import('@/stores/useOntologyCache');
+        const { loadOntologyMetadata } = useOntologyCache.getState();
+        loadOntologyMetadata().catch(err => {
+          console.warn('Failed to preload ontology cache:', err);
         });
 
         // Sync onboarding status after restoring session (token already present)

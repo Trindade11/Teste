@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { MermaidDiagram } from "@/components/ui/mermaid-diagram"
 import { Button } from "@/components/ui/button"
-import { GitBranch, Users, FileText, Database, Info, ZoomIn, ZoomOut, Maximize2, ArrowLeft } from "lucide-react"
+import { GitBranch, Users, FileText, Database, Info, ZoomIn, ZoomOut, Maximize2, ArrowLeft, Globe } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const ONBOARDING_FLOW = `flowchart TD
@@ -234,6 +234,168 @@ const MEETING_INGESTION_FLOW = `flowchart TD
     style Persist fill:#e3f2fd
     style Success fill:#c8e6c9`
 
+const DOCUMENT_INGESTION_FLOW = `flowchart TD
+    Start["Usuário acessa Conhecimento > Nova Ingestão"] --> LoadProjects["Carregar projetos disponíveis"]
+    LoadProjects --> LoadOrg["Carregar organograma"]
+    LoadOrg --> Ready["Interface pronta"]
+    
+    Ready --> EnterTitle["1. Digitar título"]
+    EnterTitle --> PrelinkProject["2. Pré-vincular projeto"]
+    PrelinkProject --> SelectType["3. Selecionar tipo visual"]
+    
+    SelectType --> TypeCards["Cards visuais: Contrato, Relatório, Ata, Espec, Política, Manual, Proposta, Análise, Outro"]
+    TypeCards --> UploadFile["4. Upload do arquivo"]
+    
+    UploadFile --> ValidateFile{"Validar formato?"}
+    ValidateFile -->|Inválido| ShowError["Mostrar erro"]
+    ShowError --> UploadFile
+    
+    ValidateFile -->|OK| Analyze["Análise automática disparada"]
+    Analyze --> SetStates["setIsAnalyzing + setIsExtractingEntities"]
+    SetStates --> ResetStates["Limpar estados anteriores"]
+    
+    ResetStates --> Preprocess["FASE 1: Preprocessamento"]
+    Preprocess --> CallPreprocess["Chamar api.preprocessDocument"]
+    CallPreprocess --> SendParams["preferredType + prelinkedProjectIds"]
+    
+    SendParams --> GetResponse{"Response.success?"}
+    GetResponse -->|OK| ExtractData["Extrair response.data"]
+    ExtractData --> SuggestedMetadata["suggestedMetadata"]
+    ExtractData --> SuggestedEntities["suggestedEntities"]
+    ExtractData --> MentionedEntities["mentionedEntities"]
+    ExtractData --> SuggestedRels["suggestedRelationships"]
+    
+    SuggestedMetadata --> AutoFill["Auto-preencher metadados"]
+    AutoFill --> UpdateTitle["Atualizar título extraído"]
+    AutoFill --> UpdateType["Atualizar tipo se other"]
+    AutoFill --> UpdateTags["Atualizar tags"]
+    AutoFill --> UpdateSummary["Atualizar resumo"]
+    
+    SuggestedEntities --> FilterHighConf["Filtrar confiança >0.85"]
+    FilterHighConf --> AutoAccept["Auto-aceitar sugestões"]
+    AutoAccept --> UpdateMetadata["Atualizar metadata com entidades"]
+    
+    UpdateMetadata --> Extract["FASE 2: Extração de Entidades"]
+    Extract --> CallExtract["Chamar api.extractDocumentEntities"]
+    CallExtract --> SendFileParams["file + title + type"]
+    
+    SendFileParams --> GetExtractResponse{"Response.success?"}
+    GetExtractResponse -->|OK| ParsePayload["Parsear payload.data"]
+    ParsePayload --> RawEntities["Array de entidades brutas"]
+    
+    RawEntities --> FilterTypes["Filtrar tipos válidos"]
+    FilterTypes --> MapToPreview["Mapear para PreviewEntity"]
+    MapToPreview --> SetExtracted["setExtractedEntities"]
+    
+    SetExtracted --> Validate["FASE 3: Validação UI"]
+    Validate --> FilterEntities["Filtrar por activeEntityTab"]
+    FilterEntities --> ShowCards["Cards coloridos por tipo"]
+    ShowCards --> EntityCounts["Contador por tipo"]
+    
+    EntityCounts --> UserValidate["Usuário valida/rejeita"]
+    UserValidate --> UpdateEntity["updateExtractedEntity"]
+    UserValidate --> LinkEntities["Vincular a colaboradores"]
+    
+    LinkEntities --> CheckRequired{"Validar relacionamentos obrigatórios"}
+    CheckRequired -->|Faltando| ShowErrors["Mostrar erros de validação"]
+    ShowErrors --> UserValidate
+    
+    CheckRequired -->|OK| Ingestion["FASE 4: Ingestão Final"]
+    Ingestion --> FilterValid["Filtrar entidades validated=true"]
+    FilterValid --> MapApproved["Mapear approvedEntities"]
+    
+    MapApproved --> CallUpload["Chamar api.uploadDocument"]
+    CallUpload --> SendMetadata["metadata + approvedEntities"]
+    
+    SendMetadata --> CreateDoc["Criar :Document node"]
+    CreateDoc --> DocProps["title, type, confidentiality, visibility, tags, validFrom, validUntil, effectiveAt, signedAt"]
+    CreateDoc --> LinkProjects["Document-RELATED_TO->Project"]
+    CreateDoc --> LinkObjectives["Document-SUPPORTS->Objective"]
+    CreateDoc --> LinkOkrs["Document-LINKED_TO_OKR->OKR"]
+    CreateDoc --> LinkDepartment["Document-BELONGS_TO->Department"]
+    CreateDoc --> LinkOwner["Document-OWNED_BY->User"]
+    
+    DocProps --> ExtractText["FileTextExtractorService.extract"]
+    ExtractText --> Chunking["SemanticChunkingService.chunk"]
+    Chunking --> CreateChunks["Criar :Chunk nodes"]
+    
+    CreateChunks --> ChunkProps["id, documentId, text, textLength, chunkType, hierarchyLevel, sequenceIndex, sectionTitle, containsTable, keyTopics, estimatedImportance, reasoning"]
+    ChunkProps --> LinkChunks["Document-HAS_CHUNK->Chunk"]
+    ChunkProps --> ChunkSequence["Chunk-FOLLOWS->Chunk"]
+    
+    LinkChunks --> ProcessApproved["Processar approvedEntities"]
+    ProcessApproved --> CheckApproved{"approvedEntities existe?"}
+    
+    CheckApproved -->|Sim| CreateEntities["Criar nós de entidades"]
+    CheckApproved -->|Não| CheckLLM{"llmExtractionService.isConfigured()?"}
+    
+    CreateEntities --> ForEachEntity["Para cada approvedEntity"]
+    ForEachEntity --> EntityType{"Tipo da entidade?"}
+    
+    EntityType -->|task| CreateTask["Criar :Task node"]
+    EntityType -->|decision| CreateDecision["Criar :Decision node"]
+    EntityType -->|risk| CreateRisk["Criar :Risk node"]
+    EntityType -->|insight| CreateInsight["Criar :Insight node"]
+    
+    CreateTask --> TaskProps["id, title, description, status: 'pending', priority, assignee, dueDate, impact, confidence, sourceRef, validated: true, validatedAt, visibility: 'corporate', memoryLevel: 'medium'"]
+    CreateTask --> LinkTask["Task-EXTRACTED_FROM->Document"]
+    CreateTask --> LinkAssignee["Task-ASSIGNED_TO->User"]
+    
+    CreateDecision --> DecisionProps["id, value, description, rationale, impact, relatedPerson, confidence, sourceRef, validated: true"]
+    CreateDecision --> LinkDecision["Decision-EXTRACTED_FROM->Document"]
+    CreateDecision --> LinkDecider["Decision-DECIDED_BY->User"]
+    
+    CreateRisk --> RiskProps["id, value, description, impact, probability, priority, relatedPerson, mitigation, confidence, sourceRef, validated: true"]
+    CreateRisk --> LinkRisk["Risk-EXTRACTED_FROM->Document"]
+    CreateRisk --> LinkRaiser["Risk-RAISED_BY->User"]
+    
+    CreateInsight --> InsightProps["id, value, description, impact, relatedPerson, confidence, sourceRef, validated: true"]
+    CreateInsight --> LinkInsight["Insight-EXTRACTED_FROM->Document"]
+    CreateInsight --> LinkContributor["Insight-CONTRIBUTED_BY->User"]
+    
+    CheckLLM -->|Sim| Enrichment[" Enriquecimento semântico"]
+    CheckLLM -->|Não| SkipEnrichment["Pular enriquecimento"]
+    
+    Enrichment --> LLMExtract["llmExtractionService.extractFromDocument"]
+    LLMExtract --> UpdateDocSummary["Atualizar summary + keyTopics"]
+    LLMExtract --> CreateAutoEntities["Criar entidades com validated: null"]
+    
+    CreateAutoEntities --> AutoTask["Task com validated: null"]
+    CreateAutoEntities --> AutoDecision["Decision com validated: null"]
+    CreateAutoEntities --> AutoRisk["Risk com validated: null"]
+    CreateAutoEntities --> AutoInsight["Insight com validated: null"]
+    
+    AutoTask --> LinkAutoTask["Task-EXTRACTED_FROM->Document"]
+    AutoDecision --> LinkAutoDecision["Decision-EXTRACTED_FROM->Document"]
+    AutoRisk --> LinkAutoRisk["Risk-EXTRACTED_FROM->Document"]
+    AutoInsight --> LinkAutoInsight["Insight-EXTRACTED_FROM->Document"]
+    
+    SkipEnrichment --> UpdateStatus["Atualizar status do documento"]
+    CreateEntities --> UpdateStatus
+    AutoEntities --> UpdateStatus
+    
+    UpdateStatus --> CheckPending{"Tem entidades pendentes?"}
+    CheckPending -->|Sim| SetPending["status: 'pending_validation'"]
+    CheckPending -->|Não| SetCompleted["status: 'completed'"]
+    
+    SetPending --> SetProcessedAt["processedAt: datetime()"]
+    SetCompleted --> SetProcessedAt
+    
+    SetProcessedAt --> CommitTransaction["Fazer commit"]
+    CommitTransaction --> Success["Ingestão concluída"]
+    Success --> ReturnResponse["Retornar documentId, chunkCount, extractedEntities, relationships"]
+    ReturnResponse --> End(["Fim"])
+    
+    ShowErrors --> End
+    
+    style Start fill:#e1f5e1
+    style End fill:#e1f5e1
+    style Preprocess fill:#fff4e6
+    style Extract fill:#ffe0b2
+    style Validate fill:#f3e5f5
+    style Ingestion fill:#e3f2fd
+    style Success fill:#c8e6c9`
+
 const DOCUMENT_MANAGEMENT_FLOW = `flowchart TD
     Start([Usuário acessa Base de Conhecimento]) --> View[Visualizar documentos existentes]
     View --> Action{Ação do<br/>usuário?}
@@ -345,7 +507,186 @@ const DOCUMENT_MANAGEMENT_FLOW = `flowchart TD
     style Linking fill:#e3f2fd
     style Success fill:#c8e6c9`
 
-type FlowType = "onboarding" | "initial-ingestion" | "meeting-ingestion" | "document-management"
+const WEBSITE_INGESTION_FLOW = `flowchart TD
+    Start["Usuário acessa Conhecimento > Ingestão de Site"] --> LoadEntities["Carregar projetos/OKRs/objetivos"]
+    LoadEntities --> Ready["Interface pronta"]
+    
+    Ready --> EnterUrl["1. Digitar URL"]
+    EnterUrl --> SelectDepth["2. Selecionar profundidade"]
+    
+    SelectDepth --> DepthOptions["0: Só raiz, 1: Links diretos, 2-3: Navegação profunda"]
+    DepthOptions --> Preview["FASE 1: Preview do Site"]
+    
+    Preview --> ValidateURL{"Validar URL?"}
+    ValidateURL -->|Inválida| ShowUrlError["Mostrar erro de URL"]
+    ShowUrlError --> EnterUrl
+    
+    ValidateURL -->|OK| SetPreviewStates["setIsPreviewing + limpar estados"]
+    SetPreviewStates --> CallPreview["Chamar api.previewWebSite"]
+    CallPreview --> SendUrlParams["url + depth"]
+    
+    SendUrlParams --> WebScraper["webScraperService.previewSite"]
+    WebScraper --> CrawlSite["Crawler explora site"]
+    CrawlSite --> DiscoverPages["Descobrir páginas"]
+    CrawlSite --> DiscoverPdfs["Descobrir PDFs"]
+    
+    DiscoverPages --> BuildTree["Construir árvore por nível"]
+    DiscoverPdfs --> ListPdfs["Listar PDFs disponíveis"]
+    
+    BuildTree --> CalcStats["Calcular estatísticas"]
+    CalcStats --> TotalPages["totalPages"]
+    CalcStats --> TotalPdfs["totalPdfs"]
+    CalcStats --> EstimatedKb["estimatedKb"]
+    
+    EstimatedKb --> ShowStats["Mostrar estatísticas"]
+    ShowStats --> AutoSelect["Auto-selecionar página raiz"]
+    AutoSelect --> SetInitial["initialSelection Set"]
+    
+    SetInitial --> SelectPages["FASE 2: Seleção de Páginas"]
+    SelectPages --> GroupedPages["Agrupar páginas por nível"]
+    GroupedPages --> PageTree["Árvore expansível"]
+    
+    PageTree --> ToggleLevels["Expandir/colapsar níveis"]
+    PageTree --> TogglePages["Marcar/desmarcar páginas"]
+    PageTree --> TogglePdfs["Marcar/desmarcar PDFs"]
+    
+    TogglePages --> CalcSelected["Calcular seleção"]
+    CalcSelected --> SelectedPagesList["Lista de páginas"]
+    CalcSelected --> SelectedPdfsList["Lista de PDFs"]
+    
+    SelectedPagesList --> TotalSelectedKb["Calcular KB total"]
+    SelectedPdfsList --> TotalSelectedKb
+    TotalSelectedKb --> CheckSize{"Verificar tamanho total"}
+    
+    CheckSize -->|>30MB| ShowWarning["Aviso: volume alto"]
+    ShowWarning --> EstTime["Calcular tempo estimado"]
+    EstTime --> ShowTime["Mostrar ~X min/seg"]
+    ShowTime --> TogglePages
+    
+    CheckSize -->|OK| LinkStrategic["FASE 3: Vínculos Estratégicos"]
+    LinkStrategic --> MultiProjects["Múltiplos projetos"]
+    LinkStrategic --> MultiObjectives["Múltiplos objetivos"]
+    LinkStrategic --> FilterOkrs["OKRs filtrados por objetivos"]
+    
+    FilterOkrs --> SelectVisibility["FASE 4: Visibilidade"]
+    SelectVisibility --> VisOptions["Individual, Departamento, Corporativo"]
+    VisOptions --> CuratorFlow["Identificar fluxo de curadoria"]
+    
+    CuratorFlow --> Ingestion["FASE 5: Ingestão"]
+    Ingestion --> ValidateIngest{"Validar pré-condições"}
+    ValidateIngest -->|Inválido| ShowIngestError["Mostrar erro"]
+    ShowIngestError --> SelectPages
+    
+    ValidateIngest -->|OK| SetIngestStates["setIsIngesting + limpar erros"]
+    SetIngestStates --> BuildPageLevels["Mapear pageLevels"]
+    BuildPageLevels --> PageLevels["Record<string, number>"]
+    
+    PageLevels --> CallIngest["Chamar api.ingestWebSite"]
+    CallIngest --> SendIngestParams["Complex payload"]
+    
+    SendIngestParams --> SendUrl["url"]
+    SendIngestParams --> SendTitle["title"]
+    SendIngestParams --> SendPages["selectedPages"]
+    SendIngestParams --> SendPdfs["selectedPdfs + downloadPdfs"]
+    SendIngestParams --> SendProjectIds["projectIds"]
+    SendIngestParams --> SendObjectiveIds["objectiveIds"]
+    SendIngestParams --> SendOkrIds["okrIds"]
+    SendIngestParams --> SendPageLevels["pageLevels"]
+    SendIngestParams --> SendVisibility["visibility"]
+    
+    SendIngestParams --> CreateWebSource["Criar :WebSource node"]
+    CreateWebSource --> WebSourceProps["id, url, title, domain, visibility, createdBy"]
+    
+    WebSourceProps --> LinkUploader["User-UPLOADED->WebSource"]
+    LinkUploader --> LinkProjects["WebSource-LINKED_TO->Project"]
+    LinkProjects --> LinkOkrs["WebSource-LINKED_TO_OKR->OKR"]
+    LinkOkrs --> LinkObjectives["WebSource-SUPPORTS->Objective"]
+    
+    LinkObjectives --> ProcessPages["Processar páginas HTML"]
+    ProcessPages --> ForEachPage["Para cada selectedPage"]
+    
+    ForEachPage --> ScrapePage["webScraperService.scrapePage"]
+    ScrapePage --> ValidateContent{"text.length >= 50"}
+    ValidateContent -->|< 50| SkipPage["Pular página"]
+    
+    ValidateContent -->|OK| CreateWebPage["Criar :WebPage node"]
+    CreateWebPage --> WebPageProps["id, webSourceId, url, title, level, textLength, sizeKb"]
+    
+    WebPageProps --> LinkWebSource["WebSource-HAS_PAGE->WebPage"]
+    LinkWebSource --> SequentialOrder["WebPage-NEXT_PAGE->WebPage"]
+    
+    SequentialOrder --> FixedChunks["buildFixedChunks(text, webPageId)"]
+    FixedChunks --> ChunkStep["1500 chars + 200 overlap"]
+    
+    ChunkStep --> CreateChunks["Criar :Chunk nodes"]
+    CreateChunks --> ChunkProps["id, webPageId, webSourceId, text, textLength, chunkType, hierarchyLevel, sequenceIndex, containsTable, keyTopics, estimatedImportance, reasoning"]
+    
+    ChunkProps --> LinkWebPage["WebPage-HAS_CHUNK->Chunk"]
+    LinkWebPage --> ChunkSequence["Chunk-FOLLOWS->Chunk"]
+    
+    ChunkSequence --> UpdatePageCount["Atualizar WebPage.chunkCount"]
+    UpdatePageCount --> NextPage["Próxima página"]
+    
+    ProcessPages --> DownloadPdfs["Download + ingest PDFs"]
+    DownloadPdfs --> CheckDownloadPdfs{"downloadPdfs && selectedPdfs > 0"}
+    
+    CheckDownloadPdfs -->|Não| SkipPdfs["Pular PDFs"]
+    CheckDownloadPdfs -->|Sim| LimitPdfs["Limitar a 10 PDFs"]
+    
+    LimitPdfs --> ForEachPdf["Para cada selectedPdf"]
+    ForEachPdf --> FetchPdf["webScraperService.fetchPdfBuffer"]
+    FetchPdf --> ValidatePdf{"buffer existe?"}
+    
+    ValidatePdf -->|Não| SkipPdf["Pular PDF"]
+    ValidatePdf -->|OK| ExtractPdfText["FileTextExtractorService.extract"]
+    
+    ExtractPdfText --> ValidatePdfText{"text.length >= 50"}
+    ValidatePdfText -->|< 50| SkipPdf
+    
+    ValidatePdfText -->|OK| CreatePdfWebPage["Criar WebPage com isPdf: true"]
+    CreatePdfWebPage --> PdfWebPageProps["id, webSourceId, url, title, isPdf, level, textLength, sizeKb"]
+    
+    PdfWebPageProps --> PdfFixedChunks["buildFixedChunks(pdfText, webPageId)"]
+    PdfFixedChunks --> CreatePdfChunks["Criar :Chunk nodes"]
+    
+    CreatePdfChunks --> PdfChunkProps["Sem estimatedImportance/reasoning"]
+    CreatePdfChunks --> LinkPdfWebPage["WebPage-HAS_CHUNK->Chunk"]
+    LinkPdfWebPage --> PdfChunkSequence["Chunk-FOLLOWS->Chunk"]
+    
+    PdfChunkSequence --> UpdatePdfPageCount["Atualizar WebPage.chunkCount"]
+    UpdatePdfPageCount --> NextPdf["Próximo PDF"]
+    
+    NextPdf --> FinalizeWebSource["Atualizar WebSource status"]
+    FinalizeWebSource --> SetStatus["status: 'completed'"]
+    SetStatus --> SetPageCount["pageCount: ingestedPages.length"]
+    SetStatus --> SetCurationStatus["curationStatus: 'approved' se individual senão 'pending'"]
+    SetStatus --> SetProcessedAt["processedAt: datetime()"]
+    
+    SetProcessedAt --> CommitTransaction["Fazer commit"]
+    CommitTransaction --> CheckCuration{"visibility !== 'individual'"}
+    
+    CheckCuration -->|Sim| RouteForCuration["curationService.routeForCuration"]
+    CheckCuration -->|Não| SkipCuration["Pular curadoria"]
+    
+    RouteForCuration --> Success["Ingestão concluída"]
+    SkipCuration --> Success
+    Success --> ReturnResponse["Retornar webSourceId, domain, pageCount, pages, relationships"]
+    ReturnResponse --> End(["Fim"])
+    
+    SkipPage --> NextPage
+    SkipPdf --> NextPdf
+    ShowUrlError --> End
+    ShowIngestError --> End
+    
+    style Start fill:#e1f5e1
+    style End fill:#e1f5e1
+    style Preview fill:#fff4e6
+    style SelectPages fill:#ffe0b2
+    style LinkStrategic fill:#f3e5f5
+    style Ingestion fill:#e3f2fd
+    style Success fill:#c8e6c9`
+
+type FlowType = "onboarding" | "initial-ingestion" | "meeting-ingestion" | "document-management" | "document-ingestion" | "website-ingestion"
 
 export function PipelineFlows() {
   const [selectedFlow, setSelectedFlow] = useState<FlowType | null>(null)
@@ -522,6 +863,142 @@ export function PipelineFlows() {
           "Segurança: Filtro por clearance level do usuário"
         ]
       }
+    },
+    {
+      id: "document-ingestion" as FlowType,
+      title: "Ingestão de Documento",
+      icon: FileText,
+      description: "Upload com chunking semântico e extração de entidades",
+      color: "from-teal-500/10 to-cyan-500/10 border-teal-500/20",
+      diagram: DOCUMENT_INGESTION_FLOW,
+      details: {
+        characteristics: [
+          "Layout otimizado: Título → Projeto → Tipo visual → Upload",
+          "Cards visuais para seleção de tipo (Contrato, Relatório, Ata, etc)",
+          "Pré-processamento automático com extração de metadados",
+          "Validação de entidades em cards coloridos (Tasks, Decisions, Risks, Insights)",
+          "Fluxo de curadoria: preview → validação → persistência",
+          "Chunking semântico com metadata rica"
+        ],
+        phases: [
+          "Carregar projetos e organograma",
+          "Entrada de título e pré-vínculo de projeto",
+          "Seleção visual de tipo (cards)",
+          "Upload e validação de formato",
+          "Preprocessamento (/documents/preprocess)",
+          "Extração de entidades (/documents/extract-entities)",
+          "Validação UI com cards coloridos",
+          "Ingestão final (/documents/upload)"
+        ],
+        nodes: [
+          { code: ":Document", desc: "Documento principal" },
+          { code: ":Chunk", desc: "Fragmentos semânticos" },
+          { code: ":Task", desc: "Tarefas extraídas" },
+          { code: ":Decision", desc: "Decisões extraídas" },
+          { code: ":Risk", desc: "Riscos extraídos" },
+          { code: ":Insight", desc: "Insights extraídos" },
+          { code: ":Project", desc: "Projetos vinculados" },
+          { code: ":Objective", desc: "Objetivos vinculados" },
+          { code: ":OKR", desc: "OKRs vinculados" },
+          { code: ":Department", desc: "Departamento" },
+          { code: ":User", desc: "Usuário/colaborador" }
+        ],
+        relationships: [
+          { code: "HAS_CHUNK", desc: "Document → Chunk" },
+          { code: "FOLLOWS", desc: "Chunk → Chunk (sequencial)" },
+          { code: "RELATED_TO", desc: "Document → Project" },
+          { code: "SUPPORTS", desc: "Document → Objective" },
+          { code: "LINKED_TO_OKR", desc: "Document → OKR" },
+          { code: "BELONGS_TO", desc: "Document → Department" },
+          { code: "OWNED_BY", desc: "Document → User" },
+          { code: "EXTRACTED_FROM", desc: "Task/Decision/Risk/Insight → Document" },
+          { code: "ASSIGNED_TO", desc: "Task → User" },
+          { code: "DECIDED_BY", desc: "Decision → User" },
+          { code: "RAISED_BY", desc: "Risk → User" },
+          { code: "CONTRIBUTED_BY", desc: "Insight → User" }
+        ],
+        technical: [
+          "Chunking: SemanticChunkingService.chunk",
+          "Extração: FileTextExtractorService.extract",
+          "Entidades: llmExtractionService.extractFromDocument",
+          "Validação: approvedEntities (validated: true) vs auto-entidades (validated: null)",
+          "Status: 'pending_validation' se há entidades não validadas",
+          "Metadados temporais: validFrom, validUntil, effectiveAt, signedAt",
+          "Transação: Neo4j com commit/rollback"
+        ],
+        processing: [
+          "Se approvedEntities: cria entidades com validated: true",
+          "Se não approvedEntities mas LLM disponível: cria entidades com validated: null",
+          "Chunks com metadata: containsTable, keyTopics, estimatedImportance, reasoning",
+          "Tasks: status='pending', memoryLevel='medium', visibility='corporate'",
+          "Vinculação automática: assignee→User, relatedPerson→User",
+          "Resposta: documentId, chunkCount, extractedEntities, relationships"
+        ]
+      }
+    },
+    {
+      id: "website-ingestion" as FlowType,
+      title: "Ingestão de Site/URL",
+      icon: Globe,
+      description: "Crawler com chunks fixos e processamento estruturado",
+      color: "from-indigo-500/10 to-purple-500/10 border-indigo-500/20",
+      diagram: WEBSITE_INGESTION_FLOW,
+      details: {
+        characteristics: [
+          "Crawler com profundidade configurável (0-3 níveis)",
+          "Chunks fixos determinísticos: 1500 chars + 200 overlap",
+          "Descoberta automática de páginas e PDFs",
+          "Seleção granular com árvore expansível por nível",
+          "Vínculos estratégicos múltiplos (projetos, objetivos, OKRs)",
+          "Controle de visibilidade com fluxo de curadoria",
+          "NÃO há extração de entidades de sites"
+        ],
+        phases: [
+          "Carregar entidades estratégicas (projetos/OKRs/objetivos)",
+          "Entrada de URL e profundidade",
+          "Preview do site (/web/preview)",
+          "Seleção de páginas/PDFs",
+          "Vínculos estratégicos múltiplos",
+          "Seleção de visibilidade",
+          "Ingestão com chunks fixos (/web/ingest)"
+        ],
+        nodes: [
+          { code: ":WebSource", desc: "Fonte do site (raiz)" },
+          { code: ":WebPage", desc: "Páginas HTML e PDFs" },
+          { code: ":Chunk", desc: "Chunks fixos de 1500 chars" },
+          { code: ":User", desc: "Usuário que fez upload" },
+          { code: ":Project", desc: "Projetos vinculados" },
+          { code: ":OKR", desc: "OKRs vinculados" },
+          { code: ":Objective", desc: "Objetivos vinculados" }
+        ],
+        relationships: [
+          { code: "UPLOADED", desc: "User → WebSource" },
+          { code: "HAS_PAGE", desc: "WebSource → WebPage" },
+          { code: "NEXT_PAGE", desc: "WebPage → WebPage (sequencial)" },
+          { code: "HAS_CHUNK", desc: "WebPage → Chunk" },
+          { code: "FOLLOWS", desc: "Chunk → Chunk (sequencial)" },
+          { code: "LINKED_TO", desc: "WebSource → Project" },
+          { code: "LINKED_TO_OKR", desc: "WebSource → OKR" },
+          { code: "SUPPORTS", desc: "WebSource → Objective" }
+        ],
+        technical: [
+          "Chunks fixos: buildFixedChunks(1500, 200)",
+          "Validação: text.length >= 50 caracteres",
+          "Limite de PDFs: máximo 10 por ingestão",
+          "Download: webScraperService.fetchPdfBuffer",
+          "Extração: FileTextExtractorService para PDFs",
+          "Transação: Neo4j com commit/rollback",
+          "Curadoria: curationService.routeForCuration",
+          "Response: webSourceId, domain, pageCount, pages, relationships"
+        ],
+        processing: [
+          "Para cada página: scrapePage → validate → createWebPage → chunk → link",
+          "Para cada PDF: fetchPdfBuffer → extract → createWebPage(isPdf=true) → chunk",
+          "Chunks com metadata: containsTable, keyTopics, estimatedImportance, reasoning",
+          "Atualização: WebPage.chunkCount, WebSource.status='completed'",
+          "Curadoria: curationStatus='approved' se individual senão 'pending'"
+        ]
+      }
     }
   ]
 
@@ -546,7 +1023,7 @@ export function PipelineFlows() {
 
       {/* Cards de seleção */}
       {!selectedFlow && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {flows.map((flow) => {
             const Icon = flow.icon
             return (
@@ -681,7 +1158,7 @@ export function PipelineFlows() {
                     Nós Criados
                   </h4>
                   <ul className="space-y-1 text-muted-foreground">
-                    {currentFlow.details.nodes?.map((node, idx) => (
+                    {currentFlow.details.nodes?.map((node: any, idx: number) => (
                       <li key={idx}>
                         • <code className="text-xs bg-muted px-1 py-0.5 rounded">{node.code}</code> - {node.desc}
                       </li>
@@ -695,7 +1172,7 @@ export function PipelineFlows() {
                     Relacionamentos
                   </h4>
                   <ul className="space-y-1 text-muted-foreground">
-                    {currentFlow.details.relationships?.map((rel, idx) => (
+                    {currentFlow.details.relationships?.map((rel: any, idx: number) => (
                       <li key={idx}>
                         • <code className="text-xs bg-muted px-1 py-0.5 rounded">{rel.code}</code> - {rel.desc}
                       </li>
@@ -801,7 +1278,7 @@ export function PipelineFlows() {
                       Fases do Pipeline
                     </h4>
                     <ol className="space-y-1 text-muted-foreground list-decimal list-inside text-xs">
-                      {currentFlow.details.phases?.map((phase, idx) => (
+                      {currentFlow.details.phases?.map((phase: string, idx: number) => (
                         <li key={idx}>{phase}</li>
                       ))}
                     </ol>
@@ -813,7 +1290,7 @@ export function PipelineFlows() {
                       Tipos de Busca
                     </h4>
                     <ul className="space-y-1 text-muted-foreground text-xs">
-                      {currentFlow.details.searchTypes?.map((type, idx) => (
+                      {currentFlow.details.searchTypes?.map((type: string, idx: number) => (
                         <li key={idx}>• {type}</li>
                       ))}
                     </ul>
@@ -827,7 +1304,7 @@ export function PipelineFlows() {
                       Nós Criados
                     </h4>
                     <ul className="space-y-1 text-muted-foreground">
-                      {currentFlow.details.nodes?.map((node, idx) => (
+                      {currentFlow.details.nodes?.map((node: any, idx: number) => (
                         <li key={idx}>
                           • <code className="text-xs bg-muted px-1 py-0.5 rounded">{node.code}</code> - {node.desc}
                         </li>
@@ -841,7 +1318,7 @@ export function PipelineFlows() {
                       Relacionamentos
                     </h4>
                     <ul className="space-y-1 text-muted-foreground">
-                      {currentFlow.details.relationships?.map((rel, idx) => (
+                      {currentFlow.details.relationships?.map((rel: any, idx: number) => (
                         <li key={idx}>
                           • <code className="text-xs bg-muted px-1 py-0.5 rounded">{rel.code}</code> - {rel.desc}
                         </li>
@@ -858,6 +1335,165 @@ export function PipelineFlows() {
                       <p className="text-muted-foreground">
                         O sistema combina busca vetorial semântica com busca full-text tradicional para recuperação híbrida. 
                         Chunks são embedados com Azure OpenAI e armazenados no Neo4j Vector Index para busca por similaridade.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {currentFlow.id === "document-ingestion" && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="rounded-lg border border-border p-4">
+                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                      <GitBranch className="h-4 w-4 text-primary" />
+                      Fases do Pipeline
+                    </h4>
+                    <ol className="space-y-1 text-muted-foreground list-decimal list-inside text-xs">
+                      {currentFlow.details.phases?.map((phase: string, idx: number) => (
+                        <li key={idx}>{phase}</li>
+                      ))}
+                    </ol>
+                  </div>
+
+                  <div className="rounded-lg border border-border p-4">
+                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                      <GitBranch className="h-4 w-4 text-primary" />
+                      Validação de Entidades
+                    </h4>
+                    <ul className="space-y-1 text-muted-foreground text-xs">
+                      {'validation' in currentFlow.details && Array.isArray(currentFlow.details.validation) && currentFlow.details.validation.map((val: string, idx: number) => (
+                        <li key={idx}>• {val}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="rounded-lg border border-border p-4">
+                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                      <GitBranch className="h-4 w-4 text-primary" />
+                      Nós Criados
+                    </h4>
+                    <ul className="space-y-1 text-muted-foreground">
+                      {currentFlow.details.nodes?.map((node: any, idx: number) => (
+                        <li key={idx}>
+                          • <code className="text-xs bg-muted px-1 py-0.5 rounded">{node.code}</code> - {node.desc}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="rounded-lg border border-border p-4">
+                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                      <GitBranch className="h-4 w-4 text-primary" />
+                      Relacionamentos
+                    </h4>
+                    <ul className="space-y-1 text-muted-foreground">
+                      {currentFlow.details.relationships?.map((rel: any, idx: number) => (
+                        <li key={idx}>
+                          • <code className="text-xs bg-muted px-1 py-0.5 rounded">{rel.code}</code> - {rel.desc}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-teal-500/20 bg-teal-500/5 p-4">
+                  <div className="flex items-start gap-2">
+                    <Info className="h-4 w-4 text-teal-500 mt-0.5" />
+                    <div className="text-sm">
+                      <p className="font-medium text-teal-700 dark:text-teal-400 mb-1">UX Otimizada</p>
+                      <p className="text-muted-foreground">
+                        Layout otimizado: Título → Projeto → Tipo visual → Upload. 
+                        Cards visuais para seleção de tipo e validação com cards coloridos por entidade.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {currentFlow.id === "website-ingestion" && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="rounded-lg border border-border p-4">
+                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                      <GitBranch className="h-4 w-4 text-primary" />
+                      Fases do Pipeline
+                    </h4>
+                    <ol className="space-y-1 text-muted-foreground list-decimal list-inside text-xs">
+                      {currentFlow.details.phases?.map((phase: string, idx: number) => (
+                        <li key={idx}>{phase}</li>
+                      ))}
+                    </ol>
+                  </div>
+
+                  <div className="rounded-lg border border-border p-4">
+                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                      <GitBranch className="h-4 w-4 text-primary" />
+                      Detalhes Técnicos
+                    </h4>
+                    <ul className="space-y-1 text-muted-foreground text-xs">
+                      {currentFlow.details.technical?.map((tech: string, idx: number) => (
+                        <li key={idx}>• {tech}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="rounded-lg border border-border p-4">
+                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                      <GitBranch className="h-4 w-4 text-primary" />
+                      Nós Criados
+                    </h4>
+                    <ul className="space-y-1 text-muted-foreground">
+                      {currentFlow.details.nodes?.map((node: any, idx: number) => (
+                        <li key={idx}>
+                          • <code className="text-xs bg-muted px-1 py-0.5 rounded">{node.code}</code> - {node.desc}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="rounded-lg border border-border p-4">
+                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                      <GitBranch className="h-4 w-4 text-primary" />
+                      Relacionamentos
+                    </h4>
+                    <ul className="space-y-1 text-muted-foreground">
+                      {currentFlow.details.relationships?.map((rel: any, idx: number) => (
+                        <li key={idx}>
+                          • <code className="text-xs bg-muted px-1 py-0.5 rounded">{rel.code}</code> - {rel.desc}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-border p-4">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <GitBranch className="h-4 w-4 text-primary" />
+                    Processamento
+                  </h4>
+                  <ul className="space-y-1 text-muted-foreground text-xs">
+                    {currentFlow.details.processing?.map((proc: string, idx: number) => (
+                      <li key={idx}>• {proc}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="rounded-lg border border-indigo-500/20 bg-indigo-500/5 p-4">
+                  <div className="flex items-start gap-2">
+                    <Info className="h-4 w-4 text-indigo-500 mt-0.5" />
+                    <div className="text-sm">
+                      <p className="font-medium text-indigo-700 dark:text-indigo-400 mb-1">Processamento Estruturado</p>
+                      <p className="text-muted-foreground">
+                        <strong>NÃO há extração de entidades de sites</strong>. Apenas chunking fixo e armazenamento estruturado.
+                        Processamento de páginas HTML e PDFs com validação de conteúdo (mínimo 50 caracteres).
+                        Limite de 10 PDFs por ingestão e curadoria automática baseada na visibilidade.
                       </p>
                     </div>
                   </div>

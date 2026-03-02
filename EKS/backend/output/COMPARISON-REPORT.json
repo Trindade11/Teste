@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-02-28T23:32:54.576Z",
+  "original": {
+    "characters": 8688,
+    "words": 1220,
+    "lines": 293,
+    "encodingIssues": false
+  },
+  "reconstructed": {
+    "characters": 8559,
+    "words": 1220,
+    "lines": 59,
+    "encodingIssues": false
+  },
+  "difference": {
+    "characters": -129,
+    "words": 0,
+    "similarity": 99
+  }
+}

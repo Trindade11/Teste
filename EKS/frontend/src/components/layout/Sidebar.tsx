@@ -7,7 +7,7 @@ import { ONBOARDING_STEPS, useOnboardingStore } from "@/store/onboarding-store";
 import { useInstitutionConfig } from "@/hooks/useInstitutionConfig";
 import { cn } from "@/lib/utils";
 
-export type ViewType = "onboarding" | "processes" | "process_mapping" | "curator_processes" | "knowledge" | "navigator" | "navigator_v2" | "validation";
+export type ViewType = "onboarding" | "processes" | "process_mapping" | "curator_processes" | "knowledge" | "navigator" | "navigator_v2" | "validation" | "agent_workspace";
 
 interface SidebarProps {
   onClose?: () => void;
@@ -16,6 +16,7 @@ interface SidebarProps {
 }
 
 const MENU_ITEMS: { id: ViewType; label: string; icon: React.ReactNode; badge?: number; description?: string }[] = [
+  { id: "agent_workspace", label: "Agent Workspace", icon: <Zap className="w-4 h-4" />, description: "Chat IDE com agentes IA" },
   { id: "navigator", label: "Visão Estratégica", icon: <Network className="w-4 h-4" /> },
   { id: "navigator_v2", label: "Cockpit Executivo", icon: <Network className="w-4 h-4" /> },
   { id: "processes", label: "Processos", icon: <GitBranch className="w-4 h-4" />, description: "Estrutura organizacional" },
@@ -122,6 +123,7 @@ export function Sidebar({ onClose, currentView = "processes", onViewChange }: Si
               key={item.id}
               onClick={() => {
                 if (isDisabled) return;
+                console.log('🖱️ [Sidebar] Clique no menu:', item.id);
                 onViewChange?.(item.id);
               }}
               disabled={isDisabled}

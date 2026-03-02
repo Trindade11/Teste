@@ -40,6 +40,7 @@ interface DynamicTaxonomyLabel {
   empty: boolean;
   undeclared: boolean;
   children: DynamicTaxonomyLabel[];
+  properties: Array<{ name: string; types: string[] }>;
 }
 
 interface DynamicTaxonomyCategory {
@@ -423,6 +424,28 @@ router.get('/taxonomy/dynamic', async (req: Request, res: Response) => {
     const metaLabels = new Set(['SchemaLabel', 'SchemaRel', 'SchemaProp', 'QueryProfile', 'AccessPolicy', 'CypherTemplate', 'SchemaVersion']);
     const dataLabels = actualLabels.filter(l => !metaLabels.has(l.label));
 
+    // 2.5 Get properties for all labels
+    const propertiesResult = await session.run(`
+      CALL db.schema.nodeTypeProperties() 
+      YIELD nodeLabels, propertyName, propertyTypes
+      RETURN nodeLabels, propertyName, propertyTypes
+    `);
+
+    const labelProperties = new Map<string, Array<{ name: string; types: string[] }>>();
+    
+    propertiesResult.records.forEach(r => {
+      const labels = r.get('nodeLabels') as string[];
+      const name = r.get('propertyName') as string;
+      const types = r.get('propertyTypes') as string[];
+      
+      labels.forEach(label => {
+        if (!labelProperties.has(label)) {
+          labelProperties.set(label, []);
+        }
+        labelProperties.get(label)?.push({ name, types });
+      });
+    });
+
     // ── 3. Build hierarchical relationships map ──
     const hierarchicalRels = ['HAS_DEPARTMENT', 'HAS_AREA', 'PART_OF', 'BELONGS_TO_OBJECTIVE', 'HAS_CHUNK', 'HAS_TASK'];
     const hierarchyMap = new Map<string, Array<{ parent: string; child: string; relType: string }>>();
@@ -520,6 +543,9 @@ router.get('/taxonomy/dynamic', async (req: Request, res: Response) => {
         }
       }
 
+      // Get properties for this label
+      const props = labelProperties.get(labelName) || [];
+
       return {
         label: labelName,
         count,
@@ -527,6 +553,7 @@ router.get('/taxonomy/dynamic', async (req: Request, res: Response) => {
         empty: isEmpty,
         undeclared: isUndeclared,
         children,
+        properties: props,
       };
     };
 

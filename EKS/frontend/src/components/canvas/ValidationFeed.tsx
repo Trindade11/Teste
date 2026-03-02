@@ -47,11 +47,11 @@ interface ValidationItem {
   createdAt: string;
   source: string;
   sourceType: SourceType;
-  meetingId: string;
-  meetingTitle: string;
-  meetingOrganizer: string;
-  meetingOrganizerId: string | null;
-  meetingDate: string;
+  meetingId?: string;
+  meetingTitle?: string;
+  meetingOrganizer?: string;
+  meetingOrganizerId?: string | null;
+  meetingDate?: string;
   assigneeId: string | null;
   assigneeName: string | null;
   relType: string | null;
@@ -115,7 +115,7 @@ function formatDateBR(dateStr: string | null | undefined): string {
 
 // ─── Component ───────────────────────────────────────────────────────
 
-export function ValidationFeed() {
+export function ValidationFeed({ documentId }: { documentId?: string } = {}) {
   // ─── Auth ─────────────────────────────────────────────────────
   const currentUser = useAuthStore((state) => state.user);
 
@@ -142,7 +142,9 @@ export function ValidationFeed() {
   const loadValidations = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await api.getValidations({ status: statusFilter });
+      const response = documentId
+        ? await api.getDocumentValidations(documentId, { status: statusFilter })
+        : await api.getValidations({ status: statusFilter });
       if (response.success && response.data) {
         const items = (response.data as ValidationItem[])
           .filter(item => ['task', 'risk', 'decision', 'insight', 'externalparticipant'].includes(item.entityType));
@@ -161,7 +163,7 @@ export function ValidationFeed() {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter]);
+  }, [statusFilter, documentId]);
 
   const loadOrgUsers = useCallback(async () => {
     try {
@@ -213,6 +215,14 @@ export function ValidationFeed() {
     if (!currentUser) return allValidations;
 
     return allValidations.filter(item => {
+      // For documents, show everything to the uploader; otherwise fallback to assignment
+      if (item.sourceType === 'document') {
+        const isUploader = !!item.meetingOrganizerId && item.meetingOrganizerId === currentUser.userId;
+        if (isUploader) return true;
+        if (item.assigneeId && item.assigneeId === currentUser.userId) return true;
+        return false;
+      }
+
       // Check if current user is the meeting organizer
       const isOrganizer =
         (item.meetingOrganizerId && item.meetingOrganizerId === currentUser.userId) ||
@@ -331,7 +341,7 @@ export function ValidationFeed() {
     const draft = getDraft(item.id);
     if (draft.assigneeName) return draft.assigneeName as string;
     if (item.assigneeName) return item.assigneeName;
-    if (item.meetingOrganizer) return `${item.meetingOrganizer} (organizador)`;
+    if (item.meetingOrganizer) return `${item.meetingOrganizer} (${item.sourceType === 'document' ? 'uploader' : 'organizador'})`;
     return 'Não atribuído';
   };
 
@@ -693,7 +703,7 @@ export function ValidationFeed() {
                                 )}
                                 {/* Origem: título da reunião + data */}
                                 <span className="flex items-center gap-1 ml-auto">
-                                  <Mic className="w-3 h-3 text-purple-400" />
+                                  <SourceIcon className={cn("w-3 h-3", sourceConfig.color)} />
                                   <span className="truncate max-w-[200px]">
                                     {item.meetingTitle || item.source}
                                   </span>
@@ -747,21 +757,49 @@ export function ValidationFeed() {
                           {isExpanded && (
                             <div className="px-4 pb-4 pt-0 border-t border-border bg-muted/30">
                               <div className="pt-4 space-y-4">
-                                {/* Meeting origin info */}
-                                <div className="flex items-center gap-3 p-2 rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 text-xs">
-                                  <Mic className="w-4 h-4 text-purple-500 shrink-0" />
+                                {/* Origin info */}
+                                <div className={cn(
+                                  "flex items-center gap-3 p-2 rounded-lg border text-xs",
+                                  item.sourceType === 'meeting'
+                                    ? "bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800"
+                                    : item.sourceType === 'document'
+                                      ? "bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800"
+                                      : "bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800"
+                                )}>
+                                  <SourceIcon className={cn("w-4 h-4 shrink-0", sourceConfig.color)} />
                                   <div className="flex-1">
-                                    <span className="font-medium text-purple-700 dark:text-purple-300">
+                                    <span className={cn(
+                                      "font-medium",
+                                      item.sourceType === 'meeting'
+                                        ? "text-purple-700 dark:text-purple-300"
+                                        : item.sourceType === 'document'
+                                          ? "text-blue-700 dark:text-blue-300"
+                                          : "text-green-700 dark:text-green-300"
+                                    )}>
                                       Origem: {item.meetingTitle || item.source}
                                     </span>
                                     {item.meetingDate && (
-                                      <span className="ml-2 text-purple-600 dark:text-purple-400">
-                                        — Reunião em {formatDateBR(item.meetingDate)}
+                                      <span className={cn(
+                                        "ml-2",
+                                        item.sourceType === 'meeting'
+                                          ? "text-purple-600 dark:text-purple-400"
+                                          : item.sourceType === 'document'
+                                            ? "text-blue-600 dark:text-blue-400"
+                                            : "text-green-600 dark:text-green-400"
+                                      )}>
+                                        — {item.sourceType === 'meeting' ? 'Reunião em' : item.sourceType === 'document' ? 'Documento em' : 'Chat em'} {formatDateBR(item.meetingDate)}
                                       </span>
                                     )}
                                     {item.meetingOrganizer && (
-                                      <span className="ml-2 text-purple-600/70 dark:text-purple-400/70">
-                                        (org: {item.meetingOrganizer})
+                                      <span className={cn(
+                                        "ml-2 opacity-80",
+                                        item.sourceType === 'meeting'
+                                          ? "text-purple-600 dark:text-purple-400"
+                                          : item.sourceType === 'document'
+                                            ? "text-blue-600 dark:text-blue-400"
+                                            : "text-green-600 dark:text-green-400"
+                                      )}>
+                                        (por: {item.meetingOrganizer})
                                       </span>
                                     )}
                                   </div>

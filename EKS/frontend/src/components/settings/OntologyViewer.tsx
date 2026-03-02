@@ -70,6 +70,7 @@ interface DynamicTaxonomyLabel {
   empty: boolean;
   undeclared: boolean;
   children: DynamicTaxonomyLabel[];
+  properties?: Array<{ name: string; types: string[] }>;
 }
 
 interface DynamicTaxonomyCategory {
@@ -430,22 +431,26 @@ export function OntologyViewer() {
 
   const renderDynamicLabel = (label: DynamicTaxonomyLabel, depth: number = 0): JSX.Element => {
     const hasChildren = label.children && label.children.length > 0;
-    const isExpanded = expandedNodes.has(`${label.label}-${depth}`);
+    const hasProperties = label.properties && label.properties.length > 0;
+    const canExpand = hasChildren || hasProperties;
+    
+    const nodeKey = `${label.label}-${depth}`;
+    const isExpanded = expandedNodes.has(nodeKey);
     const Icon = getNodeIcon(label.label);
     const colorClass = getNodeColor(label.label);
 
     return (
-      <div key={`${label.label}-${depth}`} className="select-none">
+      <div key={nodeKey} className="select-none">
         <div
           className={cn(
             "flex items-center gap-2 py-1.5 px-2 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors",
             label.empty && "opacity-50",
-            label.undeclared && "border-l-2 border-orange-500"
+            label.undeclared && "border-l-2 border-orange-500 bg-orange-50/10"
           )}
           style={{ marginLeft: depth * 16 }}
-          onClick={() => hasChildren && toggleNode(`${label.label}-${depth}`)}
+          onClick={() => canExpand && toggleNode(nodeKey)}
         >
-          {hasChildren ? (
+          {canExpand ? (
             isExpanded ? (
               <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             ) : (
@@ -464,13 +469,45 @@ export function OntologyViewer() {
           <span className="text-xs text-muted-foreground ml-auto flex items-center gap-2">
             {label.count}
             {label.empty && <span className="text-orange-500">vazio</span>}
-            {label.undeclared && <span className="text-orange-500">não declarado</span>}
+            {label.undeclared && (
+              <div className="group relative flex items-center">
+                <span className="text-orange-500 cursor-help border-b border-dotted border-orange-500">não declarado</span>
+                <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block w-64 p-2 bg-popover text-popover-foreground text-xs rounded shadow-lg border z-50">
+                  Este tipo de nó existe no banco de dados ({label.count} instâncias) mas não foi formalmente definido no Meta-Grafo do projeto.
+                </div>
+              </div>
+            )}
           </span>
         </div>
 
-        {hasChildren && isExpanded && (
+        {isExpanded && (
           <div className="border-l border-border ml-4">
-            {label.children.map((child) => renderDynamicLabel(child, depth + 1))}
+            {/* Metadata / Schema Properties Section */}
+            {hasProperties && (
+              <div className="ml-4 my-2 p-3 bg-muted/30 rounded-md border border-border/50 text-xs">
+                <div className="flex items-center gap-2 mb-2 text-muted-foreground font-medium">
+                  <Database className="h-3 w-3" />
+                  Metadados do Schema (Propriedades)
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
+                  {label.properties!.map((prop) => (
+                    <div key={prop.name} className="flex items-center gap-2 py-0.5 border-b border-border/30 last:border-0">
+                      <span className="font-mono text-primary font-medium">{prop.name}</span>
+                      <span className="text-muted-foreground text-[10px] uppercase px-1.5 py-0.5 bg-background rounded border border-border">
+                        {prop.types.join(', ')}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Children Nodes */}
+            {hasChildren && (
+              <div className="mt-1">
+                {label.children.map((child) => renderDynamicLabel(child, depth + 1))}
+              </div>
+            )}
           </div>
         )}
       </div>

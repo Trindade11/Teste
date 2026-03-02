@@ -14,6 +14,10 @@ const envSchema = z.object({
   MAX_FILE_SIZE_MB: z.string().transform(Number).default('10'),
   UPLOAD_DIR: z.string().default('./uploads'),
 
+  // Web Ingestion Limits
+  MAX_WEB_SIZE_MB: z.string().transform(Number).default('30'),
+  MAX_WEB_PAGES: z.string().transform(Number).default('100'),
+
   // Neo4j
   NEO4J_URI: z.string().min(1, 'NEO4J_URI is required'),
   NEO4J_USERNAME: z.string().min(1, 'NEO4J_USERNAME is required'),
